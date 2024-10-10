@@ -38,7 +38,7 @@ Content-Type: application/json;charset=UTF-8
 **Response Body 예시**
 
 ```json
-HTTP/1.1 200 OK
+HTTP/1.1 201 CREATED
 Content-Type: application/json;charset=UTF-8
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -204,9 +204,9 @@ HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
 {
     "seats": [
-        {"seat_number": "A1", "status": "available"},
-        {"seat_number": "A2", "status": "available"},
-        {"seat_number": "A3", "status": "reserved"}
+        {"seatNumber": "A1", "status": "available"},
+        {"seatNumber": "A2", "status": "available"},
+        {"seatNumber": "A3", "status": "reserved"}
     ]
 }
 ```
@@ -268,7 +268,7 @@ Content-Type: application/json;charset=UTF-8
 **Response Body 예시**
 
 ```json
-HTTP/1.1 200 OK
+HTTP/1.1 201 CREATED
 Content-Type: application/json;charset=UTF-8
 {
     "status": "success"
@@ -331,7 +331,7 @@ Content-Type: application/json;charset=UTF-8
 **Response Body 예시**
 
 ```json
-HTTP/1.1 200 OK
+HTTP/1.1 201 CREATED
 Content-Type: application/json;charset=UTF-8
 {
     "status": "success"
@@ -429,7 +429,7 @@ POST /api/payment
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json;charset=UTF-8
 {
-    "user_id": 1,
+    "userId": 1,
     "amount": 10000
 }
 ```
@@ -443,7 +443,7 @@ Content-Type: application/json;charset=UTF-8
 **Response Body 예시**
 
 ```json
-HTTP/1.1 200 OK
+HTTP/1.1 201 CREATED
 Content-Type: application/json;charset=UTF-8
 {
     "status": "success"
@@ -477,7 +477,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/users/1/payments
+GET /api/user/1/payments
 ```
 
 **Response**
