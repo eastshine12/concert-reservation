@@ -6,3 +6,5 @@
 <br/>
 
 ## 문서
+
+- [시퀀스 다이어그램](docs/sequence_diagram.md)
