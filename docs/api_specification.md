@@ -32,7 +32,7 @@ Content-Type: application/json;charset=UTF-8
 
 | 이름 | 타입 | 설명 |
 | --- | --- | --- |
-| token | String | 콘서트 일정 ID |
+| token | String | 토큰 (UUID) |
 | status | String | 응답 상태 ("issued", "existing") |
 
 **Response Body 예시**
