@@ -1,37 +1,47 @@
 package hhplus.concertreservation.interfaces.api.concert
 
 import hhplus.concertreservation.interfaces.api.concert.dto.req.ReserveSeatRequest
-import hhplus.concertreservation.interfaces.api.concert.dto.res.AvailableDatesResponse
-import hhplus.concertreservation.interfaces.api.concert.dto.res.AvailableSeatsResponse
-import hhplus.concertreservation.interfaces.api.concert.dto.res.ReserveSeatResponse
-import hhplus.concertreservation.interfaces.api.concert.dto.res.SeatResponse
+import hhplus.concertreservation.interfaces.api.concert.dto.res.*
 import org.springframework.http.ResponseEntity
+import org.springframework.scheduling.annotation.Schedules
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/concert")
+@RequestMapping("/api/concerts")
 class ConcertController {
 
-    @GetMapping("/{concertId}/available")
+    @GetMapping("/{concertId}")
     fun getAvailableDates(
+        @RequestHeader("Queue-Token") token: String,
         @PathVariable concertId: Int,
-        @RequestHeader("Queue-Token") token: String
-    ): ResponseEntity<AvailableDatesResponse> {
-        val availableDates = listOf(
-            "2024-10-05T19:00:00",
-            "2024-10-06T19:00:00",
-            "2024-10-07T19:00:00"
-        )
+    ): ResponseEntity<ConcertResponse> {
         return ResponseEntity.ok(
-            AvailableDatesResponse(dates = availableDates)
+            ConcertResponse(
+                concertId = 1L,
+                title = "BTS 월드 투어",
+                schedules = listOf(
+                    SchedulesResponse(
+                        scheduleId = 1L,
+                        startTime = "2024-10-01 19:00:00",
+                        totalSeats = 50,
+                        availableSeats = 5,
+                    ),
+                    SchedulesResponse(
+                        scheduleId = 2L,
+                        startTime = "2024-10-02 19:00:00",
+                        totalSeats = 50,
+                        availableSeats = 10,
+                    ),
+                )
+            )
         )
     }
 
-    @GetMapping("/{concertId}/schedule/{scheduleId}/available")
+    @GetMapping("/{concertId}/schedules/{scheduleId}/seats")
     fun getAvailableSeats(
+        @RequestHeader("Queue-Token") token: String,
         @PathVariable concertId: Int,
         @PathVariable scheduleId: Int,
-        @RequestHeader("Queue-Token") token: String
     ): ResponseEntity<AvailableSeatsResponse> {
         val availableSeats = listOf(
             SeatResponse(seatNumber = "A1", status = "available"),
@@ -41,12 +51,10 @@ class ConcertController {
         return ResponseEntity.ok(AvailableSeatsResponse(seats = availableSeats))
     }
 
-    @PostMapping("/{concertId}/schedule/{scheduleId}/reserve")
+    @PostMapping("/reservations")
     fun reserveSeat(
-        @PathVariable concertId: Int,
-        @PathVariable scheduleId: Int,
         @RequestHeader("Queue-Token") token: String,
-        @RequestBody request: ReserveSeatRequest
+        @RequestBody request: ReserveSeatRequest,
     ): ResponseEntity<ReserveSeatResponse> {
         return ResponseEntity.ok(
             ReserveSeatResponse(status = "success")

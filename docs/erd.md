@@ -73,7 +73,6 @@ erDiagram
 
     TOKEN_QUEUE {
         INT id PK "ID"
-        INT user_id FK "유저 ID"
         INT schedule_id FK "일정 ID"
         VARCHAR token "토큰"
         VARCHAR status "상태 (대기, 활성, 만료)"
@@ -86,7 +85,6 @@ erDiagram
     USER ||--o{ POINT_HISTORY : ""
     USER ||--o{ RESERVATION : ""
     USER ||--o{ PAYMENT : ""
-    USER ||--o{ TOKEN_QUEUE : ""
 
     CONCERT ||--o{ CONCERT_SCHEDULE : ""
     CONCERT_SCHEDULE ||--o{ SEAT : ""

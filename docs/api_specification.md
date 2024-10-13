@@ -2,11 +2,11 @@
 
 <br/>
 
-### 1. **유저 토큰 발급 API**
+### 1. **유저 대기열 토큰 발급 API**
 
 - **설명**: 유저가 콘서트 예약 대기열 진입에 대한 토큰을 발급받는 API
 - **HTTP Method**: `POST`
-- **URL**: `/api/token`
+- **URL**: `/api/waiting-queues`
 
 **Request**
 
@@ -19,7 +19,7 @@
 **Request 예시**
 
 ```json
-POST /api/token
+POST /api/waiting-queues
 Content-Type: application/json;charset=UTF-8
 {
     "concertId": 2,
@@ -63,7 +63,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저가 자신의 대기열 상태를 조회하는 API
 - **HTTP Method**: `GET`
-- **URL**: `/api/queue`
+- **URL**: `/api/waiting-queues`
 
 **Request Header**
 
@@ -74,7 +74,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/queue
+GET /api/waiting-queues
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -112,7 +112,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저가 특정 콘서트에 대해 예약 가능한 날짜 목록을 조회하는 API
 - **HTTP Method**: `GET`
-- **URL**: `/api/concert/{concertId}/available`
+- **URL**: `/api/concerts/{concertId}`
 
 **Request Header**
 
@@ -129,15 +129,20 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/concert/2/available
+GET /api/concerts/2
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response**
 
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
-| dates | List | 예약 가능한 날짜 목록 |
+| 이름             | 타입            | 설명           |
+|----------------|---------------|--------------|
+| concertId      | Integer       | 콘서트 ID       |
+| title          | String        | 콘서트 제목       |
+| schedules      | List          | 콘서트 스케줄 List |
+| startTime      | LocalDateTime | 콘서트 일시       |
+| totalSeats     | Integer       | 총 좌석수        |
+| availableSeats | Integer       | 예약 가능 좌석수    |
 
 **Response Body 예시**
 
@@ -145,10 +150,21 @@ Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 HTTP/1.1 200 OK
 Content-Type: application/json;charset=UTF-8
 {
-    "dates": [
-        "2024-10-05T19:00:00",
-        "2024-10-06T19:00:00",
-        "2024-10-07T19:00:00"
+    "concertId": 1,
+    "title": "BTS 월드 투어",
+    "schedules": [
+        {
+            "scheduleId": 1,
+            "startTime": "2024-10-01 19:00:00",
+            "totalSeats": 50,
+            "availableSeats": 5
+        },
+        {
+            "scheduleId": 2,
+            "startTime": "2024-10-02 19:00:00",
+            "totalSeats": 50,
+            "availableSeats": 10
+        }
     ]
 }
 ```
@@ -169,7 +185,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저가 특정 콘서트의 예약 가능한 해당 날짜에 대해 예약 가능한 좌석 목록을 조회하는 API
 - **HTTP Method**: `GET`
-- **URL**: `/api/concert/{concertId}/schedule/{scheduleId}/available`
+- **URL**: `/api/concerts/{concertId}/schedules/{scheduleId}/seats`
 
 **Request Header**
 
@@ -187,7 +203,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/concert/2/schedule/3/available
+GET /api/concerts/2/schedules/3/seats
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -195,7 +211,7 @@ Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 | 이름 | 타입 | 설명 |
 | --- | --- | --- |
-| seats | List | 예약 가능한 좌석 목록 |
+| seats | List | 좌석 목록 |
 
 **Response Body 예시**
 
@@ -227,7 +243,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저가 콘서트의 예약 가능한 좌석을 예약하는 API
 - **HTTP Method**: `POST`
-- **URL**: `/api/concert/{concertId}/schedule/{scheduleId}/reserve`
+- **URL**: `/api/concerts/reservations`
 
 **Request Header**
 
@@ -237,24 +253,21 @@ Content-Type: application/json;charset=UTF-8
 
 **Request Body**
 
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
-| seatId | Integer | 예약할 좌석 ID |
-
-**Path Parameters**
-
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
-| concertId | Integer | 콘서트 ID |
+| 이름 | 타입 | 설명        |
+| --- | --- |-----------|
+| concertId | Integer | 콘서트 ID    |
 | scheduleId | Integer | 콘서트 일정 ID |
+| seatId | Integer | 예약할 좌석 ID |
 
 **Request 예시**
 
 ```json
-POST /api/concert/2/schedule/3/reserve
+POST /api/concerts/reservations
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json;charset=UTF-8
 {
+    "concertId": 1,
+    "scheduleId": 5,
     "seatId": 7
 }
 ```
@@ -290,8 +303,8 @@ Content-Type: application/json;charset=UTF-8
 ### 6. **잔액 충전 API**
 
 - **설명**: 유저가 잔액을 충전하는 API
-- **HTTP Method**: `POST`
-- **URL**: `/api/user/{userId}/charge`
+- **HTTP Method**: `PATCH`
+- **URL**: `/api/users/{userId}/balance`
 
 **Request Header**
 
@@ -314,7 +327,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-POST /api/user/1/charge
+PATCH /api/users/1/balance
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json;charset=UTF-8
 {
@@ -354,7 +367,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저의 현재 잔액을 조회하는 API
 - **HTTP Method**: `GET`
-- **URL**: `/api/user/{userId}/balance`
+- **URL**: `/api/users/{userId}/balance`
 
 **Request Header**
 
@@ -371,7 +384,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/user/1/balance
+GET /api/users/1/balance
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
@@ -407,7 +420,7 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저가 예약한 좌석에 대해 결제를 진행하는 API
 - **HTTP Method**: `POST`
-- **URL**: `/api/payment`
+- **URL**: `/api/payments`
 
 **Request Header**
 
@@ -417,28 +430,30 @@ Content-Type: application/json;charset=UTF-8
 
 **Request Body**
 
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
+| 이름 | 타입 | 설명    |
+| --- | --- |-------|
 | userId | Integer | 유저 ID |
-| amount | Integer | 결제 금액 |
+| reservationId | Integer | 예약 ID |
 
 **Request 예시**
 
 ```json
-POST /api/payment
+POST /api/payments
 Queue-Token: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json;charset=UTF-8
 {
     "userId": 1,
-    "amount": 10000
+    "reservationId": 2
 }
 ```
 
 **Response**
 
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
-| status | Integer | 결제 처리 결과 (예: "success", “payment_failed”, “insufficient_balance”) |
+| 이름        | 타입      | 설명                                                                |
+|-----------|---------|-------------------------------------------------------------------|
+| paymentId | Integer | 결제 ID                                                             |
+| amount    | Integer | 결제 금액                                                             |
+| status    | String  | 결제 처리 결과 (예: "success", “payment_failed”, “insufficient_balance”) |
 
 **Response Body 예시**
 
@@ -446,6 +461,8 @@ Content-Type: application/json;charset=UTF-8
 HTTP/1.1 201 CREATED
 Content-Type: application/json;charset=UTF-8
 {
+    "paymentId": 1,
+    "amount": 70000,
     "status": "success"
 }
 ```
@@ -466,9 +483,9 @@ Content-Type: application/json;charset=UTF-8
 
 - **설명**: 유저의 결제 내역을 조회하는 API
 - **HTTP Method**: `GET`
-- **URL**: `/api/user/{user_id}/payments`
+- **URL**: `/api/payments`
 
-**Path Parameters**
+**Request Parameters**
 
 | 이름 | 타입 | 설명 |
 | --- | --- | --- |
@@ -477,7 +494,7 @@ Content-Type: application/json;charset=UTF-8
 **Request 예시**
 
 ```json
-GET /api/user/1/payments
+GET /api/payments
 ```
 
 **Response**

@@ -1,4 +1,4 @@
-package hhplus.concertreservation.interfaces.api.user.dto.res
+package hhplus.concertreservation.interfaces.api.payment.dto.res
 
 data class PaymentHistoryResponse(
     val payments: List<PaymentDetail>

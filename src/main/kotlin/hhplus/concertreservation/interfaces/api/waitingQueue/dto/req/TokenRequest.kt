@@ -1,4 +1,4 @@
-package hhplus.concertreservation.interfaces.api.token.dto.req
+package hhplus.concertreservation.interfaces.api.waitingQueue.dto.req
 
 data class TokenRequest(
     val concertId: Long,

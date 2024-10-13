@@ -1,4 +1,4 @@
-package hhplus.concertreservation.interfaces.api.queue.dto.res
+package hhplus.concertreservation.interfaces.api.waitingQueue.dto.res
 
 data class QueueResponse(
     val status: String,
