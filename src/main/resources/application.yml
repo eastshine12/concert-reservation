@@ -1,3 +1,39 @@
 spring:
   application:
     name: concert-reservation
+  h2:
+    console:
+      enabled: true
+    datasource:
+      url: jdbc:h2:mem:concert
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+    jpa:
+      hibernate:
+        ddl-auto: create
+      show_sql: true
+      properties:
+        hibernate:
+          format_sql: true
+          use_sql_comments: true
+          globally_quoted_identifiers: true
+          globally_quoted_identifiers_skip_column_definitions: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+      hibernate.type:
+        descriptor.sql.BasicBinder: trace
+
+reservation:
+  expireMinutes: 5 # 임시배정 유효 시간(분)
+  expireCheckRate: 60000 # 만료 체크 주기(ms)
+
+waiting-queue:
+  activateRate: 60000 # 대기열 활성화 체크 주기(ms)
+  expireCheckRate: 60000 # 만료 체크 주기(ms)
+  maxActiveUsers: 10 # 활성화할 최대 유저 수
+  expireMinutes: 10 # 대기열 유효 시간(분)

@@ -58,5 +58,69 @@ hhplus
 - **Build Tool**: Gradle
 - **Test Framework**: JUnit 5
 
+<br/>
+
+## Swagger API 명세서
+
+### 전체
+
+---
+
+![swagger-full.png](src/main/resources/images/swagger/swagger-full.png)
+
+<br/>
+
+### 상세
+
+---
+
+<details>
+<summary>콘서트 API</summary>
+
+![swagger-concert-1.png](src/main/resources/images/swagger/swagger-concert-1.png)
+![swagger-concert-2.png](src/main/resources/images/swagger/swagger-concert-2.png)
+![swagger-concert-3.png](src/main/resources/images/swagger/swagger-concert-3.png)
+![swagger-concert-4.png](src/main/resources/images/swagger/swagger-concert-4.png)
+![swagger-concert-5.png](src/main/resources/images/swagger/swagger-concert-5.png)
+![swagger-concert-6.png](src/main/resources/images/swagger/swagger-concert-6.png)
+
+</details>
+
+---
+
+<details>
+<summary>유저 API</summary>
+
+![swagger-user-1.png](src/main/resources/images/swagger/swagger-user-1.png)
+![swagger-user-2.png](src/main/resources/images/swagger/swagger-user-2.png)
+![swagger-user-3.png](src/main/resources/images/swagger/swagger-user-3.png)
+![swagger-user-4.png](src/main/resources/images/swagger/swagger-user-4.png)
+
+</details>
+
+---
+
+<details>
+<summary>대기열 API</summary>
+
+![swagger-queue-1.png](src/main/resources/images/swagger/swagger-queue-1.png)
+![swagger-queue-2.png](src/main/resources/images/swagger/swagger-queue-2.png)
+![swagger-queue-3.png](src/main/resources/images/swagger/swagger-queue-3.png)
+![swagger-queue-4.png](src/main/resources/images/swagger/swagger-queue-4.png)
+
+</details>
+
+---
+
+<details>
+<summary>결제 API</summary>
+
+![swagger-payment-1.png](src/main/resources/images/swagger/swagger-payment-1.png)
+![swagger-payment-2.png](src/main/resources/images/swagger/swagger-payment-2.png)
+![swagger-payment-3.png](src/main/resources/images/swagger/swagger-payment-3.png)
+![swagger-payment-4.png](src/main/resources/images/swagger/swagger-payment-4.png)
+
+</details>
+
 
 <br/><br/>
