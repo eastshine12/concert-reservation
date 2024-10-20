@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.payment.dto.req
 
-import hhplus.concertreservation.application.payment.dto.command.PaymentCommand
+import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
 
 data class PaymentRequest(
     val userId: Long,

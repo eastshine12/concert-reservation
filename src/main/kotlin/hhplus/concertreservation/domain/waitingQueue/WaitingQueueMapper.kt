@@ -1,7 +1,7 @@
 package hhplus.concertreservation.domain.waitingQueue
 
-import hhplus.concertreservation.application.waitingQueue.dto.info.TokenInfo
-import hhplus.concertreservation.application.waitingQueue.dto.info.WaitingQueueInfo
+import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
+import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 
 fun WaitingQueue.toTokenInfo(): TokenInfo {
     return TokenInfo(

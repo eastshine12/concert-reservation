@@ -2,10 +2,10 @@ package hhplus.concertreservation.application.concert
 
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
-import hhplus.concertreservation.application.concert.dto.command.ReservationCommand
-import hhplus.concertreservation.application.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.application.concert.dto.info.ReservationInfo
-import hhplus.concertreservation.application.concert.dto.info.SeatInfo
+import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
+import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
+import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus

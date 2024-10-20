@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.payment.dto.info
+package hhplus.concertreservation.domain.payment.dto.info
 
 import java.math.BigDecimal
 

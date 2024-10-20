@@ -2,8 +2,10 @@ package hhplus.concertreservation.domain.concert.service
 
 import hhplus.concertreservation.domain.concert.component.ConcertManager
 import hhplus.concertreservation.domain.concert.component.SeatFinder
+import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
+import hhplus.concertreservation.domain.concert.toReservationInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -15,10 +17,11 @@ class ReservationService(
     private val reservationRepository: ReservationRepository,
 ) {
     @Transactional
-    fun createPendingReservation(userId: Long, scheduleId: Long, seatId: Long): Reservation {
+    fun createPendingReservation(userId: Long, scheduleId: Long, seatId: Long): ReservationInfo {
         seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
         occupySeatWithoutLock(scheduleId)
-        return concertManager.createPendingReservation(userId, scheduleId, seatId)
+        val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
+        return reservation.toReservationInfo(success = true)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

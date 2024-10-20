@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.concert.dto.info
+package hhplus.concertreservation.domain.concert.dto.info
 
 data class ReservationInfo(
     val success: Boolean,

@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.concert.dto.res
 
-import hhplus.concertreservation.application.concert.dto.info.SeatInfo
+import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 
 data class AvailableSeatsResponse(
     val seats: List<SeatResponse>

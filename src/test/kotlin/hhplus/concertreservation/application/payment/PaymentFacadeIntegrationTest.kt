@@ -1,8 +1,8 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.payment.PaymentFacade
-import hhplus.concertreservation.application.payment.dto.command.PaymentCommand
-import hhplus.concertreservation.application.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus

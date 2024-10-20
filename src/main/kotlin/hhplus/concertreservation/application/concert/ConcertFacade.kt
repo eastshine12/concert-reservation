@@ -1,17 +1,15 @@
 package hhplus.concertreservation.application.concert
 
-import hhplus.concertreservation.application.concert.dto.command.ReservationCommand
-import hhplus.concertreservation.application.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.application.concert.dto.info.ReservationInfo
-import hhplus.concertreservation.application.concert.dto.info.SeatInfo
+import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
+import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
+import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
-import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.concert.service.ConcertService
 import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.concert.toConcertInfo
-import hhplus.concertreservation.domain.concert.toReservationInfo
 import hhplus.concertreservation.domain.concert.toSeatInfo
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.service.UserService
@@ -43,7 +41,6 @@ class ConcertFacade(
         waitingQueueService.validateTokenState(command.token, command.scheduleId)
         val user: User = userService.getByUserId(command.userId)
         val schedule: ConcertSchedule = concertService.getScheduleById(command.scheduleId)
-        val reservation: Reservation = reservationService.createPendingReservation(user.id, schedule.id, command.seatId)
-        return reservation.toReservationInfo(success = true)
+        return reservationService.createPendingReservation(user.id, schedule.id, command.seatId)
     }
 }

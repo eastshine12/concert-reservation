@@ -1,11 +1,13 @@
 package hhplus.concertreservation.domain.user.service
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.BalanceHistory
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.exception.UserNotFoundException
 import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
+import hhplus.concertreservation.domain.user.toUpdateBalanceInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -25,18 +27,15 @@ class UserService(
     }
 
     @Transactional
-    fun chargeUserBalance(userId: Long, amount: BigDecimal): BalanceHistory {
-        getByUserId(userId).charge(amount)
-        return balanceHistoryRepository.save(
-            BalanceHistory.create(userId, amount, PointTransactionType.CHARGE)
+    fun updateUserBalance(userId: Long, amount: BigDecimal, type: PointTransactionType): UpdateBalanceInfo {
+        val user: User = getByUserId(userId)
+        when (type) {
+            PointTransactionType.CHARGE -> user.charge(amount)
+            PointTransactionType.USE -> user.use(amount)
+        }
+        val balanceHistory = balanceHistoryRepository.save(
+            BalanceHistory.create(userId, amount, type)
         )
-    }
-
-    @Transactional
-    fun deductUserBalance(userId: Long, amount: BigDecimal): BalanceHistory {
-        getByUserId(userId).use(amount)
-        return balanceHistoryRepository.save(
-            BalanceHistory.create(userId, amount, PointTransactionType.USE)
-        )
+        return balanceHistory.toUpdateBalanceInfo(success = true)
     }
 }

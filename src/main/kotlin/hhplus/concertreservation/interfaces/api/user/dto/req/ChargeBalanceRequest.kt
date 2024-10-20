@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.user.dto.req
 
-import hhplus.concertreservation.application.user.dto.command.ChargeBalanceCommand
+import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import java.math.BigDecimal
 
 data class ChargeBalanceRequest(

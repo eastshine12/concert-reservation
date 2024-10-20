@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.user.dto.command
+package hhplus.concertreservation.domain.user.dto.command
 
 import java.math.BigDecimal
 

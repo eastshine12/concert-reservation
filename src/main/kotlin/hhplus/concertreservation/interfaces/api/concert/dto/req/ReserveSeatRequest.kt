@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.concert.dto.req
 
-import hhplus.concertreservation.application.concert.dto.command.ReservationCommand
+import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
 
 data class ReserveSeatRequest(
     val userId: Long,

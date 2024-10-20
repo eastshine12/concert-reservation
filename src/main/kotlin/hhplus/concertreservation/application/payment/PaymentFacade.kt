@@ -1,7 +1,8 @@
 package hhplus.concertreservation.application.payment
 
-import hhplus.concertreservation.application.payment.dto.command.PaymentCommand
-import hhplus.concertreservation.application.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.concert.service.ConcertService
@@ -28,7 +29,7 @@ class PaymentFacade(
         waitingQueueService.validateTokenState(command.token)
         val reservation: Reservation = reservationService.confirmReservation(command.reservationId)
         val seat: Seat = concertService.getSeatById(reservation.seatId)
-        userService.deductUserBalance(command.userId, seat.price)
+        userService.updateUserBalance(command.userId, seat.price, PointTransactionType.USE)
         val payment: Payment = paymentService.savePayment(command.userId, command.reservationId, seat.price)
         waitingQueueService.expireToken(command.token)
         return payment.toPaymentInfo()

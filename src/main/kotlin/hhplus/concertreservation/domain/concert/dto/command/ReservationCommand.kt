@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.concert.dto.command
+package hhplus.concertreservation.domain.concert.dto.command
 
 data class ReservationCommand(
     val token: String,

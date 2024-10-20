@@ -1,10 +1,13 @@
 package hhplus.concertreservation.domain.user.service
 
+import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.BalanceHistory
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.exception.UserNotFoundException
 import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
+import hhplus.concertreservation.domain.user.toUpdateBalanceInfo
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -14,8 +17,8 @@ import kotlin.test.assertEquals
 
 class UserServiceTest {
 
-    private val userRepository = mockk<UserRepository>()
-    private val balanceHistoryRepository = mockk<BalanceHistoryRepository>()
+    private val userRepository = mockk<UserRepository>(relaxed = true)
+    private val balanceHistoryRepository = mockk<BalanceHistoryRepository>(relaxed = true)
     private val userService = UserService(userRepository, balanceHistoryRepository)
 
     @Test
@@ -49,16 +52,19 @@ class UserServiceTest {
         // given
         val userId = 1L
         val amount = BigDecimal("50.00")
+        val type = PointTransactionType.CHARGE
         val user = mockk<User>(relaxed = true)
-        val balanceHistory = mockk<BalanceHistory>()
+        val balanceHistory = mockk<BalanceHistory>(relaxed = true)
+        val updateBalanceInfo = UpdateBalanceInfo(success = true, balanceHistoryId = 1L)
         every { userRepository.findByIdOrNull(userId) } returns user
         every { balanceHistoryRepository.save(balanceHistory) } returns balanceHistory
+        every { balanceHistory.toUpdateBalanceInfo(success = true) } returns updateBalanceInfo
 
         // when
-        val result = userService.chargeUserBalance(userId, amount)
+        val result = userService.updateUserBalance(userId, amount, type)
 
         // then
-        assertEquals(balanceHistory, result)
+        assertEquals(updateBalanceInfo, result)
     }
 
     @Test
@@ -68,13 +74,15 @@ class UserServiceTest {
         val amount = BigDecimal("30.00")
         val user = mockk<User>(relaxed = true)
         val balanceHistory = mockk<BalanceHistory>()
+        val updateBalanceInfo = mockk<UpdateBalanceInfo>()
         every { userRepository.findByIdOrNull(userId) } returns user
         every { balanceHistoryRepository.save(balanceHistory) } returns balanceHistory
+        every { balanceHistory.toUpdateBalanceInfo(success = true) } returns updateBalanceInfo
 
         // when
-        val result = userService.deductUserBalance(userId, amount)
+        val result = userService.updateUserBalance(userId, amount, PointTransactionType.USE)
 
         // then
-        assertEquals(balanceHistory, result)
+        assertEquals(updateBalanceInfo, result)
     }
 }

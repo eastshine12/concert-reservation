@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.waitingQueue.dto.res
 
-import hhplus.concertreservation.application.waitingQueue.dto.info.WaitingQueueInfo
+import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 
 data class QueueResponse(
     val status: String,

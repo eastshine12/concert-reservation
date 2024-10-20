@@ -5,6 +5,7 @@ import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
 import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
 import hhplus.concertreservation.domain.waitingQueue.exception.QueueNotFoundException
+import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -19,7 +20,7 @@ class WaitingQueueServiceTest {
     private val waitingQueueService = WaitingQueueService(tokenManager, queueManager, waitingQueueRepository)
 
     @Test
-    fun `should get or generate token`() {
+    fun `should generate token`() {
         // given
         val schedule = mockk<ConcertSchedule>(relaxed = true)
         val waitingQueue = mockk<WaitingQueue>(relaxed = true)
@@ -29,28 +30,31 @@ class WaitingQueueServiceTest {
         every { queueManager.findQueueByToken(token) } returns waitingQueue
 
         // when
-        val result = waitingQueueService.getOrGenerateToken(token, schedule)
+        val result = waitingQueueService.issueToken(token, schedule)
 
         // then
         assertEquals(waitingQueue, result)
     }
 
     @Test
-    fun `should generate token if no token is provided`() {
+    fun `should throw exception if token is already provided`() {
         // given
         val schedule = mockk<ConcertSchedule>(relaxed = true)
-        val waitingQueue = mockk<WaitingQueue>(relaxed = true)
+        val token = "existing-token"
 
-        every { tokenManager.generateToken() } returns "generated-token"
-        every { queueManager.calculateQueuePosition(schedule.id) } returns 1
-        every { queueManager.enqueue(schedule, "generated-token", 1) } returns waitingQueue
+        every { tokenManager.validateAndGetToken(token) } returns token
+        every { queueManager.findQueueByToken(token) } returns mockk {
+            every { scheduleId } returns schedule.id
+        }
 
-        // when
-        val result = waitingQueueService.getOrGenerateToken(null, schedule)
+        // when & then
+        val exception = assertThrows<TokenAlreadyExistsException> {
+            waitingQueueService.issueToken(token, schedule)
+        }
 
-        // then
-        assertEquals(waitingQueue, result)
+        assertEquals("Token already exists for this schedule.", exception.message)
     }
+
 
     @Test
     fun `must throw exception when token is invalid`() {

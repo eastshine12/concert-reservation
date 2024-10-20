@@ -1,10 +1,9 @@
 package hhplus.concertreservation.application.user
 
-import hhplus.concertreservation.application.user.dto.command.ChargeBalanceCommand
-import hhplus.concertreservation.application.user.dto.info.ChargeBalanceInfo
-import hhplus.concertreservation.domain.user.entity.BalanceHistory
+import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
+import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.service.UserService
-import hhplus.concertreservation.domain.user.toChargeBalanceInfo
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -14,10 +13,9 @@ class UserFacade(
     private val waitingQueueService: WaitingQueueService,
     private val userService: UserService,
 ) {
-    fun chargeBalance(command: ChargeBalanceCommand): ChargeBalanceInfo {
+    fun chargeBalance(command: ChargeBalanceCommand): UpdateBalanceInfo {
         waitingQueueService.validateTokenState(command.token)
-        val chargeUserBalance: BalanceHistory = userService.chargeUserBalance(command.userId, command.amount)
-        return chargeUserBalance.toChargeBalanceInfo(success = true)
+        return userService.updateUserBalance(command.userId, command.amount, PointTransactionType.CHARGE)
     }
 
     fun getUserBalance(token: String, userId: Long): BigDecimal {

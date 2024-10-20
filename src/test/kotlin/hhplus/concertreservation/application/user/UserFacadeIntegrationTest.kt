@@ -1,8 +1,8 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.user.UserFacade
-import hhplus.concertreservation.application.user.dto.command.ChargeBalanceCommand
-import hhplus.concertreservation.application.user.dto.info.ChargeBalanceInfo
+import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
+import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
@@ -85,7 +85,7 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
         )
 
         // When
-        val result: ChargeBalanceInfo = userFacade.chargeBalance(command)
+        val result: UpdateBalanceInfo = userFacade.chargeBalance(command)
 
         // Then
         assertNotNull(result)

@@ -1,6 +1,5 @@
 package hhplus.concertreservation.domain.payment
 
-import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 

@@ -1,9 +1,9 @@
 package hhplus.concertreservation.domain.concert
 
-import hhplus.concertreservation.application.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.application.concert.dto.info.ConcertScheduleInfo
-import hhplus.concertreservation.application.concert.dto.info.ReservationInfo
-import hhplus.concertreservation.application.concert.dto.info.SeatInfo
+import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
+import hhplus.concertreservation.domain.concert.dto.info.ConcertScheduleInfo
+import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation

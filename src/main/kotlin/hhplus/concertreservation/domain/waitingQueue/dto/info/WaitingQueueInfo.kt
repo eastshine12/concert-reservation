@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.waitingQueue.dto.info
+package hhplus.concertreservation.domain.waitingQueue.dto.info
 
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import java.time.LocalDateTime

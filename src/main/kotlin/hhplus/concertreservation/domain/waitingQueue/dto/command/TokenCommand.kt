@@ -1,4 +1,4 @@
-package hhplus.concertreservation.application.waitingQueue.dto.command
+package hhplus.concertreservation.domain.waitingQueue.dto.command
 
 data class TokenCommand(
     val concertId: Long,

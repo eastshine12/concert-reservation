@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.concert.dto.res
 
-import hhplus.concertreservation.application.concert.dto.info.ConcertInfo
+import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
 
 data class ConcertResponse(
     val concertId: Long,

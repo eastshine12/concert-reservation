@@ -1,9 +1,9 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.waitingQueue.WaitingQueueFacade
-import hhplus.concertreservation.application.waitingQueue.dto.command.TokenCommand
-import hhplus.concertreservation.application.waitingQueue.dto.info.TokenInfo
-import hhplus.concertreservation.application.waitingQueue.dto.info.WaitingQueueInfo
+import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
+import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
+import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule

@@ -1,6 +1,6 @@
 package hhplus.concertreservation.domain.payment
 
-import hhplus.concertreservation.application.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 
 fun Payment.toPaymentInfo(): PaymentInfo {
     return PaymentInfo(

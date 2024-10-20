@@ -1,6 +1,6 @@
 package hhplus.concertreservation.interfaces.api.payment.dto.res
 
-import hhplus.concertreservation.application.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import java.math.BigDecimal
 
 data class PaymentResponse(
