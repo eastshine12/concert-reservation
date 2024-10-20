@@ -20,7 +20,7 @@ class WaitingQueueController(
     ): ResponseEntity<TokenResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(
             TokenResponse.fromInfo(
-                waitingQueueFacade.getWaitingQueueToken(request.toCommand(token))
+                waitingQueueFacade.issueWaitingQueueToken(request.toCommand(token))
             )
         )
     }

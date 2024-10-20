@@ -5,6 +5,7 @@ import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
 import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
 import hhplus.concertreservation.domain.waitingQueue.exception.QueueNotFoundException
+import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,11 +14,14 @@ class WaitingQueueService(
     private val queueManager: QueueManager,
     private val waitingQueueRepository: WaitingQueueRepository,
 ) {
-    fun getOrGenerateToken(token: String?, schedule: ConcertSchedule) : WaitingQueue {
-        return token?.let {
+    fun issueToken(token: String?, schedule: ConcertSchedule) : WaitingQueue {
+        token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)?.takeIf { queue -> queue.scheduleId == schedule.id }
-        } ?: queueManager.enqueue(
+                ?.run { throw TokenAlreadyExistsException("Token already exists for this schedule.") }
+        }
+
+        return queueManager.enqueue(
             concertSchedule = schedule,
             token = tokenManager.generateToken(),
             position = queueManager.calculateQueuePosition(schedule.id)

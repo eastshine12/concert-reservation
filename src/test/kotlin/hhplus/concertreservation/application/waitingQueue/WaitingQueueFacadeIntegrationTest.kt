@@ -70,7 +70,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         val tokenCommand = TokenCommand(concertId = concert.id, concertScheduleId = schedule.id, token = null, userId = 1L)
 
         // When
-        val tokenInfo: TokenInfo = waitingQueueFacade.getWaitingQueueToken(tokenCommand)
+        val tokenInfo: TokenInfo = waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
 
         // Then
         assertNotNull(tokenInfo)
