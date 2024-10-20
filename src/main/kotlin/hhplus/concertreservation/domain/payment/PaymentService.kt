@@ -9,13 +9,7 @@ class PaymentService(
     private val paymentRepository: PaymentRepository
 ) {
     fun savePayment(userId: Long, reservationId: Long, amount: BigDecimal): Payment {
-        val payment = Payment(
-            userId = userId,
-            reservationId = reservationId,
-            amount = amount,
-            status = PaymentStatus.SUCCESS
-        )
-
+        val payment = Payment.create(userId, reservationId, amount)
         return paymentRepository.save(payment)
     }
 

@@ -1,10 +1,9 @@
 package hhplus.concertreservation.domain.user.service
 
-import hhplus.concertreservation.domain.common.enums.PointTransactionType
-import hhplus.concertreservation.domain.user.component.BalanceManager
 import hhplus.concertreservation.domain.user.entity.BalanceHistory
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.exception.UserNotFoundException
+import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -16,8 +15,8 @@ import kotlin.test.assertEquals
 class UserServiceTest {
 
     private val userRepository = mockk<UserRepository>()
-    private val balanceManager = mockk<BalanceManager>()
-    private val userService = UserService(userRepository, balanceManager)
+    private val balanceHistoryRepository = mockk<BalanceHistoryRepository>()
+    private val userService = UserService(userRepository, balanceHistoryRepository)
 
     @Test
     fun `should return user by id`() {
@@ -53,7 +52,7 @@ class UserServiceTest {
         val user = mockk<User>(relaxed = true)
         val balanceHistory = mockk<BalanceHistory>()
         every { userRepository.findByIdOrNull(userId) } returns user
-        every { balanceManager.saveBalanceHistory(userId, amount, PointTransactionType.CHARGE) } returns balanceHistory
+        every { balanceHistoryRepository.save(balanceHistory) } returns balanceHistory
 
         // when
         val result = userService.chargeUserBalance(userId, amount)
@@ -70,7 +69,7 @@ class UserServiceTest {
         val user = mockk<User>(relaxed = true)
         val balanceHistory = mockk<BalanceHistory>()
         every { userRepository.findByIdOrNull(userId) } returns user
-        every { balanceManager.saveBalanceHistory(userId, amount, PointTransactionType.USE) } returns balanceHistory
+        every { balanceHistoryRepository.save(balanceHistory) } returns balanceHistory
 
         // when
         val result = userService.deductUserBalance(userId, amount)

@@ -22,7 +22,7 @@ class ConcertScheduler(
         expiredReservations.forEach { reservation: Reservation ->
             reservation.cancel()
             seatFinder.getSeatWithLock(reservation.seatId).markAsAvailable()
-            concertManager.getScheduleById(reservation.scheduleId).increaseAvailableSeats()
+            concertManager.getScheduleById(reservation.scheduleId).restoreSeat()
         }
     }
 }

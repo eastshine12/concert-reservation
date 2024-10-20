@@ -48,10 +48,20 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         concert1 = concertJpaRepository.save(Concert(title = "Concert 1", duration = 120))
 
         schedule1 = concertScheduleJpaRepository.save(
-            ConcertSchedule(concertId = concert1.id, startTime = LocalDateTime.now(), totalSeats = 5, availableSeats = 5)
+            ConcertSchedule(
+                concertId = concert1.id,
+                startTime = LocalDateTime.now(),
+                totalSeats = 5,
+                availableSeats = 5
+            )
         )
         schedule2 = concertScheduleJpaRepository.save(
-            ConcertSchedule(concertId = concert1.id, startTime = LocalDateTime.now().plusDays(1), totalSeats = 5, availableSeats = 5)
+            ConcertSchedule(
+                concertId = concert1.id,
+                startTime = LocalDateTime.now().plusDays(1),
+                totalSeats = 5,
+                availableSeats = 5
+            )
         )
 
         createSeatsForSchedule(schedule1)
