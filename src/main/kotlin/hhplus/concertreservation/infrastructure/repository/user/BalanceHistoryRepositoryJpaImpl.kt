@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class BalanceHistoryRepositoryJpaImpl(
-    private val balanceHistoryJpaRepository:BalanceHistoryJpaRepository,
+    private val balanceHistoryJpaRepository: BalanceHistoryJpaRepository,
 ) : BalanceHistoryRepository {
     override fun save(balanceHistory: BalanceHistory): BalanceHistory {
         return balanceHistoryJpaRepository.save(balanceHistory)

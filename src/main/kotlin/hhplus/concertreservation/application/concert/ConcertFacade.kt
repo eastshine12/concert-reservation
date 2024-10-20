@@ -23,14 +23,20 @@ class ConcertFacade(
     private val concertService: ConcertService,
     private val reservationService: ReservationService,
 ) {
-    fun getReservationAvailableDates(token: String, concertId: Long): ConcertInfo {
+    fun getReservationAvailableDates(
+        token: String,
+        concertId: Long,
+    ): ConcertInfo {
         waitingQueueService.validateTokenState(token)
         val concert: Concert = concertService.getConcertById(concertId)
         val concertSchedules: List<ConcertSchedule> = concertService.getSchedulesByConcertId(concertId)
         return concert.toConcertInfo(concertSchedules)
     }
 
-    fun getSeatsInfo(token: String, scheduleId: Long): List<SeatInfo> {
+    fun getSeatsInfo(
+        token: String,
+        scheduleId: Long,
+    ): List<SeatInfo> {
         waitingQueueService.validateTokenState(token, scheduleId)
         val schedule: ConcertSchedule = concertService.getScheduleById(scheduleId)
         val seats: List<Seat> = concertService.getSeatsByScheduleId(schedule.id)

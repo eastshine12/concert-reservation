@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class ConcertScheduleRepositoryJpaImpl(
-    private val concertScheduleJpaRepository: ConcertScheduleJpaRepository
+    private val concertScheduleJpaRepository: ConcertScheduleJpaRepository,
 ) : ConcertScheduleRepository {
     override fun save(concertSchedule: ConcertSchedule): ConcertSchedule {
         return concertScheduleJpaRepository.save(concertSchedule)

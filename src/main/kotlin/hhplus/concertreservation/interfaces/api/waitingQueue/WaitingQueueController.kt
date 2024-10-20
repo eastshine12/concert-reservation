@@ -2,8 +2,8 @@ package hhplus.concertreservation.interfaces.api.waitingQueue
 
 import hhplus.concertreservation.application.waitingQueue.WaitingQueueFacade
 import hhplus.concertreservation.interfaces.api.waitingQueue.dto.req.TokenRequest
-import hhplus.concertreservation.interfaces.api.waitingQueue.dto.res.TokenResponse
 import hhplus.concertreservation.interfaces.api.waitingQueue.dto.res.QueueResponse
+import hhplus.concertreservation.interfaces.api.waitingQueue.dto.res.TokenResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,8 +20,8 @@ class WaitingQueueController(
     ): ResponseEntity<TokenResponse> {
         return ResponseEntity.status(HttpStatus.CREATED).body(
             TokenResponse.fromInfo(
-                waitingQueueFacade.issueWaitingQueueToken(request.toCommand(token))
-            )
+                waitingQueueFacade.issueWaitingQueueToken(request.toCommand(token)),
+            ),
         )
     }
 
@@ -30,7 +30,7 @@ class WaitingQueueController(
         @RequestHeader("Queue-Token") token: String,
     ): ResponseEntity<QueueResponse> {
         return ResponseEntity.ok(
-            QueueResponse.fromInfo(waitingQueueFacade.getWaitingQueueStatus(token))
+            QueueResponse.fromInfo(waitingQueueFacade.getWaitingQueueStatus(token)),
         )
     }
 }

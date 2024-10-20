@@ -7,5 +7,5 @@ data class WaitingQueueInfo(
     val scheduleId: Long,
     val status: QueueStatus,
     val remainingPosition: Int,
-    val expiresAt: LocalDateTime?
+    val expiresAt: LocalDateTime?,
 )

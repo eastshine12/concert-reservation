@@ -14,7 +14,10 @@ class WaitingQueueService(
     private val queueManager: QueueManager,
     private val waitingQueueRepository: WaitingQueueRepository,
 ) {
-    fun issueToken(token: String?, schedule: ConcertSchedule) : WaitingQueue {
+    fun issueToken(
+        token: String?,
+        schedule: ConcertSchedule,
+    ): WaitingQueue {
         token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)?.takeIf { queue -> queue.scheduleId == schedule.id }
@@ -24,7 +27,7 @@ class WaitingQueueService(
         return queueManager.enqueue(
             concertSchedule = schedule,
             token = tokenManager.generateToken(),
-            position = queueManager.calculateQueuePosition(schedule.id)
+            position = queueManager.calculateQueuePosition(schedule.id),
         )
     }
 
@@ -38,7 +41,10 @@ class WaitingQueueService(
         return validateTokenState(token, null)
     }
 
-    fun validateTokenState(token: String, scheduleId: Long?): WaitingQueue {
+    fun validateTokenState(
+        token: String,
+        scheduleId: Long?,
+    ): WaitingQueue {
         val queue = validateAndGetToken(token)
         queueManager.validateTokenState(queue)
         if (scheduleId != null && queue.scheduleId != scheduleId) {
@@ -47,7 +53,10 @@ class WaitingQueueService(
         return queue
     }
 
-    fun calculateRemainingPosition(scheduleId: Long, myPosition: Int): Int {
+    fun calculateRemainingPosition(
+        scheduleId: Long,
+        myPosition: Int,
+    ): Int {
         val lastPosition = waitingQueueRepository.findMinQueuePositionByScheduleId(scheduleId)
         return myPosition - lastPosition
     }

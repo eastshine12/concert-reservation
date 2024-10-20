@@ -12,7 +12,7 @@ class Payment(
     amount: BigDecimal,
     status: PaymentStatus,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    val id: Long = 0L,
 ) : BaseEntity() {
     var amount: BigDecimal = amount
         protected set
@@ -22,12 +22,16 @@ class Payment(
         protected set
 
     companion object {
-        fun create(userId: Long, reservationId: Long, amount: BigDecimal): Payment {
+        fun create(
+            userId: Long,
+            reservationId: Long,
+            amount: BigDecimal,
+        ): Payment {
             return Payment(
                 userId = userId,
                 reservationId = reservationId,
                 amount = amount,
-                status = PaymentStatus.SUCCESS
+                status = PaymentStatus.SUCCESS,
             )
         }
     }

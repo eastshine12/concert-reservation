@@ -4,5 +4,5 @@ data class ReservationCommand(
     val token: String,
     val userId: Long,
     val scheduleId: Long,
-    val seatId: Long
+    val seatId: Long,
 )

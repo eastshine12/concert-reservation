@@ -1,8 +1,6 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.payment.PaymentFacade
-import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
-import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
@@ -10,6 +8,8 @@ import hhplus.concertreservation.domain.common.enums.SeatStatus
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
+import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -34,50 +34,55 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
     @BeforeEach
     fun setUp() {
         user = userJpaRepository.save(User(name = "User1", email = "user1@test.com", balance = BigDecimal(100_000)))
-        schedule = concertScheduleJpaRepository.save(
-            ConcertSchedule(
-                concertId = 1L,
-                startTime = LocalDateTime.now(),
-                totalSeats = 5,
-                availableSeats = 5
+        schedule =
+            concertScheduleJpaRepository.save(
+                ConcertSchedule(
+                    concertId = 1L,
+                    startTime = LocalDateTime.now(),
+                    totalSeats = 5,
+                    availableSeats = 5,
+                ),
             )
-        )
-        seat = seatJpaRepository.save(
-            Seat(
-                scheduleId = schedule.id,
-                seatNumber = 1,
-                price = BigDecimal(70_000),
-                status = SeatStatus.UNAVAILABLE
+        seat =
+            seatJpaRepository.save(
+                Seat(
+                    scheduleId = schedule.id,
+                    seatNumber = 1,
+                    price = BigDecimal(70_000),
+                    status = SeatStatus.UNAVAILABLE,
+                ),
             )
-        )
-        reservation = reservationJpaRepository.save(
-            Reservation(
-                userId = user.id,
-                scheduleId = schedule.id,
-                seatId = seat.id,
-                status = ReservationStatus.PENDING,
-                expiresAt = LocalDateTime.now().plusMinutes(10)
+        reservation =
+            reservationJpaRepository.save(
+                Reservation(
+                    userId = user.id,
+                    scheduleId = schedule.id,
+                    seatId = seat.id,
+                    status = ReservationStatus.PENDING,
+                    expiresAt = LocalDateTime.now().plusMinutes(10),
+                ),
             )
-        )
-        waitingQueue = waitingQueueJpaRepository.save(
-            WaitingQueue(
-                scheduleId = schedule.id,
-                token = "123e4567-e89b-12d3-a456-426614174000",
-                status = QueueStatus.ACTIVE,
-                queuePosition = 1,
-                expiresAt = LocalDateTime.now().plusMinutes(10)
+        waitingQueue =
+            waitingQueueJpaRepository.save(
+                WaitingQueue(
+                    scheduleId = schedule.id,
+                    token = "123e4567-e89b-12d3-a456-426614174000",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = LocalDateTime.now().plusMinutes(10),
+                ),
             )
-        )
     }
 
     @Test
     fun `must process payment successfully`() {
         // given
-        val command = PaymentCommand(
-            userId = user.id,
-            reservationId = reservation.id,
-            token = "123e4567-e89b-12d3-a456-426614174000"
-        )
+        val command =
+            PaymentCommand(
+                userId = user.id,
+                reservationId = reservation.id,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+            )
 
         // when
         val paymentInfo: PaymentInfo = paymentFacade.processPayment(command)

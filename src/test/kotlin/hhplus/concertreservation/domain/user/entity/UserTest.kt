@@ -6,7 +6,6 @@ import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 
 class UserTest {
-
     @Test
     fun `must throw exception when charge amount is non-positive`() {
         // given

@@ -13,5 +13,8 @@ interface ReservationJpaRepository : JpaRepository<Reservation, Long> {
     @Query("select r from Reservation r where r.id = :id")
     fun findByIdOrNullWithLock(id: Long): Reservation?
 
-    fun findAllByExpiresAtBeforeAndStatus(expiresAt: LocalDateTime, status: ReservationStatus): List<Reservation>
+    fun findAllByExpiresAtBeforeAndStatus(
+        expiresAt: LocalDateTime,
+        status: ReservationStatus,
+    ): List<Reservation>
 }

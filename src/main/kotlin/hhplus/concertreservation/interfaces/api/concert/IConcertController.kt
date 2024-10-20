@@ -45,11 +45,11 @@ interface IConcertController {
                                         }
                                     ]
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -64,11 +64,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -83,11 +83,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Concert not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -102,23 +102,23 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getAvailableDates(
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
         @Parameter(
             description = "예약 가능한 콘서트를 조회할 콘서트 ID",
-            example = "123"
+            example = "123",
         )
         @PathVariable concertId: Long,
     ): ResponseEntity<ConcertResponse>
@@ -142,11 +142,11 @@ interface IConcertController {
                                         {"seatNumber": 3, "status": "reserved"}
                                     ]
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -161,11 +161,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -180,11 +180,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Concert (schedule) not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -199,28 +199,28 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getAvailableSeats(
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
         @Parameter(
             description = "예약 가능한 좌석 목록을 조회할 콘서트 ID",
-            example = "123"
+            example = "123",
         )
         @PathVariable concertId: Int,
         @Parameter(
             description = "예약 가능한 좌석 목록을 조회할 콘서트 스케줄 ID",
-            example = "123"
+            example = "123",
         )
         @PathVariable scheduleId: Long,
     ): ResponseEntity<AvailableSeatsResponse>
@@ -240,11 +240,11 @@ interface IConcertController {
                                 {
                                     "status": "success"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -259,11 +259,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -278,11 +278,11 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Concert (schedule/seat) not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -297,18 +297,18 @@ interface IConcertController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun reserveSeat(
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
         @Schema(
@@ -320,7 +320,7 @@ interface IConcertController {
             "scheduleId": 3,
             "seatId": 5
         }
-        """
+        """,
         )
         @RequestBody request: ReserveSeatRequest,
     ): ResponseEntity<ReserveSeatResponse>

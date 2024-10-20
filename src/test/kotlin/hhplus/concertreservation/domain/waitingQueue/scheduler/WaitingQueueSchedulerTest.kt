@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 
 class WaitingQueueSchedulerTest {
-
     private val waitingQueueRepository = mockk<WaitingQueueRepository>(relaxed = true)
     private val queueManager = mockk<QueueManager>(relaxed = true)
     private val waitingQueueScheduler = WaitingQueueScheduler(waitingQueueRepository, queueManager)
@@ -19,12 +18,26 @@ class WaitingQueueSchedulerTest {
     @Test
     fun `should activate pending queues`() {
         // given
-        val pendingQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token1", status = QueueStatus.PENDING, queuePosition = 2, expiresAt = null)
-        )
-        val activeQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token2", status = QueueStatus.ACTIVE, queuePosition = 1, expiresAt = null)
-        )
+        val pendingQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token1",
+                    status = QueueStatus.PENDING,
+                    queuePosition = 2,
+                    expiresAt = null,
+                ),
+            )
+        val activeQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token2",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = null,
+                ),
+            )
         every { waitingQueueRepository.findByStatus(QueueStatus.PENDING) } returns pendingQueues
         every { waitingQueueRepository.findByStatus(QueueStatus.ACTIVE) } returns activeQueues
         every { queueManager.countActiveQueuesByScheduleId(activeQueues) } returns mutableMapOf(1L to 1)
@@ -39,9 +52,16 @@ class WaitingQueueSchedulerTest {
     @Test
     fun `should expire active queues`() {
         // given
-        val expiredQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token1", status = QueueStatus.ACTIVE, queuePosition = 1, expiresAt = LocalDateTime.now().minusMinutes(1))
-        )
+        val expiredQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token1",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = LocalDateTime.now().minusMinutes(1),
+                ),
+            )
         every { waitingQueueRepository.findByStatus(QueueStatus.ACTIVE) } returns expiredQueues
 
         // when

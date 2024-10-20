@@ -18,7 +18,10 @@ class UserFacade(
         return userService.updateUserBalance(command.userId, command.amount, PointTransactionType.CHARGE)
     }
 
-    fun getUserBalance(token: String, userId: Long): BigDecimal {
+    fun getUserBalance(
+        token: String,
+        userId: Long,
+    ): BigDecimal {
         waitingQueueService.validateTokenState(token)
         return userService.getUserBalance(userId)
     }

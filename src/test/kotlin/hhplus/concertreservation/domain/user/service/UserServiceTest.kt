@@ -16,7 +16,6 @@ import java.math.BigDecimal
 import kotlin.test.assertEquals
 
 class UserServiceTest {
-
     private val userRepository = mockk<UserRepository>(relaxed = true)
     private val balanceHistoryRepository = mockk<BalanceHistoryRepository>(relaxed = true)
     private val userService = UserService(userRepository, balanceHistoryRepository)

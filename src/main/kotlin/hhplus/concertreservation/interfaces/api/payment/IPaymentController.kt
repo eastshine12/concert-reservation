@@ -37,11 +37,11 @@ interface IPaymentController {
                                     "amount": 70000,
                                     "status": "success"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -56,11 +56,11 @@ interface IPaymentController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -75,11 +75,11 @@ interface IPaymentController {
                                     "status": "failed",
                                     "message": "User(Reservation) not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -94,18 +94,18 @@ interface IPaymentController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun processPayment(
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
         @Schema(
@@ -115,9 +115,9 @@ interface IPaymentController {
             "userId": 123,
             "reservationId": 4
         }
-        """
+        """,
         )
-        @RequestBody request: PaymentRequest
+        @RequestBody request: PaymentRequest,
     ): ResponseEntity<PaymentResponse>
 
     @Operation(summary = "결제 내역 조회", description = "유저의 결제 내역을 조회합니다.")
@@ -147,11 +147,11 @@ interface IPaymentController {
                                         }
                                     ]
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -166,11 +166,11 @@ interface IPaymentController {
                                     "status": "failed",
                                     "message": "User not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -185,19 +185,19 @@ interface IPaymentController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getPaymentHistory(
         @Parameter(
             description = "결제 내역을 조회할 유저의 ID",
-            example = "123"
+            example = "123",
         )
-        @RequestParam userId: Long
+        @RequestParam userId: Long,
     ): ResponseEntity<PaymentHistoryResponse>
 }

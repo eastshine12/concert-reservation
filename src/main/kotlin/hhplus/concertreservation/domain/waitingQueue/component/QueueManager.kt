@@ -15,15 +15,19 @@ class QueueManager(
     private val waitingQueueRepository: WaitingQueueRepository,
     private val waitingQueueProperties: WaitingQueueProperties,
 ) {
-    fun enqueue(concertSchedule: ConcertSchedule, token: String, position: Int): WaitingQueue {
+    fun enqueue(
+        concertSchedule: ConcertSchedule,
+        token: String,
+        position: Int,
+    ): WaitingQueue {
         return waitingQueueRepository.save(
             WaitingQueue(
                 scheduleId = concertSchedule.id,
                 token = token,
                 status = QueueStatus.PENDING,
                 queuePosition = position,
-                expiresAt = null
-            )
+                expiresAt = null,
+            ),
         )
     }
 
@@ -54,7 +58,10 @@ class QueueManager(
         return activeCountMap
     }
 
-    fun activatePendingQueues(pendingQueues: List<WaitingQueue>, activeCountMap: MutableMap<Long, Int>) {
+    fun activatePendingQueues(
+        pendingQueues: List<WaitingQueue>,
+        activeCountMap: MutableMap<Long, Int>,
+    ) {
         pendingQueues.groupBy { it.scheduleId }.forEach { (scheduleId, pendingList) ->
             val activeCount = activeCountMap.getOrDefault(scheduleId, 0)
             if (activeCount < waitingQueueProperties.maxActiveUsers) {

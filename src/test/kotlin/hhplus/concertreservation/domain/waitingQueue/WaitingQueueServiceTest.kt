@@ -13,7 +13,6 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class WaitingQueueServiceTest {
-
     private val tokenManager = mockk<TokenManager>()
     private val queueManager = mockk<QueueManager>()
     private val waitingQueueRepository = mockk<WaitingQueueRepository>()
@@ -43,18 +42,19 @@ class WaitingQueueServiceTest {
         val token = "existing-token"
 
         every { tokenManager.validateAndGetToken(token) } returns token
-        every { queueManager.findQueueByToken(token) } returns mockk {
-            every { scheduleId } returns schedule.id
-        }
+        every { queueManager.findQueueByToken(token) } returns
+            mockk {
+                every { scheduleId } returns schedule.id
+            }
 
         // when & then
-        val exception = assertThrows<TokenAlreadyExistsException> {
-            waitingQueueService.issueToken(token, schedule)
-        }
+        val exception =
+            assertThrows<TokenAlreadyExistsException> {
+                waitingQueueService.issueToken(token, schedule)
+            }
 
         assertEquals("Token already exists for this schedule.", exception.message)
     }
-
 
     @Test
     fun `must throw exception when token is invalid`() {

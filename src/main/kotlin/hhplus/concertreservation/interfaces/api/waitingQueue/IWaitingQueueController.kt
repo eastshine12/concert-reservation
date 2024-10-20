@@ -33,11 +33,11 @@ interface IWaitingQueueController {
                                     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
                                     "status": "issued"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -52,11 +52,11 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -71,11 +71,11 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "User(Concert) not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -90,13 +90,13 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun issueToken(
         @Schema(
@@ -107,12 +107,12 @@ interface IWaitingQueueController {
             "scheduleId": 3,
             "userId": 123
         }
-        """
+        """,
         )
         @RequestBody request: TokenRequest,
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token", required = false) token: String?,
     ): ResponseEntity<TokenResponse>
@@ -133,11 +133,11 @@ interface IWaitingQueueController {
                                     "status": "PENDING",
                                     "remainingPosition": 10
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -152,11 +152,11 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -171,11 +171,11 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "Token not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -190,18 +190,18 @@ interface IWaitingQueueController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getQueueStatus(
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
     ): ResponseEntity<QueueResponse>

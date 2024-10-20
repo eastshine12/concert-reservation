@@ -27,15 +27,20 @@ class UserService(
     }
 
     @Transactional
-    fun updateUserBalance(userId: Long, amount: BigDecimal, type: PointTransactionType): UpdateBalanceInfo {
+    fun updateUserBalance(
+        userId: Long,
+        amount: BigDecimal,
+        type: PointTransactionType,
+    ): UpdateBalanceInfo {
         val user: User = getByUserId(userId)
         when (type) {
             PointTransactionType.CHARGE -> user.charge(amount)
             PointTransactionType.USE -> user.use(amount)
         }
-        val balanceHistory = balanceHistoryRepository.save(
-            BalanceHistory.create(userId, amount, type)
-        )
+        val balanceHistory =
+            balanceHistoryRepository.save(
+                BalanceHistory.create(userId, amount, type),
+            )
         return balanceHistory.toUpdateBalanceInfo(success = true)
     }
 }

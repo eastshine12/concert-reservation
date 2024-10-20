@@ -3,7 +3,6 @@ package hhplus.concertreservation.infrastructure.repository.concert
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 

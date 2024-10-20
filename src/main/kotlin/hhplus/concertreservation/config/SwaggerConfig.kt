@@ -20,8 +20,8 @@ class SwaggerConfig {
                         Contact()
                             .name("김동현")
                             .email("eastshine_@naver.com")
-                            .url("https://github.com/eastshine12")
-                    )
+                            .url("https://github.com/eastshine12"),
+                    ),
             )
     }
 }

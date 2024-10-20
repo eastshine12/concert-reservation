@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class ReservationServiceTest {
-
     private val seatFinder = mockk<SeatFinder>()
     private val concertManager = mockk<ConcertManager>()
     private val reservationRepository = mockk<ReservationRepository>()

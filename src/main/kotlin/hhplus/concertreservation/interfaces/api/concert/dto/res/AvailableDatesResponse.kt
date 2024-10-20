@@ -12,14 +12,15 @@ data class ConcertResponse(
             return ConcertResponse(
                 concertId = concertInfo.id,
                 title = concertInfo.title,
-                schedules = concertInfo.schedules.map { schedule ->
-                    SchedulesResponse(
-                        scheduleId = schedule.scheduleId,
-                        startTime = schedule.startTime.toString(),
-                        totalSeats = schedule.totalSeats,
-                        availableSeats = schedule.availableSeats
-                    )
-                }
+                schedules =
+                    concertInfo.schedules.map { schedule ->
+                        SchedulesResponse(
+                            scheduleId = schedule.scheduleId,
+                            startTime = schedule.startTime.toString(),
+                            totalSeats = schedule.totalSeats,
+                            availableSeats = schedule.availableSeats,
+                        )
+                    },
             )
         }
     }

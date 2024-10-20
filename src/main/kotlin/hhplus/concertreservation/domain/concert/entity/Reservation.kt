@@ -14,9 +14,8 @@ class Reservation(
     status: ReservationStatus,
     expiresAt: LocalDateTime,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    val id: Long = 0L,
 ) : BaseEntity() {
-
     @Enumerated(EnumType.STRING)
     var status: ReservationStatus = status
         protected set

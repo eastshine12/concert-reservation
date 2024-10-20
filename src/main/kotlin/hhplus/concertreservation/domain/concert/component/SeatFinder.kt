@@ -15,9 +15,13 @@ class SeatFinder(
             ?: throw SeatNotFoundException("Seat with id $seatId not found")
     }
 
-    fun getAvailableSeatWithLock(scheduleId: Long, seatId: Long): Seat {
-        val seat = seatRepository.findByIdOrNullWithLock(seatId)
-            ?: throw SeatNotFoundException("Seat with id $seatId not found")
+    fun getAvailableSeatWithLock(
+        scheduleId: Long,
+        seatId: Long,
+    ): Seat {
+        val seat =
+            seatRepository.findByIdOrNullWithLock(seatId)
+                ?: throw SeatNotFoundException("Seat with id $seatId not found")
 
         if (seat.scheduleId != scheduleId || seat.status != SeatStatus.AVAILABLE) {
             throw IllegalStateException("The seat is either unavailable or does not belong to the schedule.")

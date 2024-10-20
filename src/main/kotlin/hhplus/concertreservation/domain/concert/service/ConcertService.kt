@@ -19,12 +19,12 @@ class ConcertService(
     private val concertScheduleRepository: ConcertScheduleRepository,
     private val seatRepository: SeatRepository,
 ) {
-    fun getConcertById(concertId: Long) : Concert {
+    fun getConcertById(concertId: Long): Concert {
         return concertRepository.findByIdOrNull(concertId)
             ?: throw ConcertNotFoundException("Concert with id $concertId not found")
     }
 
-    fun getScheduleById(scheduleId: Long) : ConcertSchedule {
+    fun getScheduleById(scheduleId: Long): ConcertSchedule {
         return concertManager.getScheduleById(scheduleId)
     }
 
@@ -37,6 +37,7 @@ class ConcertService(
         return seatRepository.findByIdOrNull(seatId)
             ?: throw SeatsNotFoundException("Seat with id $seatId not found")
     }
+
     fun getSeatsByScheduleId(scheduleId: Long): List<Seat> {
         return seatRepository.findAllByScheduleId(scheduleId).takeIf { it.isNotEmpty() }
             ?: throw SeatsNotFoundException("No seats found for the schedule: $scheduleId")

@@ -15,7 +15,7 @@ fun Concert.toConcertInfo(schedules: List<ConcertSchedule>): ConcertInfo {
         id = this.id,
         title = this.title,
         duration = this.duration,
-        schedules = scheduleInfos
+        schedules = scheduleInfos,
     )
 }
 
@@ -25,7 +25,7 @@ fun ConcertSchedule.toConcertScheduleInfo(): ConcertScheduleInfo {
         startTime = this.startTime,
         availableSeats = this.availableSeats,
         totalSeats = this.totalSeats,
-        status = if (this.availableSeats > 0) "AVAILABLE" else "SOLD_OUT"
+        status = if (this.availableSeats > 0) "AVAILABLE" else "SOLD_OUT",
     )
 }
 
@@ -40,6 +40,6 @@ fun Seat.toSeatInfo(): SeatInfo {
     return SeatInfo(
         seatNumber = this.seatNumber,
         status = this.status.name,
-        price = this.price
+        price = this.price,
     )
 }

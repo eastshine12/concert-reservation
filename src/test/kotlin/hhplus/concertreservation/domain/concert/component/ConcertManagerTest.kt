@@ -16,7 +16,6 @@ import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
 
 class ConcertManagerTest {
-
     private val scheduleRepository = mockk<ConcertScheduleRepository>()
     private val reservationRepository = mockk<ReservationRepository>()
     private val reservationProperties = mockk<ReservationProperties>()
@@ -30,9 +29,10 @@ class ConcertManagerTest {
         every { scheduleRepository.findByIdOrNull(scheduleId) } returns null
 
         // when & then
-        val exception = assertThrows<ConcertScheduleNotFoundException> {
-            concertManager.getScheduleById(scheduleId)
-        }
+        val exception =
+            assertThrows<ConcertScheduleNotFoundException> {
+                concertManager.getScheduleById(scheduleId)
+            }
 
         // then
         assertEquals("Concert schedule with id $scheduleId not found", exception.message)
@@ -45,9 +45,10 @@ class ConcertManagerTest {
         every { reservationRepository.findByIdOrNullWithLock(reservationId) } returns null
 
         // when & then
-        val exception = assertThrows<ReservationNotFoundException> {
-            concertManager.getReservationWithLock(reservationId)
-        }
+        val exception =
+            assertThrows<ReservationNotFoundException> {
+                concertManager.getReservationWithLock(reservationId)
+            }
 
         // then
         assertEquals("Reservation with id $reservationId not found", exception.message)
@@ -62,13 +63,14 @@ class ConcertManagerTest {
         val expiresAt = LocalDateTime.now().plusMinutes(30)
         every { reservationProperties.expireMinutes } returns 30L
 
-        val reservation = Reservation(
-            userId = userId,
-            scheduleId = scheduleId,
-            seatId = seatId,
-            status = ReservationStatus.PENDING,
-            expiresAt = expiresAt
-        )
+        val reservation =
+            Reservation(
+                userId = userId,
+                scheduleId = scheduleId,
+                seatId = seatId,
+                status = ReservationStatus.PENDING,
+                expiresAt = expiresAt,
+            )
         every { reservationRepository.save(any()) } returns reservation
 
         // when

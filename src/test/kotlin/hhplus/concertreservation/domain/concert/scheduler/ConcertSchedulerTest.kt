@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class ConcertSchedulerTest {
-
     private val reservationRepository = mockk<ReservationRepository>()
     private val concertManager = mockk<ConcertManager>()
     private val seatFinder = mockk<SeatFinder>()

@@ -13,7 +13,6 @@ class Concert(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 ) : BaseEntity() {
-
     var title: String = title
         protected set
 

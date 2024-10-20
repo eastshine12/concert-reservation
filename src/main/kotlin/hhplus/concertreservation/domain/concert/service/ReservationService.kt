@@ -17,7 +17,11 @@ class ReservationService(
     private val reservationRepository: ReservationRepository,
 ) {
     @Transactional
-    fun createPendingReservation(userId: Long, scheduleId: Long, seatId: Long): ReservationInfo {
+    fun createPendingReservation(
+        userId: Long,
+        scheduleId: Long,
+        seatId: Long,
+    ): ReservationInfo {
         seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
         occupySeatWithoutLock(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)

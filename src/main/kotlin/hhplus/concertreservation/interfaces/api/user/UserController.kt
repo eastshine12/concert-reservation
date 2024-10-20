@@ -16,20 +16,20 @@ class UserController(
     override fun chargeBalance(
         @PathVariable userId: Long,
         @RequestHeader("Queue-Token") token: String,
-        @RequestBody request: ChargeBalanceRequest
+        @RequestBody request: ChargeBalanceRequest,
     ): ResponseEntity<ChargeBalanceResponse> {
         return ResponseEntity.ok(
-            ChargeBalanceResponse.fromInfo(userFacade.chargeBalance(request.toCommand(token, userId)))
+            ChargeBalanceResponse.fromInfo(userFacade.chargeBalance(request.toCommand(token, userId))),
         )
     }
 
     @GetMapping("/{userId}/balance")
     override fun getBalance(
         @PathVariable userId: Long,
-        @RequestHeader("Queue-Token") token: String
+        @RequestHeader("Queue-Token") token: String,
     ): ResponseEntity<BalanceResponse> {
         return ResponseEntity.ok(
-            BalanceResponse.fromInfo(userFacade.getUserBalance(token, userId))
+            BalanceResponse.fromInfo(userFacade.getUserBalance(token, userId)),
         )
     }
 }

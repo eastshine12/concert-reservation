@@ -10,5 +10,6 @@ interface SeatJpaRepository : JpaRepository<Seat, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Seat s where s.id = :id")
     fun findByIdOrNullWithLock(id: Long): Seat?
+
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
 }

@@ -10,7 +10,7 @@ data class QueueResponse(
         fun fromInfo(info: WaitingQueueInfo): QueueResponse {
             return QueueResponse(
                 status = info.status.name,
-                remainingPosition = info.remainingPosition.toString()
+                remainingPosition = info.remainingPosition.toString(),
             )
         }
     }

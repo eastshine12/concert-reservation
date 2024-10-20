@@ -22,8 +22,9 @@ class WaitingQueueScheduler(
 
     @Scheduled(fixedRateString = "\${waiting-queue.expirationRate}")
     fun expireWaitingQueues() {
-        val expiredQueues = waitingQueueRepository.findByStatus(QueueStatus.ACTIVE)
-            .filter { it.expiresAt?.isBefore(LocalDateTime.now()) ?: false }
+        val expiredQueues =
+            waitingQueueRepository.findByStatus(QueueStatus.ACTIVE)
+                .filter { it.expiresAt?.isBefore(LocalDateTime.now()) ?: false }
         queueManager.expireActiveQueues(expiredQueues)
     }
 }

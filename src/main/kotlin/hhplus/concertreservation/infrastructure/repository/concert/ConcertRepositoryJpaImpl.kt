@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class ConcertRepositoryJpaImpl(
-    private val concertJpaRepository: ConcertJpaRepository
+    private val concertJpaRepository: ConcertJpaRepository,
 ) : ConcertRepository {
     override fun findByIdOrNull(id: Long): Concert? {
         return concertJpaRepository.findByIdOrNull(id)

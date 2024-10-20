@@ -13,9 +13,8 @@ class WaitingQueue(
     val queuePosition: Int,
     expiresAt: LocalDateTime?,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    val id: Long = 0L,
 ) : BaseEntity() {
-
     @Enumerated(EnumType.STRING)
     var status: QueueStatus = status
         protected set

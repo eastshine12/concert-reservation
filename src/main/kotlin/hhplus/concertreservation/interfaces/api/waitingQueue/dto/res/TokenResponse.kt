@@ -10,7 +10,7 @@ data class TokenResponse(
         fun fromInfo(info: TokenInfo): TokenResponse {
             return TokenResponse(
                 token = info.token,
-                status = info.status.name
+                status = info.status.name,
             )
         }
     }

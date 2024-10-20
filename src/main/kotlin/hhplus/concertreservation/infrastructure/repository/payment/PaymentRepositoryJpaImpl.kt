@@ -2,9 +2,6 @@ package hhplus.concertreservation.infrastructure.repository.payment
 
 import hhplus.concertreservation.domain.payment.Payment
 import hhplus.concertreservation.domain.payment.PaymentRepository
-import hhplus.concertreservation.domain.user.entity.User
-import hhplus.concertreservation.domain.user.repository.UserRepository
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository

@@ -16,7 +16,6 @@ class User(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
 ) : BaseEntity() {
-
     var name: String = name
         protected set
 

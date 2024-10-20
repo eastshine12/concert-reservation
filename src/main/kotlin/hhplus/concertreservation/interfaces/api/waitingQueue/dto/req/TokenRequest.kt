@@ -12,7 +12,7 @@ data class TokenRequest(
             concertId = this.concertId,
             concertScheduleId = this.concertScheduleId,
             userId = this.userId,
-            token = token
+            token = token,
         )
     }
 }

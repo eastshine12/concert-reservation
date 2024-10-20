@@ -27,15 +27,20 @@ class ConcertManager(
             ?: throw ReservationNotFoundException("Reservation with id $reservationId not found")
     }
 
-    fun createPendingReservation(userId: Long, scheduleId: Long, seatId: Long): Reservation {
+    fun createPendingReservation(
+        userId: Long,
+        scheduleId: Long,
+        seatId: Long,
+    ): Reservation {
         val expiresAt = LocalDateTime.now().plusMinutes(reservationProperties.expireMinutes)
-        val reservation = Reservation(
-            userId = userId,
-            scheduleId = scheduleId,
-            seatId = seatId,
-            status = ReservationStatus.PENDING,
-            expiresAt = expiresAt
-        )
+        val reservation =
+            Reservation(
+                userId = userId,
+                scheduleId = scheduleId,
+                seatId = seatId,
+                status = ReservationStatus.PENDING,
+                expiresAt = expiresAt,
+            )
         return reservationRepository.save(reservation)
     }
 }

@@ -1,14 +1,14 @@
 package hhplus.concertreservation.application.payment
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
-import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
-import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.concert.service.ConcertService
 import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.payment.Payment
 import hhplus.concertreservation.domain.payment.PaymentService
+import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
+import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.payment.toPaymentInfo
 import hhplus.concertreservation.domain.user.service.UserService
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
@@ -23,7 +23,6 @@ class PaymentFacade(
     private val paymentService: PaymentService,
     private val concertService: ConcertService,
 ) {
-
     @Transactional
     fun processPayment(command: PaymentCommand): PaymentInfo {
         waitingQueueService.validateTokenState(command.token)

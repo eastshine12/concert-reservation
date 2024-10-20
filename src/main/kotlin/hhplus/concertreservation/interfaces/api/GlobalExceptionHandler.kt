@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(OptimisticLockException::class)
     fun handleOptimisticLockException(e: OptimisticLockException): ResponseEntity<String> {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Concurrency conflict occurred. Please try again.")

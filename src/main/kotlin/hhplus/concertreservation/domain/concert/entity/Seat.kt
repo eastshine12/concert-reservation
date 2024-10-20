@@ -12,9 +12,8 @@ class Seat(
     price: BigDecimal,
     status: SeatStatus,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    val id: Long = 0L,
 ) : BaseEntity() {
-
     var seatNumber: Int = seatNumber
         protected set
 

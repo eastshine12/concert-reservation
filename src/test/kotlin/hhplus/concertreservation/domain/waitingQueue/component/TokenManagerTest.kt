@@ -6,7 +6,6 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class TokenManagerTest {
-
     private val tokenManager = TokenManager()
 
     @Test

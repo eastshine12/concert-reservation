@@ -8,7 +8,7 @@ data class ReserveSeatResponse(
     companion object {
         fun fromInfo(reservationInfo: ReservationInfo): ReserveSeatResponse {
             return ReserveSeatResponse(
-                status = if (reservationInfo.success) "success" else "failure"
+                status = if (reservationInfo.success) "success" else "failure",
             )
         }
     }

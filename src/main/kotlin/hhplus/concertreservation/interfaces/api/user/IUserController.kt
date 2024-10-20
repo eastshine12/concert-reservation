@@ -32,11 +32,11 @@ interface IUserController {
                                 {
                                     "status": "success"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -51,11 +51,11 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -70,11 +70,11 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "User not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -89,23 +89,23 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun chargeBalance(
         @Parameter(
             description = "잔액을 충전할 유저의 ID",
-            example = "123"
+            example = "123",
         )
         @PathVariable userId: Long,
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
         @RequestHeader("Queue-Token") token: String,
         @Schema(
@@ -114,9 +114,9 @@ interface IUserController {
         {
             "amount": 10000
         }
-        """
+        """,
         )
-        @RequestBody request: ChargeBalanceRequest
+        @RequestBody request: ChargeBalanceRequest,
     ): ResponseEntity<ChargeBalanceResponse>
 
     @Operation(summary = "잔액 조회", description = "유저의 잔액을 조회합니다.")
@@ -135,11 +135,11 @@ interface IUserController {
                                 {
                                     "balance": 50000
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -154,11 +154,11 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "Invalid token format"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "404",
@@ -173,11 +173,11 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "User not found"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
             ),
             ApiResponse(
                 responseCode = "500",
@@ -192,24 +192,24 @@ interface IUserController {
                                     "status": "failed",
                                     "message": "Internal server error"
                                 }
-                            """
-                            )
-                        ]
-                    )
-                ]
-            )
-        ]
+                            """,
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
     )
     fun getBalance(
         @Parameter(
             description = "잔액을 조회할 유저의 ID",
-            example = "123"
+            example = "123",
         )
         @PathVariable userId: Long,
         @Parameter(
             description = "대기열 토큰. 요청 인증에 사용됩니다.",
-            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+            example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
         )
-        @RequestHeader("Queue-Token") token: String
+        @RequestHeader("Queue-Token") token: String,
     ): ResponseEntity<BalanceResponse>
 }

@@ -17,7 +17,6 @@ class ConcertSchedule(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 ) : BaseEntity() {
-
     var startTime: LocalDateTime = startTime
         protected set
 
@@ -41,4 +40,3 @@ class ConcertSchedule(
         this.availableSeats += 1
     }
 }
-

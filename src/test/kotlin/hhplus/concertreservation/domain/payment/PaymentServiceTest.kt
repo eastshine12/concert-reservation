@@ -3,13 +3,11 @@ package hhplus.concertreservation.domain.payment
 import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 import kotlin.test.assertEquals
 
 class PaymentServiceTest {
-
     private val paymentRepository = mockk<PaymentRepository>()
     private val paymentService = PaymentService(paymentRepository)
 

@@ -6,6 +6,6 @@ fun Payment.toPaymentInfo(): PaymentInfo {
     return PaymentInfo(
         paymentId = this.id,
         amount = this.amount,
-        status = this.status.name
+        status = this.status.name,
     )
 }

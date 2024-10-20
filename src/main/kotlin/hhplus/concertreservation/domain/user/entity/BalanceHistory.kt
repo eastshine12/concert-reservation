@@ -12,14 +12,18 @@ class BalanceHistory(
     @Enumerated(EnumType.STRING)
     val type: PointTransactionType,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L
+    val id: Long = 0L,
 ) : BaseEntity() {
     companion object {
-        fun create(userId: Long, amount: BigDecimal, type: PointTransactionType): BalanceHistory {
+        fun create(
+            userId: Long,
+            amount: BigDecimal,
+            type: PointTransactionType,
+        ): BalanceHistory {
             return BalanceHistory(
                 userId = userId,
                 amount = amount,
-                type = type
+                type = type,
             )
         }
     }

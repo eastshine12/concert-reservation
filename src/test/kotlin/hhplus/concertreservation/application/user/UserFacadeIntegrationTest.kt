@@ -1,9 +1,9 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.user.UserFacade
+import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
-import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -28,17 +28,23 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setUp() {
-        user = userJpaRepository.save(
-            User(name = "user1", email = "user1@test.com", balance = BigDecimal(1000))
-        )
+        user =
+            userJpaRepository.save(
+                User(
+                    name = "user1",
+                    email = "user1@test.com",
+                    balance = BigDecimal(1000),
+                ),
+            )
+
         waitingQueueJpaRepository.save(
             WaitingQueue(
                 scheduleId = 1L,
                 token = "123e4567-e89b-12d3-a456-426614174000",
                 status = QueueStatus.ACTIVE,
                 queuePosition = 1,
-                expiresAt = LocalDateTime.now().plusMinutes(10)
-            )
+                expiresAt = LocalDateTime.now().plusMinutes(10),
+            ),
         )
     }
 
@@ -53,15 +59,16 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
         val executor: ExecutorService = Executors.newFixedThreadPool(5)
 
         // When
-        val tasks = List(5) {
-            Callable {
-                try {
-                    userFacade.chargeBalance(command)
-                    successCount.incrementAndGet()
-                } catch (e: Exception) {
+        val tasks =
+            List(5) {
+                Callable {
+                    try {
+                        userFacade.chargeBalance(command)
+                        successCount.incrementAndGet()
+                    } catch (e: Exception) {
+                    }
                 }
             }
-        }
 
         executor.invokeAll(tasks)
         executor.shutdown()
@@ -78,11 +85,12 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
     @Test
     fun `must charge balance successfully`() {
         // Given
-        val command = ChargeBalanceCommand(
-            userId = user.id,
-            token = "123e4567-e89b-12d3-a456-426614174000",
-            amount = BigDecimal(500)
-        )
+        val command =
+            ChargeBalanceCommand(
+                userId = user.id,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+                amount = BigDecimal(500),
+            )
 
         // When
         val result: UpdateBalanceInfo = userFacade.chargeBalance(command)

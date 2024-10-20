@@ -16,7 +16,6 @@ import java.time.LocalDateTime
 import kotlin.test.assertEquals
 
 class QueueManagerTest {
-
     private val waitingQueueRepository = mockk<WaitingQueueRepository>(relaxed = true)
     private val waitingQueueProperties = mockk<WaitingQueueProperties>(relaxed = true)
     private val queueManager = QueueManager(waitingQueueRepository, waitingQueueProperties)
@@ -27,13 +26,14 @@ class QueueManagerTest {
         val concertSchedule = mockk<ConcertSchedule>(relaxed = true)
         val token = "token123"
         val position = 1
-        val waitingQueue = WaitingQueue(
-            scheduleId = concertSchedule.id,
-            token = token,
-            status = QueueStatus.PENDING,
-            queuePosition = position,
-            expiresAt = null
-        )
+        val waitingQueue =
+            WaitingQueue(
+                scheduleId = concertSchedule.id,
+                token = token,
+                status = QueueStatus.PENDING,
+                queuePosition = position,
+                expiresAt = null,
+            )
 
         every { waitingQueueRepository.save(any()) } returns waitingQueue
 
@@ -60,10 +60,11 @@ class QueueManagerTest {
     @Test
     fun `must throw exception when token is not active`() {
         // given
-        val waitingQueue = mockk<WaitingQueue> {
-            every { status } returns QueueStatus.PENDING
-            every { token } returns "token123"
-        }
+        val waitingQueue =
+            mockk<WaitingQueue> {
+                every { status } returns QueueStatus.PENDING
+                every { token } returns "token123"
+            }
 
         // when, then
         assertThrows<InvalidTokenException> {
@@ -74,11 +75,12 @@ class QueueManagerTest {
     @Test
     fun `must throw exception when token has expired`() {
         // given
-        val waitingQueue = mockk<WaitingQueue> {
-            every { status } returns QueueStatus.ACTIVE
-            every { expiresAt } returns LocalDateTime.now().minusMinutes(1)
-            every { token } returns "token123"
-        }
+        val waitingQueue =
+            mockk<WaitingQueue> {
+                every { status } returns QueueStatus.ACTIVE
+                every { expiresAt } returns LocalDateTime.now().minusMinutes(1)
+                every { token } returns "token123"
+            }
 
         // when, then
         assertThrows<TokenExpiredException> {
@@ -89,11 +91,30 @@ class QueueManagerTest {
     @Test
     fun `should count active queues by schedule id`() {
         // given
-        val activeQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token1", status = QueueStatus.ACTIVE, queuePosition = 1, expiresAt = null),
-            WaitingQueue(scheduleId = 1L, token = "token2", status = QueueStatus.ACTIVE, queuePosition = 2, expiresAt = null),
-            WaitingQueue(scheduleId = 2L, token = "token3", status = QueueStatus.ACTIVE, queuePosition = 3, expiresAt = null)
-        )
+        val activeQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token1",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = null,
+                ),
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token2",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 2,
+                    expiresAt = null,
+                ),
+                WaitingQueue(
+                    scheduleId = 2L,
+                    token = "token3",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 3,
+                    expiresAt = null,
+                ),
+            )
 
         // when
         val result = queueManager.countActiveQueuesByScheduleId(activeQueues)
@@ -106,10 +127,23 @@ class QueueManagerTest {
     @Test
     fun `should activate pending queues`() {
         // given
-        val pendingQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token1", status = QueueStatus.PENDING, queuePosition = 1, expiresAt = null),
-            WaitingQueue(scheduleId = 1L, token = "token2", status = QueueStatus.PENDING, queuePosition = 2, expiresAt = null)
-        )
+        val pendingQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token1",
+                    status = QueueStatus.PENDING,
+                    queuePosition = 1,
+                    expiresAt = null,
+                ),
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token2",
+                    status = QueueStatus.PENDING,
+                    queuePosition = 2,
+                    expiresAt = null,
+                ),
+            )
         val activeCountMap = mutableMapOf(1L to 0)
         every { waitingQueueProperties.maxActiveUsers } returns 2
         every { waitingQueueProperties.expireMinutes } returns 30
@@ -124,10 +158,23 @@ class QueueManagerTest {
     @Test
     fun `should expire active queues`() {
         // given
-        val expiredQueues = listOf(
-            WaitingQueue(scheduleId = 1L, token = "token1", status = QueueStatus.ACTIVE, queuePosition = 1, expiresAt = null),
-            WaitingQueue(scheduleId = 1L, token = "token2", status = QueueStatus.ACTIVE, queuePosition = 2, expiresAt = null)
-        )
+        val expiredQueues =
+            listOf(
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token1",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = null,
+                ),
+                WaitingQueue(
+                    scheduleId = 1L,
+                    token = "token2",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 2,
+                    expiresAt = null,
+                ),
+            )
 
         // when
         queueManager.expireActiveQueues(expiredQueues)

@@ -2,13 +2,13 @@ package hhplus.concertreservation.application.concert
 
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
+import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.enums.ReservationStatus
+import hhplus.concertreservation.domain.common.enums.SeatStatus
 import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
 import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
 import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
-import hhplus.concertreservation.domain.common.enums.QueueStatus
-import hhplus.concertreservation.domain.common.enums.ReservationStatus
-import hhplus.concertreservation.domain.common.enums.SeatStatus
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Seat
@@ -47,35 +47,38 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         concert1 = concertJpaRepository.save(Concert(title = "Concert 1", duration = 120))
 
-        schedule1 = concertScheduleJpaRepository.save(
-            ConcertSchedule(
-                concertId = concert1.id,
-                startTime = LocalDateTime.now(),
-                totalSeats = 5,
-                availableSeats = 5
+        schedule1 =
+            concertScheduleJpaRepository.save(
+                ConcertSchedule(
+                    concertId = concert1.id,
+                    startTime = LocalDateTime.now(),
+                    totalSeats = 5,
+                    availableSeats = 5,
+                ),
             )
-        )
-        schedule2 = concertScheduleJpaRepository.save(
-            ConcertSchedule(
-                concertId = concert1.id,
-                startTime = LocalDateTime.now().plusDays(1),
-                totalSeats = 5,
-                availableSeats = 5
+        schedule2 =
+            concertScheduleJpaRepository.save(
+                ConcertSchedule(
+                    concertId = concert1.id,
+                    startTime = LocalDateTime.now().plusDays(1),
+                    totalSeats = 5,
+                    availableSeats = 5,
+                ),
             )
-        )
 
         createSeatsForSchedule(schedule1)
         createSeatsForSchedule(schedule2)
 
-        waitingQueue = waitingQueueJpaRepository.save(
-            WaitingQueue(
-                scheduleId = schedule1.id,
-                token = "123e4567-e89b-12d3-a456-426614174000",
-                status = QueueStatus.ACTIVE,
-                queuePosition = 1,
-                expiresAt = LocalDateTime.now().plusMinutes(10)
+        waitingQueue =
+            waitingQueueJpaRepository.save(
+                WaitingQueue(
+                    scheduleId = schedule1.id,
+                    token = "123e4567-e89b-12d3-a456-426614174000",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = LocalDateTime.now().plusMinutes(10),
+                ),
             )
-        )
     }
 
     private fun createSeatsForSchedule(schedule: ConcertSchedule) {
@@ -85,8 +88,8 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     seatNumber = seatNumber + 1,
                     price = BigDecimal("10000.00"),
-                    status = SeatStatus.AVAILABLE
-                )
+                    status = SeatStatus.AVAILABLE,
+                ),
             )
         }
     }
@@ -123,12 +126,13 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     @Test
     fun `must create pending reservation`() {
         // given
-        val command = ReservationCommand(
-            userId = 1L,
-            scheduleId = 1L,
-            seatId = 1L,
-            token = "123e4567-e89b-12d3-a456-426614174000"
-        )
+        val command =
+            ReservationCommand(
+                userId = 1L,
+                scheduleId = 1L,
+                seatId = 1L,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+            )
 
         // when
         val reservationInfo: ReservationInfo = concertFacade.createReservation(command)
@@ -150,27 +154,29 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         val token = "123e4567-e89b-12d3-a456-426614174000"
         val userIdList = listOf(1L, 2L, 3L, 4L, 5L)
         val successCount = AtomicInteger(0)
-        val commands = userIdList.map { userId ->
-            ReservationCommand(
-                userId = userId,
-                scheduleId = scheduleId,
-                seatId = userId,
-                token = token
-            )
-        }
+        val commands =
+            userIdList.map { userId ->
+                ReservationCommand(
+                    userId = userId,
+                    scheduleId = scheduleId,
+                    seatId = userId,
+                    token = token,
+                )
+            }
         val executor: ExecutorService = Executors.newFixedThreadPool(5)
 
         // when
-        val tasks = commands.map { command ->
-            Callable {
-                try {
-                    concertFacade.createReservation(command)
-                    successCount.incrementAndGet()
-                } catch (e: Exception) {
-                    println("Reservation failed for userId: ${command.userId}, reason: ${e.message}")
+        val tasks =
+            commands.map { command ->
+                Callable {
+                    try {
+                        concertFacade.createReservation(command)
+                        successCount.incrementAndGet()
+                    } catch (e: Exception) {
+                        println("Reservation failed for userId: ${command.userId}, reason: ${e.message}")
+                    }
                 }
             }
-        }
 
         executor.invokeAll(tasks)
         executor.shutdown()

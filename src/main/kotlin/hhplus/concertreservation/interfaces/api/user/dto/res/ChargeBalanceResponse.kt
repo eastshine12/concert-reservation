@@ -8,7 +8,7 @@ data class ChargeBalanceResponse(
     companion object {
         fun fromInfo(updateBalanceInfo: UpdateBalanceInfo): ChargeBalanceResponse {
             return ChargeBalanceResponse(
-                status = if (updateBalanceInfo.success) "success" else "failure"
+                status = if (updateBalanceInfo.success) "success" else "failure",
             )
         }
     }

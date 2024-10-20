@@ -10,7 +10,7 @@ fun WaitingQueue.toTokenInfo(): TokenInfo {
         token = this.token,
         status = this.status,
         queuePosition = this.queuePosition,
-        expiresAt = this.expiresAt
+        expiresAt = this.expiresAt,
     )
 }
 

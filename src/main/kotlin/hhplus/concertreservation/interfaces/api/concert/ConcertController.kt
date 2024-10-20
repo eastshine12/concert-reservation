@@ -17,7 +17,7 @@ class ConcertController(
         @PathVariable concertId: Long,
     ): ResponseEntity<ConcertResponse> {
         return ResponseEntity.ok(
-            ConcertResponse.fromInfo(concertFacade.getReservationAvailableDates(token, concertId))
+            ConcertResponse.fromInfo(concertFacade.getReservationAvailableDates(token, concertId)),
         )
     }
 
@@ -28,7 +28,7 @@ class ConcertController(
         @PathVariable scheduleId: Long,
     ): ResponseEntity<AvailableSeatsResponse> {
         return ResponseEntity.ok(
-            AvailableSeatsResponse.fromInfoList(concertFacade.getSeatsInfo(token, scheduleId))
+            AvailableSeatsResponse.fromInfoList(concertFacade.getSeatsInfo(token, scheduleId)),
         )
     }
 
@@ -38,7 +38,7 @@ class ConcertController(
         @RequestBody request: ReserveSeatRequest,
     ): ResponseEntity<ReserveSeatResponse> {
         return ResponseEntity.ok(
-            ReserveSeatResponse.fromInfo(concertFacade.createReservation(request.toCommand(token)))
+            ReserveSeatResponse.fromInfo(concertFacade.createReservation(request.toCommand(token))),
         )
     }
 }

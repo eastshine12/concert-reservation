@@ -12,7 +12,6 @@ import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
 
 class SeatFinderTest {
-
     private val seatRepository: SeatRepository = mockk()
     private val seatFinder = SeatFinder(seatRepository)
 
@@ -23,9 +22,10 @@ class SeatFinderTest {
         every { seatRepository.findByIdOrNullWithLock(seatId) } returns null
 
         // when & then
-        val exception = assertThrows<SeatNotFoundException> {
-            seatFinder.getSeatWithLock(seatId)
-        }
+        val exception =
+            assertThrows<SeatNotFoundException> {
+                seatFinder.getSeatWithLock(seatId)
+            }
 
         // then
         assertEquals("Seat with id $seatId not found", exception.message)
@@ -36,18 +36,20 @@ class SeatFinderTest {
         // given
         val seatId = 1L
         val scheduleId = 2L
-        val seat = Seat(
-            scheduleId = 3L,
-            seatNumber = 1,
-            price = BigDecimal.valueOf(100.0),
-            status = SeatStatus.AVAILABLE
-        )
+        val seat =
+            Seat(
+                scheduleId = 3L,
+                seatNumber = 1,
+                price = BigDecimal.valueOf(100.0),
+                status = SeatStatus.AVAILABLE,
+            )
         every { seatRepository.findByIdOrNullWithLock(seatId) } returns seat
 
         // when & then
-        val exception = assertThrows<IllegalStateException> {
-            seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
-        }
+        val exception =
+            assertThrows<IllegalStateException> {
+                seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
+            }
 
         // then
         assertEquals("The seat is either unavailable or does not belong to the schedule.", exception.message)
@@ -58,18 +60,20 @@ class SeatFinderTest {
         // given
         val seatId = 1L
         val scheduleId = 1L
-        val seat = Seat(
-            scheduleId = scheduleId,
-            seatNumber = 1,
-            price = BigDecimal.valueOf(100.0),
-            status = SeatStatus.UNAVAILABLE
-        )
+        val seat =
+            Seat(
+                scheduleId = scheduleId,
+                seatNumber = 1,
+                price = BigDecimal.valueOf(100.0),
+                status = SeatStatus.UNAVAILABLE,
+            )
         every { seatRepository.findByIdOrNullWithLock(seatId) } returns seat
 
         // when & then
-        val exception = assertThrows<IllegalStateException> {
-            seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
-        }
+        val exception =
+            assertThrows<IllegalStateException> {
+                seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
+            }
 
         // then
         assertEquals("The seat is either unavailable or does not belong to the schedule.", exception.message)
