@@ -17,13 +17,13 @@ class ReservationService(
     @Transactional
     fun createPendingReservation(userId: Long, scheduleId: Long, seatId: Long): Reservation {
         seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
-        decreaseAvailableSeatsWithoutLock(scheduleId)
+        occupySeatWithoutLock(scheduleId)
         return concertManager.createPendingReservation(userId, scheduleId, seatId)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun decreaseAvailableSeatsWithoutLock(scheduleId: Long) {
-        concertManager.getScheduleById(scheduleId).decreaseAvailableSeats()
+    fun occupySeatWithoutLock(scheduleId: Long) {
+        concertManager.getScheduleById(scheduleId).occupySeat()
     }
 
     fun confirmReservation(reservationId: Long): Reservation {

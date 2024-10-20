@@ -10,24 +10,35 @@ import java.time.LocalDateTime
 
 @Entity
 class ConcertSchedule(
-    var concertId: Long,
-    var startTime: LocalDateTime,
-    var totalSeats: Int,
-    var availableSeats: Int,
+    val concertId: Long,
+    startTime: LocalDateTime,
+    totalSeats: Int,
+    availableSeats: Int,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
+    val id: Long = 0L,
 ) : BaseEntity() {
-    fun decreaseAvailableSeats() {
+
+    var startTime: LocalDateTime = startTime
+        protected set
+
+    var totalSeats: Int = totalSeats
+        protected set
+
+    var availableSeats: Int = availableSeats
+        protected set
+
+    fun occupySeat() {
         if (availableSeats <= 0) {
             throw SeatAvailabilityException("No available seats left to reserve.")
         }
         this.availableSeats -= 1
     }
 
-    fun increaseAvailableSeats() {
-        if (totalSeats >= 0) {
+    fun restoreSeat() {
+        if (availableSeats >= totalSeats) {
             throw SeatAvailabilityException("All seats are already available. Cannot increase available seats.")
         }
         this.availableSeats += 1
     }
 }
+

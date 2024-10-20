@@ -20,7 +20,7 @@ class ConcertScheduleTest {
 
         // when & then
         val exception = assertThrows<SeatAvailabilityException> {
-            concertSchedule.decreaseAvailableSeats()
+            concertSchedule.occupySeat()
         }
 
         // then
@@ -39,7 +39,7 @@ class ConcertScheduleTest {
 
         // when & then
         val exception = assertThrows<SeatAvailabilityException> {
-            concertSchedule.increaseAvailableSeats()
+            concertSchedule.restoreSeat()
         }
 
         // then
