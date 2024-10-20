@@ -7,15 +7,21 @@ import java.time.LocalDateTime
 
 @Entity
 class WaitingQueue(
-    var scheduleId: Long,
-    var token: String,
-    @Enumerated(EnumType.STRING)
-    var status: QueueStatus,
-    var queuePosition: Int,
-    var expiresAt: LocalDateTime?,
+    val scheduleId: Long,
+    val token: String,
+    status: QueueStatus,
+    val queuePosition: Int,
+    expiresAt: LocalDateTime?,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
+    val id: Long = 0L
 ) : BaseEntity() {
+
+    @Enumerated(EnumType.STRING)
+    var status: QueueStatus = status
+        protected set
+
+    var expiresAt: LocalDateTime? = expiresAt
+        protected set
 
     fun expire() {
         status = QueueStatus.EXPIRED

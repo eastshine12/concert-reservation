@@ -8,8 +8,15 @@ import jakarta.persistence.Id
 
 @Entity
 class Concert(
-    var title: String,
-    var duration: Int,
+    title: String,
+    duration: Int,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-) : BaseEntity()
+    val id: Long = 0L,
+) : BaseEntity() {
+
+    var title: String = title
+        protected set
+
+    var duration: Int = duration
+        protected set
+}

@@ -8,14 +8,24 @@ import java.math.BigDecimal
 @Table(name = "users")
 @Entity
 class User(
-    var name: String,
-    var email: String,
-    var balance: BigDecimal,
+    name: String,
+    email: String,
+    balance: BigDecimal,
     @Version
     var version: Long? = null,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
 ) : BaseEntity() {
+
+    var name: String = name
+        protected set
+
+    var email: String = email
+        protected set
+
+    var balance: BigDecimal = balance
+        protected set
+
     fun charge(amount: BigDecimal) {
         if (amount <= BigDecimal.ZERO) {
             throw InvalidBalanceAmountException("Charge amount must be positive")

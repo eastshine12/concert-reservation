@@ -7,10 +7,20 @@ import java.math.BigDecimal
 
 @Entity
 class BalanceHistory(
-    var userId: Long,
-    var amount: BigDecimal,
+    val userId: Long,
+    val amount: BigDecimal,
     @Enumerated(EnumType.STRING)
-    var type: PointTransactionType,
+    val type: PointTransactionType,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-) : BaseEntity()
+    val id: Long = 0L
+) : BaseEntity() {
+    companion object {
+        fun create(userId: Long, amount: BigDecimal, type: PointTransactionType): BalanceHistory {
+            return BalanceHistory(
+                userId = userId,
+                amount = amount,
+                type = type
+            )
+        }
+    }
+}

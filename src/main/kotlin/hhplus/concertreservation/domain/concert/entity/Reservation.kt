@@ -8,15 +8,22 @@ import java.time.LocalDateTime
 
 @Entity
 class Reservation(
-    var userId: Long,
-    var scheduleId: Long,
-    var seatId: Long,
-    @Enumerated(EnumType.STRING)
-    var status: ReservationStatus,
-    var expiresAt: LocalDateTime,
+    val userId: Long,
+    val scheduleId: Long,
+    val seatId: Long,
+    status: ReservationStatus,
+    expiresAt: LocalDateTime,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
+    val id: Long = 0L
 ) : BaseEntity() {
+
+    @Enumerated(EnumType.STRING)
+    var status: ReservationStatus = status
+        protected set
+
+    var expiresAt: LocalDateTime = expiresAt
+        protected set
+
     fun confirm() {
         if (status != ReservationStatus.PENDING) {
             throw InvalidReservationStatusException("Reservation is not in pending state")

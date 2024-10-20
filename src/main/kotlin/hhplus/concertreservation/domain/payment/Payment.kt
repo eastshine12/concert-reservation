@@ -7,11 +7,28 @@ import java.math.BigDecimal
 
 @Entity
 class Payment(
-    var userId: Long,
-    var reservationId: Long,
-    var amount: BigDecimal,
-    @Enumerated(EnumType.STRING)
-    var status: PaymentStatus,
+    val userId: Long,
+    val reservationId: Long,
+    amount: BigDecimal,
+    status: PaymentStatus,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
-) : BaseEntity()
+    val id: Long = 0L
+) : BaseEntity() {
+    var amount: BigDecimal = amount
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    var status: PaymentStatus = status
+        protected set
+
+    companion object {
+        fun create(userId: Long, reservationId: Long, amount: BigDecimal): Payment {
+            return Payment(
+                userId = userId,
+                reservationId = reservationId,
+                amount = amount,
+                status = PaymentStatus.SUCCESS
+            )
+        }
+    }
+}

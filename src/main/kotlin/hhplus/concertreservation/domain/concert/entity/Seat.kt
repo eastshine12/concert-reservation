@@ -7,14 +7,23 @@ import java.math.BigDecimal
 
 @Entity
 class Seat(
-    var scheduleId: Long,
-    var seatNumber: Int,
-    var price: BigDecimal,
-    @Enumerated(EnumType.STRING)
-    var status: SeatStatus,
+    val scheduleId: Long,
+    seatNumber: Int,
+    price: BigDecimal,
+    status: SeatStatus,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0L,
+    val id: Long = 0L
 ) : BaseEntity() {
+
+    var seatNumber: Int = seatNumber
+        protected set
+
+    var price: BigDecimal = price
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    var status: SeatStatus = status
+        protected set
 
     fun reserve() {
         if (this.status != SeatStatus.AVAILABLE) {
