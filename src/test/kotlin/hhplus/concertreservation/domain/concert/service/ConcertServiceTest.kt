@@ -66,7 +66,7 @@ class ConcertServiceTest {
 
         // when, then
         assertThrows<SeatsNotFoundException> {
-            concertService.getSeatById(seatId)
+            concertService.verifyAndGetSeatInfo(seatId)
         }
     }
 

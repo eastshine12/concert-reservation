@@ -1,6 +1,7 @@
 package hhplus.concertreservation.domain.user.entity
 
 import hhplus.concertreservation.domain.common.BaseEntity
+import hhplus.concertreservation.domain.user.exception.InsufficientBalanceException
 import hhplus.concertreservation.domain.user.exception.InvalidBalanceAmountException
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -37,7 +38,7 @@ class User(
             throw InvalidBalanceAmountException("Usage amount must be positive")
         }
         if (balance < amount) {
-            throw InvalidBalanceAmountException("Insufficient balance")
+            throw InsufficientBalanceException("Insufficient balance")
         }
         balance = balance.subtract(amount)
     }

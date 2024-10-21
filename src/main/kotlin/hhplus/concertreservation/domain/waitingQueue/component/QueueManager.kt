@@ -41,12 +41,12 @@ class QueueManager(
     }
 
     fun validateTokenState(queue: WaitingQueue) {
-        if (queue.status != QueueStatus.ACTIVE) {
-            throw InvalidTokenException("Token is not active: ${queue.token}")
+        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt!!.isBefore(LocalDateTime.now())) {
+            throw TokenExpiredException("Token has expired: ${queue.token}")
         }
 
-        if (queue.expiresAt!!.isBefore(LocalDateTime.now())) {
-            throw TokenExpiredException("Token has expired: ${queue.token}")
+        if (queue.status != QueueStatus.ACTIVE) {
+            throw InvalidTokenException("Token is not active: ${queue.token}")
         }
     }
 

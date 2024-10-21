@@ -2,6 +2,7 @@ package hhplus.concertreservation.domain.concert.entity
 
 import hhplus.concertreservation.domain.common.BaseEntity
 import hhplus.concertreservation.domain.common.enums.SeatStatus
+import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -26,14 +27,14 @@ class Seat(
 
     fun reserve() {
         if (this.status != SeatStatus.AVAILABLE) {
-            throw IllegalStateException("Seat is not available for reservation.")
+            throw SeatAvailabilityException("Seat is not available for reservation.")
         }
         this.status = SeatStatus.UNAVAILABLE
     }
 
     fun markAsAvailable() {
         if (status == SeatStatus.AVAILABLE) {
-            throw IllegalStateException("Seat is already available.")
+            throw SeatAvailabilityException("Seat is already available.")
         }
         this.status = SeatStatus.AVAILABLE
     }

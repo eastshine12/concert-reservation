@@ -2,6 +2,7 @@ package hhplus.concertreservation.domain.concert.component
 
 import hhplus.concertreservation.domain.common.enums.SeatStatus
 import hhplus.concertreservation.domain.concert.entity.Seat
+import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
 import hhplus.concertreservation.domain.concert.exception.SeatNotFoundException
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
 import io.mockk.every
@@ -28,7 +29,7 @@ class SeatFinderTest {
             }
 
         // then
-        assertEquals("Seat with id $seatId not found", exception.message)
+        assertEquals("Seat not found with id $seatId", exception.message)
     }
 
     @Test
@@ -47,12 +48,12 @@ class SeatFinderTest {
 
         // when & then
         val exception =
-            assertThrows<IllegalStateException> {
+            assertThrows<SeatNotFoundException> {
                 seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
             }
 
         // then
-        assertEquals("The seat is either unavailable or does not belong to the schedule.", exception.message)
+        assertEquals("Seat with id $seatId does not belong to schedule with id $scheduleId", exception.message)
     }
 
     @Test
@@ -71,11 +72,11 @@ class SeatFinderTest {
 
         // when & then
         val exception =
-            assertThrows<IllegalStateException> {
+            assertThrows<SeatAvailabilityException> {
                 seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
             }
 
         // then
-        assertEquals("The seat is either unavailable or does not belong to the schedule.", exception.message)
+        assertEquals("Seat is not available for reservation with id $seatId", exception.message)
     }
 }

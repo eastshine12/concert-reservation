@@ -15,7 +15,7 @@ class TokenManager {
             UUID.fromString(token)
             token
         } catch (e: IllegalArgumentException) {
-            throw InvalidTokenException("토큰 형식이 유효하지 않습니다: $token")
+            throw InvalidTokenException("Token is invalid: $token")
         }
     }
 }

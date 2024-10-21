@@ -19,7 +19,7 @@ class UserService(
 ) {
     fun getByUserId(userId: Long): User {
         return userRepository.findByIdOrNull(userId)
-            ?: throw UserNotFoundException("User with id $userId not found.")
+            ?: throw UserNotFoundException("User not found with id $userId")
     }
 
     fun getUserBalance(userId: Long): BigDecimal {

@@ -1,5 +1,6 @@
 package hhplus.concertreservation.domain.user.entity
 
+import hhplus.concertreservation.domain.user.exception.InsufficientBalanceException
 import hhplus.concertreservation.domain.user.exception.InvalidBalanceAmountException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -34,7 +35,7 @@ class UserTest {
         val user = User(name = "홍길동", email = "hong@example.com", balance = BigDecimal("50.00"))
 
         // when / then
-        assertThrows<InvalidBalanceAmountException> {
+        assertThrows<InsufficientBalanceException> {
             user.use(BigDecimal("60.00"))
         }
     }

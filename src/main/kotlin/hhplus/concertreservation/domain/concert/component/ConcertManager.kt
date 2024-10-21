@@ -19,12 +19,12 @@ class ConcertManager(
 ) {
     fun getScheduleById(scheduleId: Long): ConcertSchedule {
         return scheduleRepository.findByIdOrNull(scheduleId)
-            ?: throw ConcertScheduleNotFoundException("Concert schedule with id $scheduleId not found")
+            ?: throw ConcertScheduleNotFoundException("Concert schedule not found with id $scheduleId")
     }
 
     fun getReservationWithLock(reservationId: Long): Reservation {
         return reservationRepository.findByIdOrNullWithLock(reservationId)
-            ?: throw ReservationNotFoundException("Reservation with id $reservationId not found")
+            ?: throw ReservationNotFoundException("Reservation not found with id $reservationId")
     }
 
     fun createPendingReservation(
