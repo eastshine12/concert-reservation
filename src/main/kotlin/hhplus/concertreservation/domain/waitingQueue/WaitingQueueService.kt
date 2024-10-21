@@ -1,5 +1,6 @@
 package hhplus.concertreservation.domain.waitingQueue
 
+import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
@@ -20,7 +21,8 @@ class WaitingQueueService(
     ): WaitingQueue {
         token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
-            queueManager.findQueueByToken(validToken)?.takeIf { queue -> queue.scheduleId == schedule.id }
+            queueManager.findQueueByToken(validToken)
+                ?.takeIf { queue -> queue.scheduleId == schedule.id && queue.status != QueueStatus.EXPIRED }
                 ?.run { throw TokenAlreadyExistsException("Token already exists for this schedule.") }
         }
 
