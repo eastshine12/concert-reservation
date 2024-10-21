@@ -1,8 +1,8 @@
 package hhplus.concertreservation.application.payment
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
-import hhplus.concertreservation.domain.concert.entity.Reservation
-import hhplus.concertreservation.domain.concert.entity.Seat
+import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.service.ConcertService
 import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.payment.Payment
@@ -26,12 +26,11 @@ class PaymentFacade(
     @Transactional
     fun processPayment(command: PaymentCommand): PaymentInfo {
         waitingQueueService.validateTokenState(command.token)
-        val reservation: Reservation = reservationService.confirmReservation(command.reservationId)
-        val seat: Seat = concertService.getSeatById(reservation.seatId)
-        userService.updateUserBalance(command.userId, seat.price, PointTransactionType.USE)
-        val payment: Payment = paymentService.savePayment(command.userId, command.reservationId, seat.price)
+        val reservationInfo: ReservationInfo = reservationService.confirmReservation(command.reservationId)
+        val seatInfo: SeatInfo = concertService.verifyAndGetSeatInfo(reservationInfo.seatId)
+        userService.updateUserBalance(command.userId, seatInfo.price, PointTransactionType.USE)
         waitingQueueService.expireToken(command.token)
-        return payment.toPaymentInfo()
+        return paymentService.savePayment(command.userId, command.reservationId, seatInfo.price)
     }
 
     fun getPaymentsByUserId(userId: Long): List<PaymentInfo> {

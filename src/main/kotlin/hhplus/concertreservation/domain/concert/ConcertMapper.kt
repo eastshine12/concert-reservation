@@ -1,9 +1,6 @@
 package hhplus.concertreservation.domain.concert
 
-import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.domain.concert.dto.info.ConcertScheduleInfo
-import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
-import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
+import hhplus.concertreservation.domain.concert.dto.info.*
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation
@@ -29,10 +26,21 @@ fun ConcertSchedule.toConcertScheduleInfo(): ConcertScheduleInfo {
     )
 }
 
-fun Reservation.toReservationInfo(success: Boolean): ReservationInfo {
-    return ReservationInfo(
+fun Reservation.toCreateReservationInfo(success: Boolean): CreateReservationInfo {
+    return CreateReservationInfo(
         success = success,
         reservationId = this.id,
+    )
+}
+
+fun Reservation.toReservationInfo(): ReservationInfo {
+    return ReservationInfo(
+        reservationId = this.id,
+        userId = this.userId,
+        scheduleId = this.scheduleId,
+        seatId = this.seatId,
+        status = this.status.name,
+        expiresAt = this.expiresAt,
     )
 }
 

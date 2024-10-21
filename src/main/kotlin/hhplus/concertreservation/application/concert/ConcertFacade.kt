@@ -2,7 +2,7 @@ package hhplus.concertreservation.application.concert
 
 import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
 import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
@@ -43,7 +43,7 @@ class ConcertFacade(
         return seats.map { it.toSeatInfo() }
     }
 
-    fun createReservation(command: ReservationCommand): ReservationInfo {
+    fun createReservation(command: ReservationCommand): CreateReservationInfo {
         waitingQueueService.validateTokenState(command.token, command.scheduleId)
         val user: User = userService.getByUserId(command.userId)
         val schedule: ConcertSchedule = concertService.getScheduleById(command.scheduleId)

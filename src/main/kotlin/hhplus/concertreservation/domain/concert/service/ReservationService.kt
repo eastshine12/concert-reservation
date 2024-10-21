@@ -2,9 +2,11 @@ package hhplus.concertreservation.domain.concert.service
 
 import hhplus.concertreservation.domain.concert.component.ConcertManager
 import hhplus.concertreservation.domain.concert.component.SeatFinder
+import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
+import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
@@ -21,11 +23,11 @@ class ReservationService(
         userId: Long,
         scheduleId: Long,
         seatId: Long,
-    ): ReservationInfo {
+    ): CreateReservationInfo {
         seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
         occupySeatWithoutLock(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
-        return reservation.toReservationInfo(success = true)
+        return reservation.toCreateReservationInfo(success = true)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -33,9 +35,9 @@ class ReservationService(
         concertManager.getScheduleById(scheduleId).occupySeat()
     }
 
-    fun confirmReservation(reservationId: Long): Reservation {
+    fun confirmReservation(reservationId: Long): ReservationInfo {
         val reservation: Reservation = concertManager.getReservationWithLock(reservationId)
         reservation.confirm()
-        return reservationRepository.save(reservation)
+        return reservationRepository.save(reservation).toReservationInfo()
     }
 }
