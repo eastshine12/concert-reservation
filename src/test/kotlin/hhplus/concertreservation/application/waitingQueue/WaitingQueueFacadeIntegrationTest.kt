@@ -4,12 +4,18 @@ import hhplus.concertreservation.application.waitingQueue.WaitingQueueFacade
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
+import hhplus.concertreservation.domain.concert.exception.ConcertScheduleNotFoundException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
+import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
+import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
@@ -110,5 +116,94 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         assertNotNull(waitingQueueInfo)
         assertEquals(2, waitingQueueInfo.remainingPosition)
         assertEquals(QueueStatus.PENDING, waitingQueueInfo.status)
+    }
+
+    @Test
+    fun `should throw exception when concert schedule id is invalid during token issuance`() {
+        // Given
+        val invalidScheduleId = 999L // 존재하지 않는 일정 ID
+        val tokenCommand =
+            TokenCommand(
+                concertId = concert.id,
+                concertScheduleId = invalidScheduleId,
+                token = null,
+                userId = 1L,
+            )
+
+        // When & Then
+        val exception =
+            assertThrows<ConcertScheduleNotFoundException> {
+                waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
+            }
+
+        assertEquals("Concert schedule not found with id $invalidScheduleId", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when token already exists in waiting queue`() {
+        // Given
+        val existingToken = "123e4567-e89b-12d3-a456-426614174000"
+
+        val tokenCommand =
+            TokenCommand(
+                concertId = concert.id,
+                concertScheduleId = schedule.id,
+                token = existingToken,
+                userId = 1L,
+            )
+
+        // When & Then
+        val exception =
+            assertThrows<TokenAlreadyExistsException> {
+                waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
+            }
+
+        assertEquals("Token already exists for this schedule.", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when token is invalid during waiting queue status retrieval`() {
+        // Given
+        val invalidToken = "invalid-token"
+
+        // When & Then
+        val exception =
+            assertThrows<InvalidTokenException> {
+                waitingQueueFacade.getWaitingQueueStatus(invalidToken)
+            }
+
+        assertEquals("Token is invalid: $invalidToken", exception.message)
+    }
+
+    @Test
+    fun `should issue new token when existing token is expired`() {
+        // Given
+        val expiredToken =
+            waitingQueueJpaRepository.save(
+                WaitingQueue(
+                    scheduleId = schedule.id,
+                    token = "123e4567-e89b-12d3-a456-426614174005",
+                    status = QueueStatus.EXPIRED,
+                    queuePosition = 10,
+                    expiresAt = LocalDateTime.now().minusMinutes(10L),
+                ),
+            )
+
+        val tokenCommand =
+            TokenCommand(
+                concertId = concert.id,
+                concertScheduleId = schedule.id,
+                token = expiredToken.token,
+                userId = 1L,
+            )
+
+        // When
+        val tokenInfo: TokenInfo = waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
+
+        // Then
+        assertNotNull(tokenInfo)
+        assertEquals(schedule.id, tokenInfo.scheduleId)
+        assertNotEquals(expiredToken, tokenInfo.token)
+        assertTrue(tokenInfo.queuePosition > waitingQueue2.queuePosition)
     }
 }

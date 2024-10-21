@@ -7,16 +7,21 @@ import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus
 import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
 import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
-import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
+import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Seat
+import hhplus.concertreservation.domain.concert.exception.ConcertNotFoundException
+import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
+import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
+import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
@@ -32,7 +37,9 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     private lateinit var concertFacade: ConcertFacade
     private lateinit var user1: User
     private lateinit var user2: User
-    private lateinit var waitingQueue: WaitingQueue
+    private lateinit var waitingQueue1: WaitingQueue
+    private lateinit var waitingQueue2: WaitingQueue
+    private lateinit var waitingQueue3: WaitingQueue
     private lateinit var concert1: Concert
     private lateinit var schedule1: ConcertSchedule
     private lateinit var schedule2: ConcertSchedule
@@ -62,14 +69,15 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     concertId = concert1.id,
                     startTime = LocalDateTime.now().plusDays(1),
                     totalSeats = 5,
-                    availableSeats = 5,
+                    availableSeats = 0,
                 ),
             )
 
+        // create seats
         createSeatsForSchedule(schedule1)
         createSeatsForSchedule(schedule2)
 
-        waitingQueue =
+        waitingQueue1 =
             waitingQueueJpaRepository.save(
                 WaitingQueue(
                     scheduleId = schedule1.id,
@@ -77,6 +85,27 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     status = QueueStatus.ACTIVE,
                     queuePosition = 1,
                     expiresAt = LocalDateTime.now().plusMinutes(10),
+                ),
+            )
+        waitingQueue2 =
+            waitingQueueJpaRepository.save(
+                WaitingQueue(
+                    scheduleId = schedule2.id,
+                    token = "123e4567-e89b-12d3-a456-426614174001",
+                    status = QueueStatus.ACTIVE,
+                    queuePosition = 1,
+                    expiresAt = LocalDateTime.now().plusMinutes(10),
+                ),
+            )
+        // expired token
+        waitingQueue3 =
+            waitingQueueJpaRepository.save(
+                WaitingQueue(
+                    scheduleId = schedule1.id,
+                    token = "123e4567-e89b-12d3-a456-426614174002",
+                    status = QueueStatus.EXPIRED,
+                    queuePosition = 1,
+                    expiresAt = LocalDateTime.now().minusMinutes(10),
                 ),
             )
     }
@@ -135,12 +164,12 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             )
 
         // when
-        val reservationInfo: ReservationInfo = concertFacade.createReservation(command)
+        val createReservationInfo: CreateReservationInfo = concertFacade.createReservation(command)
 
         // then
-        assertNotNull(reservationInfo)
-        assertEquals(true, reservationInfo.success)
-        assertEquals(1L, reservationInfo.reservationId)
+        assertNotNull(createReservationInfo)
+        assertEquals(true, createReservationInfo.success)
+        assertEquals(1L, createReservationInfo.reservationId)
 
         assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(1L).get().status)
         assertEquals(4, concertScheduleJpaRepository.findById(1L).get().availableSeats)
@@ -190,5 +219,128 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById((it + 1).toLong()).get().status)
         }
 //        assertEquals(0, concertScheduleJpaRepository.findById(1L).get().availableSeats)
+    }
+
+    @Test
+    fun `should throw exception when retrieving available reservation dates for non-existing concert`() {
+        // given
+        val nonExistingConcertId = 999L // 존재하지 않는 콘서트 ID
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+
+        // when & then
+        val exception =
+            assertThrows<ConcertNotFoundException> {
+                concertFacade.getReservationAvailableDates(token, nonExistingConcertId)
+            }
+
+        assertEquals("Concert not found for id: $nonExistingConcertId", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when creating reservation for non-existing schedule`() {
+        // given
+        val userId = 1L
+        val nonExistingScheduleId = 999L // 존재하지 않는 일정 ID
+        val seatId = 1L
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+
+        val command =
+            ReservationCommand(
+                userId = userId,
+                scheduleId = nonExistingScheduleId,
+                seatId = seatId,
+                token = token,
+            )
+
+        // when & then
+        val exception =
+            assertThrows<InvalidTokenException> {
+                concertFacade.createReservation(command)
+            }
+
+        assertEquals("Token does not belong to the concert schedule: $nonExistingScheduleId", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when all seats are sold out`() {
+        // given
+        val userId = 1L
+        val scheduleId = schedule2.id // 예약이 모두 끝난 일정 ID
+        val seatId = 6L
+        val token = "123e4567-e89b-12d3-a456-426614174001"
+
+        val command =
+            ReservationCommand(
+                userId = userId,
+                scheduleId = scheduleId,
+                seatId = seatId,
+                token = token,
+            )
+
+        // when & then
+        val exception =
+            assertThrows<SeatAvailabilityException> {
+                concertFacade.createReservation(command)
+            }
+
+        assertEquals("No available seats left to reserve.", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when seat is already reserved on second attempt`() {
+        // given
+        val userId = 1L
+        val scheduleId = schedule1.id
+        val seatId = 1L
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+
+        val command =
+            ReservationCommand(
+                userId = userId,
+                scheduleId = scheduleId,
+                seatId = seatId,
+                token = token,
+            )
+
+        // when - 첫 번째 예약 성공
+        concertFacade.createReservation(command)
+
+        // then - 두 번째 예약 시도에서 예외 발생
+        val exception =
+            assertThrows<SeatAvailabilityException> {
+                concertFacade.createReservation(command)
+            }
+
+        assertEquals("Seat is not available for reservation with id $seatId", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when token is expired`() {
+        // given
+        val scheduleId = schedule1.id
+        val expiredQueue = waitingQueue3
+
+        // when & then
+        val exception =
+            assertThrows<TokenExpiredException> {
+                concertFacade.getSeatsInfo(expiredQueue.token, scheduleId)
+            }
+
+        assertEquals("Token has expired: ${expiredQueue.token}", exception.message)
+    }
+
+    @Test
+    fun `should throw exception when token is invalid`() {
+        // given
+        val scheduleId = schedule1.id
+        val invalidToken = "invalid-token"
+
+        // when & then
+        val exception =
+            assertThrows<InvalidTokenException> {
+                concertFacade.getSeatsInfo(invalidToken, scheduleId)
+            }
+
+        assertEquals("Token is invalid: $invalidToken", exception.message)
     }
 }
