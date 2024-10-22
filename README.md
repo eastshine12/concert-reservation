@@ -11,6 +11,7 @@
 - [ERD](docs/erd.md)
 - [API 명세서](docs/api_specification.md)
 - [Chapter 2 중간 회고록](https://eastshine12.tistory.com/67)
+- [동시성 제어 방식 비교 및 성능 테스트](https://eastshine12.tistory.com/68)
 
 <br/>
 
