@@ -5,6 +5,7 @@ import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.dto.command.ReservationCommand
 import hhplus.concertreservation.domain.concert.dto.info.ConcertInfo
 import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
@@ -12,12 +13,8 @@ import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Seat
-import hhplus.concertreservation.domain.concert.exception.ConcertNotFoundException
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -229,7 +226,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<ConcertNotFoundException> {
+            assertThrows<CoreException> {
                 concertFacade.getReservationAvailableDates(token, nonExistingConcertId)
             }
 
@@ -254,11 +251,11 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<InvalidTokenException> {
+            assertThrows<CoreException> {
                 concertFacade.createReservation(command)
             }
 
-        assertEquals("Token does not belong to the concert schedule: $nonExistingScheduleId", exception.message)
+        assertEquals("Token does not belong to the concert schedule.", exception.message)
     }
 
     @Test
@@ -279,7 +276,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 concertFacade.createReservation(command)
             }
 
@@ -307,11 +304,11 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // then - 두 번째 예약 시도에서 예외 발생
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 concertFacade.createReservation(command)
             }
 
-        assertEquals("Seat is not available for reservation with id $seatId", exception.message)
+        assertEquals("The seat is not available for reservation.", exception.message)
     }
 
     @Test
@@ -322,11 +319,11 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<TokenExpiredException> {
+            assertThrows<CoreException> {
                 concertFacade.getSeatsInfo(expiredQueue.token, scheduleId)
             }
 
-        assertEquals("Token has expired: ${expiredQueue.token}", exception.message)
+        assertEquals("The token has expired.", exception.message)
     }
 
     @Test
@@ -337,10 +334,10 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<InvalidTokenException> {
+            assertThrows<CoreException> {
                 concertFacade.getSeatsInfo(invalidToken, scheduleId)
             }
 
-        assertEquals("Token is invalid: $invalidToken", exception.message)
+        assertEquals("Invalid or missing token.", exception.message)
     }
 }

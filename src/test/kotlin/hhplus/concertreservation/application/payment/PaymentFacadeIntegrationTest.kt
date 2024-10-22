@@ -5,18 +5,14 @@ import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
-import hhplus.concertreservation.domain.concert.exception.InvalidReservationStatusException
-import hhplus.concertreservation.domain.concert.exception.ReservationNotFoundException
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
 import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
 import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.user.entity.User
-import hhplus.concertreservation.domain.user.exception.InsufficientBalanceException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -134,11 +130,11 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<InsufficientBalanceException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("Insufficient balance", exception.message)
+        assertEquals("User has insufficient balance.", exception.message)
     }
 
     @Test
@@ -155,11 +151,11 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<ReservationNotFoundException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("Reservation not found with id $invalidReservationId", exception.message)
+        assertEquals("No reservation found for the given ID.", exception.message)
     }
 
     @Test
@@ -186,7 +182,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<InvalidReservationStatusException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
 
@@ -217,10 +213,10 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<TokenExpiredException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
-        assertEquals("Token has expired: ${command.token}", exception.message)
+        assertEquals("The token has expired.", exception.message)
     }
 
     @Test
@@ -264,11 +260,11 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("The seat is not reserved with id ${seat.id}", exception.message)
+        assertEquals("The seat is not available for reservation.", exception.message)
     }
 
     @Test
@@ -290,10 +286,10 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then - 두 번째 결제
         val exception =
-            assertThrows<TokenExpiredException> {
+            assertThrows<CoreException> {
                 paymentFacade.processPayment(paymentCommand)
             }
 
-        assertEquals("Token has expired: $token", exception.message)
+        assertEquals("The token has expired.", exception.message)
     }
 }

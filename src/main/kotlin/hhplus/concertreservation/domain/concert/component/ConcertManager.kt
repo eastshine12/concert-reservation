@@ -2,10 +2,10 @@ package hhplus.concertreservation.domain.concert.component
 
 import hhplus.concertreservation.config.ReservationProperties
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation
-import hhplus.concertreservation.domain.concert.exception.ConcertScheduleNotFoundException
-import hhplus.concertreservation.domain.concert.exception.ReservationNotFoundException
 import hhplus.concertreservation.domain.concert.repository.ConcertScheduleRepository
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import org.springframework.stereotype.Component
@@ -19,12 +19,22 @@ class ConcertManager(
 ) {
     fun getScheduleById(scheduleId: Long): ConcertSchedule {
         return scheduleRepository.findByIdOrNull(scheduleId)
-            ?: throw ConcertScheduleNotFoundException("Concert schedule not found with id $scheduleId")
+            ?: throw CoreException(
+                errorType = ErrorType.NO_CONCERT_SCHEDULE_FOUND,
+                details = mapOf(
+                    "scheduleId" to scheduleId,
+                )
+            )
     }
 
     fun getReservationWithLock(reservationId: Long): Reservation {
         return reservationRepository.findByIdOrNullWithLock(reservationId)
-            ?: throw ReservationNotFoundException("Reservation not found with id $reservationId")
+            ?: throw CoreException(
+                errorType = ErrorType.NO_RESERVATION_FOUND,
+                details = mapOf(
+                    "reservationId" to reservationId,
+                )
+            )
     }
 
     fun createPendingReservation(

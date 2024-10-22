@@ -1,8 +1,8 @@
 package hhplus.concertreservation.domain.concert.entity
 
 import hhplus.concertreservation.domain.common.enums.SeatStatus
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
-import org.junit.jupiter.api.Assertions.*
+import hhplus.concertreservation.domain.common.exception.CoreException
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -21,12 +21,12 @@ class SeatTest {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 seat.reserve()
             }
 
         // then
-        assertEquals("Seat is not available for reservation.", exception.message)
+        assertEquals("The seat is not available for reservation.", exception.message)
     }
 
     @Test
@@ -42,7 +42,7 @@ class SeatTest {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 seat.markAsAvailable()
             }
 

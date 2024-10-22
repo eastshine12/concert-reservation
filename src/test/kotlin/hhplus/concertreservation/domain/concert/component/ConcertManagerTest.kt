@@ -2,15 +2,15 @@ package hhplus.concertreservation.domain.concert.component
 
 import hhplus.concertreservation.config.ReservationProperties
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.Reservation
-import hhplus.concertreservation.domain.concert.exception.ConcertScheduleNotFoundException
-import hhplus.concertreservation.domain.concert.exception.ReservationNotFoundException
 import hhplus.concertreservation.domain.concert.repository.ConcertScheduleRepository
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -30,7 +30,7 @@ class ConcertManagerTest {
 
         // when & then
         val exception =
-            assertThrows<ConcertScheduleNotFoundException> {
+            assertThrows<CoreException> {
                 concertManager.getScheduleById(scheduleId)
             }
 
@@ -46,12 +46,12 @@ class ConcertManagerTest {
 
         // when & then
         val exception =
-            assertThrows<ReservationNotFoundException> {
+            assertThrows<CoreException> {
                 concertManager.getReservationWithLock(reservationId)
             }
 
         // then
-        assertEquals("Reservation not found with id $reservationId", exception.message)
+        assertEquals("No reservation found for the given ID.", exception.message)
     }
 
     @Test

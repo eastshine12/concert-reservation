@@ -2,11 +2,10 @@ import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.user.UserFacade
 import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.User
-import hhplus.concertreservation.domain.user.exception.InvalidBalanceAmountException
-import hhplus.concertreservation.domain.user.exception.UserNotFoundException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -130,7 +129,7 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<InvalidBalanceAmountException> {
+            assertThrows<CoreException> {
                 userFacade.chargeBalance(command)
             }
 
@@ -153,10 +152,10 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
 
         // when & then
         val exception =
-            assertThrows<UserNotFoundException> {
+            assertThrows<CoreException> {
                 userFacade.chargeBalance(command)
             }
 
-        assertEquals("User not found with id $invalidUserId", exception.message)
+        assertEquals("User not found.", exception.message)
     }
 }

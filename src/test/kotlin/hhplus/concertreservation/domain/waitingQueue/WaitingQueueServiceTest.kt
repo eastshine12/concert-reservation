@@ -1,11 +1,10 @@
 package hhplus.concertreservation.domain.waitingQueue
 
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.QueueNotFoundException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -23,13 +22,11 @@ class WaitingQueueServiceTest {
         // given
         val schedule = mockk<ConcertSchedule>(relaxed = true)
         val waitingQueue = mockk<WaitingQueue>(relaxed = true)
-        val token = "valid-token"
 
-        every { tokenManager.validateAndGetToken(token) } returns token
-        every { queueManager.findQueueByToken(token) } returns waitingQueue
+        every { queueManager.enqueue(any(), any(), any()) } returns waitingQueue
 
         // when
-        val result = waitingQueueService.issueToken(token, schedule)
+        val result = waitingQueueService.issueToken(token = null, schedule = schedule)
 
         // then
         assertEquals(waitingQueue, result)
@@ -49,11 +46,11 @@ class WaitingQueueServiceTest {
 
         // when & then
         val exception =
-            assertThrows<TokenAlreadyExistsException> {
+            assertThrows<CoreException> {
                 waitingQueueService.issueToken(token, schedule)
             }
 
-        assertEquals("Token already exists for this schedule.", exception.message)
+        assertEquals("A queue already exists for this token.", exception.message)
     }
 
     @Test
@@ -61,10 +58,10 @@ class WaitingQueueServiceTest {
         // given
         val invalidToken = "invalid-token"
 
-        every { tokenManager.validateAndGetToken(invalidToken) } throws InvalidTokenException("Invalid token format")
+        every { tokenManager.validateAndGetToken(invalidToken) } throws CoreException(ErrorType.INVALID_TOKEN)
 
         // when / then
-        assertThrows<InvalidTokenException> {
+        assertThrows<CoreException> {
             waitingQueueService.validateAndGetToken(invalidToken)
         }
     }
@@ -78,7 +75,7 @@ class WaitingQueueServiceTest {
         every { queueManager.findQueueByToken(token) } returns null
 
         // when / then
-        assertThrows<QueueNotFoundException> {
+        assertThrows<CoreException> {
             waitingQueueService.validateAndGetToken(token)
         }
     }

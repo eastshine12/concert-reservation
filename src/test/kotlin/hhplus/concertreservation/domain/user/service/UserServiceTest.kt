@@ -1,10 +1,10 @@
 package hhplus.concertreservation.domain.user.service
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.BalanceHistory
 import hhplus.concertreservation.domain.user.entity.User
-import hhplus.concertreservation.domain.user.exception.UserNotFoundException
 import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
 import hhplus.concertreservation.domain.user.toUpdateBalanceInfo
@@ -41,7 +41,7 @@ class UserServiceTest {
         every { userRepository.findByIdOrNull(userId) } returns null
 
         // when / then
-        assertThrows<UserNotFoundException> {
+        assertThrows<CoreException> {
             userService.getByUserId(userId)
         }
     }
