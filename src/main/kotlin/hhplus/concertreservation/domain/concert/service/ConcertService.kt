@@ -37,9 +37,10 @@ class ConcertService(
         return concertScheduleRepository.findAllByConcertId(concertId).takeIf { it.isNotEmpty() }
             ?: throw CoreException(
                 errorType = ErrorType.NO_CONCERT_SCHEDULE_FOUND,
-                details = mapOf(
-                    "concertId" to concertId,
-                )
+                details =
+                    mapOf(
+                        "concertId" to concertId,
+                    ),
             )
     }
 
@@ -48,16 +49,18 @@ class ConcertService(
             seatRepository.findByIdOrNull(seatId)
                 ?: throw CoreException(
                     errorType = ErrorType.NO_SEAT_FOUND,
-                    details = mapOf(
-                        "seatId" to seatId,
-                    ),
+                    details =
+                        mapOf(
+                            "seatId" to seatId,
+                        ),
                 )
         if (seat.status == SeatStatus.AVAILABLE) {
             throw CoreException(
                 errorType = ErrorType.SEAT_UNAVAILABLE,
-                details = mapOf(
-                    "seatId" to seatId,
-                ),
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                    ),
             )
         }
         return seat.toSeatInfo()
@@ -67,9 +70,10 @@ class ConcertService(
         return seatRepository.findAllByScheduleId(scheduleId).takeIf { it.isNotEmpty() }
             ?: throw CoreException(
                 errorType = ErrorType.NO_SEATS_FOUND,
-                details = mapOf(
-                    "scheduleId" to scheduleId,
-                ),
+                details =
+                    mapOf(
+                        "scheduleId" to scheduleId,
+                    ),
             )
     }
 }

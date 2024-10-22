@@ -39,7 +39,7 @@ class Seat(
         if (status == SeatStatus.AVAILABLE) {
             throw CoreException(
                 errorType = ErrorType.SEAT_UNAVAILABLE,
-                message = "Seat is already available."
+                message = "Seat is already available.",
             )
         }
         this.status = SeatStatus.AVAILABLE

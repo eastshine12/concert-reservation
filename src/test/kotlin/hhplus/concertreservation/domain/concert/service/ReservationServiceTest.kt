@@ -59,14 +59,15 @@ class ReservationServiceTest {
                 ),
             )
 
-        val expectedReservationInfo = ReservationInfo(
-            reservationId = reservation.id,
-            userId = reservation.userId,
-            scheduleId = reservation.scheduleId,
-            seatId = reservation.seatId,
-            status = ReservationStatus.CONFIRMED.name,
-            expiresAt = reservation.expiresAt,
-        )
+        val expectedReservationInfo =
+            ReservationInfo(
+                reservationId = reservation.id,
+                userId = reservation.userId,
+                scheduleId = reservation.scheduleId,
+                seatId = reservation.seatId,
+                status = ReservationStatus.CONFIRMED.name,
+                expiresAt = reservation.expiresAt,
+            )
 
         every { concertManager.getReservationWithLock(reservationId) } returns reservation
         every { reservationRepository.save(reservation) } returns reservation

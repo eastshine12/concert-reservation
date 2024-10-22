@@ -15,11 +15,13 @@ import java.time.format.DateTimeFormatter
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @ExceptionHandler(CoreException::class)
-    fun handleCoreException(ex: CoreException, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
+    fun handleCoreException(
+        ex: CoreException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ErrorResponse> {
         val errorType: ErrorType = ex.errorType
         val detailsMessage = ex.details?.toString() ?: "No details available"
 
@@ -29,27 +31,32 @@ class GlobalExceptionHandler {
             ERROR -> log.error("Exception: [${errorType.code}] ${ex.message}. Details: $detailsMessage", ex)
         }
 
-        val errorResponse = ErrorResponse(
-            status = getHttpStatusByErrorCode(errorType.code).value(),
-            errorCode = errorType.code.name,
-            message = ex.message.toString(),
-            path = request.servletPath,
-            details = ex.details,
-        )
+        val errorResponse =
+            ErrorResponse(
+                status = getHttpStatusByErrorCode(errorType.code).value(),
+                errorCode = errorType.code.name,
+                message = ex.message.toString(),
+                path = request.servletPath,
+                details = ex.details,
+            )
 
         return ResponseEntity.status(getHttpStatusByErrorCode(errorType.code)).body(errorResponse)
     }
 
     @ExceptionHandler(Exception::class)
-    fun handleGenericException(ex: Exception, request: HttpServletRequest): ResponseEntity<ErrorResponse> {
+    fun handleGenericException(
+        ex: Exception,
+        request: HttpServletRequest,
+    ): ResponseEntity<ErrorResponse> {
         log.error("Unexpected error occurred: ${ex.message}", ex)
 
-        val errorResponse = ErrorResponse(
-            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            errorCode = "SYSTEM_ERROR",
-            message = "An unexpected error occurred.",
-            path = request.servletPath
-        )
+        val errorResponse =
+            ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                errorCode = "SYSTEM_ERROR",
+                message = "An unexpected error occurred.",
+                path = request.servletPath,
+            )
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
     }

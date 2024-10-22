@@ -21,9 +21,10 @@ class ConcertManager(
         return scheduleRepository.findByIdOrNull(scheduleId)
             ?: throw CoreException(
                 errorType = ErrorType.NO_CONCERT_SCHEDULE_FOUND,
-                details = mapOf(
-                    "scheduleId" to scheduleId,
-                )
+                details =
+                    mapOf(
+                        "scheduleId" to scheduleId,
+                    ),
             )
     }
 
@@ -31,9 +32,10 @@ class ConcertManager(
         return reservationRepository.findByIdOrNullWithLock(reservationId)
             ?: throw CoreException(
                 errorType = ErrorType.NO_RESERVATION_FOUND,
-                details = mapOf(
-                    "reservationId" to reservationId,
-                )
+                details =
+                    mapOf(
+                        "reservationId" to reservationId,
+                    ),
             )
     }
 

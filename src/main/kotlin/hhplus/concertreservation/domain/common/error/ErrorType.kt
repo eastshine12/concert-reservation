@@ -15,7 +15,6 @@ enum class ErrorType(val code: ErrorCode, val message: String, val logLevel: Log
     QUEUE_ALREADY_EXISTS(QUEUE_ERROR, "A queue already exists for this token.", WARN),
     NO_QUEUE_FOUND(QUEUE_ERROR, "No queue found for the given token.", WARN),
 
-
     // Concert
     INVALID_CONCERT_ID(VALIDATION_ERROR, "Invalid concert ID provided.", WARN),
     INVALID_SEAT_NUMBER(VALIDATION_ERROR, "Invalid seat number.", WARN),

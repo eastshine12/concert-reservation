@@ -22,9 +22,10 @@ class UserService(
         return userRepository.findByIdOrNull(userId)
             ?: throw CoreException(
                 errorType = ErrorType.USER_NOT_FOUND,
-                details = mapOf(
-                    "userId" to userId,
-                ),
+                details =
+                    mapOf(
+                        "userId" to userId,
+                    ),
             )
     }
 
