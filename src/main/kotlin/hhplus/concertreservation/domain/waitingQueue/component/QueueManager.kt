@@ -6,8 +6,6 @@ import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueRepository
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 

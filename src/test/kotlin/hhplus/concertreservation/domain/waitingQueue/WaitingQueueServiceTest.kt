@@ -1,11 +1,11 @@
 package hhplus.concertreservation.domain.waitingQueue
 
+import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
-import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -23,9 +23,11 @@ class WaitingQueueServiceTest {
         // given
         val schedule = mockk<ConcertSchedule>(relaxed = true)
         val waitingQueue = mockk<WaitingQueue>(relaxed = true)
-        val tokenInfo = mockk<TokenInfo>(relaxed = true)
+        val tokenInfo = waitingQueue.toTokenInfo()
 
         every { queueManager.enqueue(any(), any(), any()) } returns waitingQueue
+        every { tokenManager.generateToken() } returns "token"
+        every { queueManager.calculateQueuePosition(scheduleId = schedule.id) } returns 1
 
         // when
         val result = waitingQueueService.issueToken(token = null, scheduleId = schedule.id)
@@ -44,6 +46,7 @@ class WaitingQueueServiceTest {
         every { queueManager.findQueueByToken(token) } returns
             mockk {
                 every { scheduleId } returns schedule.id
+                every { status } returns QueueStatus.ACTIVE
             }
 
         // when & then

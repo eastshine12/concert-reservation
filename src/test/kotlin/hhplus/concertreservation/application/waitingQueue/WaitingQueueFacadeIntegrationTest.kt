@@ -134,7 +134,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                 waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
             }
 
-        assertEquals("Concert schedule not found with id $invalidScheduleId", exception.message)
+        assertEquals("No concert schedule found for the given ID.", exception.message)
     }
 
     @Test

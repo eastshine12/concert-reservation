@@ -61,7 +61,7 @@ class QueueManagerTest {
         // given
         val waitingQueue =
             mockk<WaitingQueue> {
-                every { status } returns QueueStatus.PENDING
+                every { status } returns QueueStatus.EXPIRED
                 every { token } returns "token123"
             }
 

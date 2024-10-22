@@ -230,7 +230,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                 concertFacade.getReservationAvailableDates(token, nonExistingConcertId)
             }
 
-        assertEquals("Concert not found for id: $nonExistingConcertId", exception.message)
+        assertEquals("No concert found for the given ID.", exception.message)
     }
 
     @Test
@@ -280,7 +280,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                 concertFacade.createReservation(command)
             }
 
-        assertEquals("No available seats left to reserve.", exception.message)
+        assertEquals("The concert schedule is sold out.", exception.message)
     }
 
     @Test

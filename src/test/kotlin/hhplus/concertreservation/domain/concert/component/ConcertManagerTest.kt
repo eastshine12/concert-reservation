@@ -35,7 +35,7 @@ class ConcertManagerTest {
             }
 
         // then
-        assertEquals("Concert schedule not found with id $scheduleId", exception.message)
+        assertEquals("No concert schedule found for the given ID.", exception.message)
     }
 
     @Test
