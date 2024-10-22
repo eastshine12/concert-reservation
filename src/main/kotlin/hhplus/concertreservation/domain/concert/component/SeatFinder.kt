@@ -15,9 +15,10 @@ class SeatFinder(
         return seatRepository.findByIdOrNullWithLock(seatId)
             ?: throw CoreException(
                 errorType = ErrorType.NO_SEAT_FOUND,
-                details = mapOf(
-                    "seatId" to seatId,
-                ),
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                    ),
             )
     }
 
@@ -31,19 +32,21 @@ class SeatFinder(
             throw CoreException(
                 errorType = ErrorType.NO_SEAT_FOUND,
                 message = "Seat does not belong to concert schedule.",
-                details = mapOf(
-                    "seatId" to seatId,
-                    "scheduleId" to scheduleId,
-                ),
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                        "scheduleId" to scheduleId,
+                    ),
             )
         }
 
         if (seat.status != SeatStatus.AVAILABLE) {
             throw CoreException(
                 errorType = ErrorType.SEAT_UNAVAILABLE,
-                details = mapOf(
-                    "seatId" to seatId,
-                ),
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                    ),
             )
         }
 

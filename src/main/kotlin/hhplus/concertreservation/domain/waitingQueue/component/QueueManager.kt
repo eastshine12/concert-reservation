@@ -44,9 +44,10 @@ class QueueManager(
         if (queue.status == QueueStatus.EXPIRED || queue.expiresAt!!.isBefore(LocalDateTime.now())) {
             throw CoreException(
                 errorType = ErrorType.TOKEN_EXPIRED,
-                details = mapOf(
-                    "token" to queue.token,
-                ),
+                details =
+                    mapOf(
+                        "token" to queue.token,
+                    ),
             )
         }
 

@@ -22,7 +22,7 @@ class WaitingQueueService(
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)
                 ?.takeIf { queue -> queue.scheduleId == schedule.id && queue.status != QueueStatus.EXPIRED }
-                ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS,) }
+                ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS) }
         }
 
         return queueManager.enqueue(
@@ -37,9 +37,10 @@ class WaitingQueueService(
         return queueManager.findQueueByToken(validToken)
             ?: throw CoreException(
                 errorType = ErrorType.NO_QUEUE_FOUND,
-                details = mapOf(
-                    "token" to token,
-                ),
+                details =
+                    mapOf(
+                        "token" to token,
+                    ),
             )
     }
 
@@ -57,9 +58,10 @@ class WaitingQueueService(
             throw CoreException(
                 errorType = ErrorType.INVALID_TOKEN,
                 message = "Token does not belong to the concert schedule.",
-                details = mapOf(
-                    "scheduleId" to scheduleId,
-                ),
+                details =
+                    mapOf(
+                        "scheduleId" to scheduleId,
+                    ),
             )
         }
         return queue
