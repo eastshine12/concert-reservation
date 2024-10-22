@@ -28,7 +28,7 @@ class UserServiceTest {
         every { userRepository.findByIdOrNull(userId) } returns user
 
         // when
-        val result = userService.getByUserId(userId)
+        val result = userService.checkUserExists(userId)
 
         // then
         assertEquals(user, result)
@@ -42,7 +42,7 @@ class UserServiceTest {
 
         // when / then
         assertThrows<CoreException> {
-            userService.getByUserId(userId)
+            userService.checkUserExists(userId)
         }
     }
 

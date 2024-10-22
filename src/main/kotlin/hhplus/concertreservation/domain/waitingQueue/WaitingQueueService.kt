@@ -3,9 +3,9 @@ package hhplus.concertreservation.domain.waitingQueue
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
-import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
+import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,20 +16,20 @@ class WaitingQueueService(
 ) {
     fun issueToken(
         token: String?,
-        schedule: ConcertSchedule,
-    ): WaitingQueue {
+        scheduleId: Long,
+    ): TokenInfo {
         token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)
-                ?.takeIf { queue -> queue.scheduleId == schedule.id && queue.status != QueueStatus.EXPIRED }
+                ?.takeIf { queue -> queue.scheduleId == scheduleId && queue.status != QueueStatus.EXPIRED }
                 ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS) }
         }
 
         return queueManager.enqueue(
-            concertSchedule = schedule,
+            scheduleId = scheduleId,
             token = tokenManager.generateToken(),
-            position = queueManager.calculateQueuePosition(schedule.id),
-        )
+            position = queueManager.calculateQueuePosition(scheduleId),
+        ).toTokenInfo()
     }
 
     fun validateAndGetToken(token: String): WaitingQueue {

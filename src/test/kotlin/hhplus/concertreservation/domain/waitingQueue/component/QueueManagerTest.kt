@@ -37,7 +37,7 @@ class QueueManagerTest {
         every { waitingQueueRepository.save(any()) } returns waitingQueue
 
         // when
-        val result = queueManager.enqueue(concertSchedule, token, position)
+        val result = queueManager.enqueue(concertSchedule.id, token, position)
 
         // then
         assertEquals(waitingQueue, result)

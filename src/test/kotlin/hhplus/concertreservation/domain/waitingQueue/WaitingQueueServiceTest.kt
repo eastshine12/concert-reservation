@@ -5,6 +5,7 @@ import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
+import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -22,14 +23,15 @@ class WaitingQueueServiceTest {
         // given
         val schedule = mockk<ConcertSchedule>(relaxed = true)
         val waitingQueue = mockk<WaitingQueue>(relaxed = true)
+        val tokenInfo = mockk<TokenInfo>(relaxed = true)
 
         every { queueManager.enqueue(any(), any(), any()) } returns waitingQueue
 
         // when
-        val result = waitingQueueService.issueToken(token = null, schedule = schedule)
+        val result = waitingQueueService.issueToken(token = null, scheduleId = schedule.id)
 
         // then
-        assertEquals(waitingQueue, result)
+        assertEquals(tokenInfo, result)
     }
 
     @Test
@@ -47,7 +49,7 @@ class WaitingQueueServiceTest {
         // when & then
         val exception =
             assertThrows<CoreException> {
-                waitingQueueService.issueToken(token, schedule)
+                waitingQueueService.issueToken(token, schedule.id)
             }
 
         assertEquals("A queue already exists for this token.", exception.message)
