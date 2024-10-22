@@ -1,8 +1,8 @@
 package hhplus.concertreservation.domain.concert.entity
 
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
-import hhplus.concertreservation.domain.concert.exception.InvalidReservationStatusException
-import org.junit.jupiter.api.Assertions.*
+import hhplus.concertreservation.domain.common.exception.CoreException
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -22,7 +22,7 @@ class ReservationTest {
 
         // when & then
         val exception =
-            assertThrows<InvalidReservationStatusException> {
+            assertThrows<CoreException> {
                 reservation.confirm()
             }
 
@@ -44,7 +44,7 @@ class ReservationTest {
 
         // when & then
         val exception =
-            assertThrows<InvalidReservationStatusException> {
+            assertThrows<CoreException> {
                 reservation.cancel()
             }
 

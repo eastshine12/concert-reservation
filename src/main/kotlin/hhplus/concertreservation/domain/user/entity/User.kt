@@ -1,8 +1,8 @@
 package hhplus.concertreservation.domain.user.entity
 
 import hhplus.concertreservation.domain.common.BaseEntity
-import hhplus.concertreservation.domain.user.exception.InsufficientBalanceException
-import hhplus.concertreservation.domain.user.exception.InvalidBalanceAmountException
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -28,17 +28,25 @@ class User(
 
     fun charge(amount: BigDecimal) {
         if (amount <= BigDecimal.ZERO) {
-            throw InvalidBalanceAmountException("Charge amount must be positive")
+            throw CoreException(
+                errorType = ErrorType.INVALID_BALANCE_AMOUNT,
+                message = "Charge amount must be positive",
+            )
         }
         balance = balance.add(amount)
     }
 
     fun use(amount: BigDecimal) {
         if (amount <= BigDecimal.ZERO) {
-            throw InvalidBalanceAmountException("Usage amount must be positive")
+            throw CoreException(
+                errorType = ErrorType.INVALID_BALANCE_AMOUNT,
+                message = "Usage amount must be positive",
+            )
         }
         if (balance < amount) {
-            throw InsufficientBalanceException("Insufficient balance")
+            throw CoreException(
+                errorType = ErrorType.INSUFFICIENT_BALANCE,
+            )
         }
         balance = balance.subtract(amount)
     }

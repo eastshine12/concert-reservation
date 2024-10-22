@@ -2,11 +2,11 @@ package hhplus.concertreservation.domain.waitingQueue.component
 
 import hhplus.concertreservation.config.WaitingQueueProperties
 import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueRepository
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
@@ -42,11 +42,18 @@ class QueueManager(
 
     fun validateTokenState(queue: WaitingQueue) {
         if (queue.status == QueueStatus.EXPIRED || queue.expiresAt!!.isBefore(LocalDateTime.now())) {
-            throw TokenExpiredException("Token has expired: ${queue.token}")
+            throw CoreException(
+                errorType = ErrorType.TOKEN_EXPIRED,
+                details = mapOf(
+                    "token" to queue.token,
+                ),
+            )
         }
 
         if (queue.status != QueueStatus.ACTIVE) {
-            throw InvalidTokenException("Token is not active: ${queue.token}")
+            throw CoreException(
+                errorType = ErrorType.INVALID_TOKEN,
+            )
         }
     }
 

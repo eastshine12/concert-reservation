@@ -1,6 +1,6 @@
 package hhplus.concertreservation.domain.waitingQueue.component
 
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
+import hhplus.concertreservation.domain.common.exception.CoreException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -26,7 +26,7 @@ class TokenManagerTest {
         val invalidToken = "invalid-token-format"
 
         // when, then
-        assertThrows<InvalidTokenException> {
+        assertThrows<CoreException> {
             tokenManager.validateAndGetToken(invalidToken)
         }
     }

@@ -1,6 +1,7 @@
 package hhplus.concertreservation.domain.waitingQueue.component
 
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -15,7 +16,9 @@ class TokenManager {
             UUID.fromString(token)
             token
         } catch (e: IllegalArgumentException) {
-            throw InvalidTokenException("Token is invalid: $token")
+            throw CoreException(
+                errorType = ErrorType.INVALID_TOKEN,
+            )
         }
     }
 }
