@@ -29,8 +29,17 @@ class ConcertService(
             )
     }
 
-    fun getScheduleById(scheduleId: Long): ConcertSchedule {
-        return concertManager.getScheduleById(scheduleId)
+    fun checkScheduleExists(scheduleId: Long) {
+        concertManager.getScheduleById(scheduleId)
+    }
+
+    fun checkScheduleAvailability(scheduleId: Long) {
+        if (concertManager.getScheduleById(scheduleId).availableSeats == 0) {
+            throw CoreException(
+                errorType = ErrorType.CONCERT_SCHEDULE_SOLD_OUT,
+                details = mapOf("scheduleId" to scheduleId),
+            )
+        }
     }
 
     fun getSchedulesByConcertId(concertId: Long): List<ConcertSchedule> {
