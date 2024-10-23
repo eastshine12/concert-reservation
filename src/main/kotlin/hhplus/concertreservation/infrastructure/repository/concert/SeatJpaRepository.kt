@@ -1,5 +1,6 @@
 package hhplus.concertreservation.infrastructure.repository.concert
 
+import hhplus.concertreservation.domain.concert.dto.ScheduleSeatCount
 import hhplus.concertreservation.domain.concert.entity.Seat
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
@@ -12,4 +13,14 @@ interface SeatJpaRepository : JpaRepository<Seat, Long> {
     fun findByIdOrNullWithLock(id: Long): Seat?
 
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
+
+    @Query(
+        """
+        select new hhplus.concertreservation.domain.concert.dto.ScheduleSeatCount(s.scheduleId, COUNT(s)) 
+        from Seat s 
+        where s.status = 'AVAILABLE'
+        group by s.scheduleId
+    """,
+    )
+    fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
 }

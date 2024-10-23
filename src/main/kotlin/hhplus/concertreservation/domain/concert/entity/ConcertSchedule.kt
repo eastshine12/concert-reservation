@@ -46,4 +46,8 @@ class ConcertSchedule(
         }
         this.availableSeats += 1
     }
+
+    fun updateAvailableSeats(count: Int) {
+        this.availableSeats = count
+    }
 }
