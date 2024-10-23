@@ -69,7 +69,7 @@ class GlobalExceptionHandler {
             ErrorCode.AUTHORIZATION_ERROR -> HttpStatus.FORBIDDEN
             ErrorCode.DATABASE_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
             ErrorCode.BUSINESS_ERROR -> HttpStatus.CONFLICT
-            ErrorCode.QUEUE_ERROR -> HttpStatus.SERVICE_UNAVAILABLE
+            ErrorCode.QUEUE_ERROR -> HttpStatus.CONFLICT
         }
     }
 }
