@@ -13,7 +13,7 @@ class User(
     email: String,
     balance: BigDecimal,
     @Version
-    var version: Long? = null,
+    var version: Long = 0L,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L,
 ) : BaseEntity() {
