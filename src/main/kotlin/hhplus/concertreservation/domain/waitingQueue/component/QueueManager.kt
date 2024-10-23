@@ -40,7 +40,7 @@ class QueueManager(
     }
 
     fun validateTokenState(queue: WaitingQueue) {
-        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt!!.isBefore(LocalDateTime.now())) {
+        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt?.isBefore(LocalDateTime.now()) == true) {
             throw CoreException(
                 errorType = ErrorType.TOKEN_EXPIRED,
                 details =
