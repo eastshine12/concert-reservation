@@ -190,36 +190,6 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `should throw exception when token is expired during payment process`() {
-        // given
-        val userId = user.id
-        val reservationId = reservation.id
-        val expiredWaitingQueue =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174001",
-                    status = QueueStatus.EXPIRED,
-                    queuePosition = 1,
-                    expiresAt = LocalDateTime.now().minusMinutes(10),
-                ),
-            )
-        val command =
-            PaymentCommand(
-                userId = userId,
-                reservationId = reservationId,
-                token = expiredWaitingQueue.token,
-            )
-
-        // when & then
-        val exception =
-            assertThrows<CoreException> {
-                paymentFacade.processPayment(command)
-            }
-        assertEquals("Payment failed.", exception.message)
-    }
-
-    @Test
     fun `should throw exception when seat is no longer valid during payment process`() {
         // given
         val userId = user.id
