@@ -28,7 +28,6 @@ class PaymentFacade(
     @Transactional
     fun processPayment(command: PaymentCommand): PaymentInfo {
         return runCatching {
-            waitingQueueService.validateTokenState(command.token)
             val reservationInfo: ReservationInfo = reservationService.confirmReservation(command.reservationId)
             val seatInfo: SeatInfo = concertService.verifyAndGetSeatInfo(reservationInfo.seatId)
             userService.updateUserBalance(command.userId, seatInfo.price, PointTransactionType.USE)

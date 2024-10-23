@@ -12,12 +12,10 @@ import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.concert.toConcertInfo
 import hhplus.concertreservation.domain.concert.toSeatInfo
 import hhplus.concertreservation.domain.user.service.UserService
-import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
 import org.springframework.stereotype.Component
 
 @Component
 class ConcertFacade(
-    private val waitingQueueService: WaitingQueueService,
     private val userService: UserService,
     private val concertService: ConcertService,
     private val reservationService: ReservationService,
@@ -26,7 +24,6 @@ class ConcertFacade(
         token: String,
         concertId: Long,
     ): ConcertInfo {
-        waitingQueueService.validateTokenState(token)
         val concert: Concert = concertService.getConcertById(concertId)
         val concertSchedules: List<ConcertSchedule> = concertService.getSchedulesByConcertId(concertId)
         return concert.toConcertInfo(concertSchedules)
@@ -36,14 +33,12 @@ class ConcertFacade(
         token: String,
         scheduleId: Long,
     ): List<SeatInfo> {
-        waitingQueueService.validateTokenState(token, scheduleId)
         concertService.checkScheduleExists(scheduleId)
         val seats: List<Seat> = concertService.getSeatsByScheduleId(scheduleId)
         return seats.map { it.toSeatInfo() }
     }
 
     fun createReservation(command: ReservationCommand): CreateReservationInfo {
-        waitingQueueService.validateTokenState(command.token, command.scheduleId)
         userService.checkUserExists(command.userId)
         concertService.checkScheduleAvailability(command.scheduleId)
         return reservationService.createPendingReservation(command.userId, command.scheduleId, command.seatId)
