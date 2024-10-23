@@ -134,7 +134,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("User has insufficient balance.", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 
     @Test
@@ -155,7 +155,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("No reservation found for the given ID.", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 
     @Test
@@ -186,7 +186,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("Reservation is not in pending state", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 
     @Test
@@ -216,7 +216,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
             assertThrows<CoreException> {
                 paymentFacade.processPayment(command)
             }
-        assertEquals("The token has expired.", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 
     @Test
@@ -264,7 +264,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 paymentFacade.processPayment(command)
             }
 
-        assertEquals("The seat is not available for reservation.", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 
     @Test
@@ -290,6 +290,6 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 paymentFacade.processPayment(paymentCommand)
             }
 
-        assertEquals("The token has expired.", exception.message)
+        assertEquals("Payment failed.", exception.message)
     }
 }

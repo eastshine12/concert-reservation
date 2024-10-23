@@ -30,4 +30,5 @@ enum class ErrorType(val code: ErrorCode, val message: String, val logLevel: Log
 
     // Payment
     PAYMENT_ALREADY_PROCESSED(BUSINESS_ERROR, "Payment has already been processed.", INFO),
+    PAYMENT_FAILED(BUSINESS_ERROR, "Payment failed.", WARN),
 }
