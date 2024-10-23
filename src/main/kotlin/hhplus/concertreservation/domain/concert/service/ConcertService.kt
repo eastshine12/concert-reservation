@@ -78,7 +78,8 @@ class ConcertService(
     fun getSeatsByScheduleId(scheduleId: Long): List<Seat> {
         return seatRepository.findAllByScheduleId(scheduleId).takeIf { it.isNotEmpty() }
             ?: throw CoreException(
-                errorType = ErrorType.NO_SEATS_FOUND,
+                errorType = ErrorType.NO_SEAT_FOUND,
+                message = "No seats found for the given schedule.",
                 details =
                     mapOf(
                         "scheduleId" to scheduleId,

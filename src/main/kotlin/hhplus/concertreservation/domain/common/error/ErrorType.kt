@@ -21,7 +21,6 @@ enum class ErrorType(val code: ErrorCode, val message: String, val logLevel: Log
     NO_CONCERT_SCHEDULE_FOUND(BUSINESS_ERROR, "No concert schedule found for the given ID.", WARN),
     NO_RESERVATION_FOUND(BUSINESS_ERROR, "No reservation found for the given ID.", WARN),
     NO_SEAT_FOUND(BUSINESS_ERROR, "No seat found for the given ID.", WARN),
-    NO_SEATS_FOUND(BUSINESS_ERROR, "No seats found for the given schedule.", WARN),
 
     // User
     INVALID_BALANCE_AMOUNT(VALIDATION_ERROR, "Invalid balance amount provided.", WARN),

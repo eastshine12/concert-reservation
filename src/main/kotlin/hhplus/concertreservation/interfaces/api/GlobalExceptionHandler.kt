@@ -26,9 +26,9 @@ class GlobalExceptionHandler {
         val detailsMessage = ex.details?.toString() ?: "No details available"
 
         when (errorType.logLevel) {
-            INFO -> log.info("Exception: [${errorType.code}] ${ex.message}. Details: $detailsMessage")
-            WARN -> log.warn("Exception: [${errorType.code}] ${ex.message}. Details: $detailsMessage")
-            ERROR -> log.error("Exception: [${errorType.code}] ${ex.message}. Details: $detailsMessage", ex)
+            INFO -> log.info("CoreException: [${errorType.code}] ${ex.message}. Details: $detailsMessage")
+            WARN -> log.warn("CoreException: [${errorType.code}] ${ex.message}. Details: $detailsMessage")
+            ERROR -> log.error("CoreException: [${errorType.code}] ${ex.message}. Details: $detailsMessage", ex)
         }
 
         val errorResponse =
@@ -48,17 +48,39 @@ class GlobalExceptionHandler {
         ex: Exception,
         request: HttpServletRequest,
     ): ResponseEntity<ErrorResponse> {
-        log.error("Unexpected error occurred: ${ex.message}", ex)
+        val status =
+            when (ex) {
+                is IllegalStateException -> HttpStatus.CONFLICT
+                is AccessDeniedException -> HttpStatus.FORBIDDEN
+                is IllegalArgumentException -> HttpStatus.BAD_REQUEST
+                is NoSuchElementException -> HttpStatus.NOT_FOUND
+                is UnsupportedOperationException -> HttpStatus.NOT_IMPLEMENTED
+                is NullPointerException -> HttpStatus.INTERNAL_SERVER_ERROR
+                else -> HttpStatus.INTERNAL_SERVER_ERROR
+            }
+
+        val errorMessage =
+            when (ex) {
+                is IllegalStateException -> "Invalid state detected."
+                is AccessDeniedException -> "Access is denied."
+                is IllegalArgumentException -> "Invalid argument provided."
+                is NoSuchElementException -> "Requested element not found."
+                is UnsupportedOperationException -> "Operation not supported."
+                is NullPointerException -> "A null pointer exception occurred."
+                else -> "An unexpected error occurred."
+            }
+
+        log.error("Exception: [${status.name}] ${ex::class.simpleName} - $errorMessage.", ex)
 
         val errorResponse =
             ErrorResponse(
-                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                status = status.value(),
                 errorCode = "SYSTEM_ERROR",
-                message = "An unexpected error occurred.",
+                message = errorMessage,
                 path = request.servletPath,
             )
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
+        return ResponseEntity.status(status).body(errorResponse)
     }
 
     private fun getHttpStatusByErrorCode(errorCode: ErrorCode): HttpStatus {
