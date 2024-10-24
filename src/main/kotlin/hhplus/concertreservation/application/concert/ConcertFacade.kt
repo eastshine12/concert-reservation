@@ -11,23 +11,21 @@ import hhplus.concertreservation.domain.concert.service.ConcertService
 import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.concert.toConcertInfo
 import hhplus.concertreservation.domain.concert.toSeatInfo
-import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.service.UserService
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
 import org.springframework.stereotype.Component
 
 @Component
 class ConcertFacade(
-    private val waitingQueueService: WaitingQueueService,
     private val userService: UserService,
     private val concertService: ConcertService,
     private val reservationService: ReservationService,
+    private val waitingQueueService: WaitingQueueService,
 ) {
     fun getReservationAvailableDates(
         token: String,
         concertId: Long,
     ): ConcertInfo {
-        waitingQueueService.validateTokenState(token)
         val concert: Concert = concertService.getConcertById(concertId)
         val concertSchedules: List<ConcertSchedule> = concertService.getSchedulesByConcertId(concertId)
         return concert.toConcertInfo(concertSchedules)
@@ -37,16 +35,15 @@ class ConcertFacade(
         token: String,
         scheduleId: Long,
     ): List<SeatInfo> {
-        waitingQueueService.validateTokenState(token, scheduleId)
-        val schedule: ConcertSchedule = concertService.getScheduleById(scheduleId)
-        val seats: List<Seat> = concertService.getSeatsByScheduleId(schedule.id)
+        concertService.checkScheduleExists(scheduleId)
+        val seats: List<Seat> = concertService.getSeatsByScheduleId(scheduleId)
         return seats.map { it.toSeatInfo() }
     }
 
     fun createReservation(command: ReservationCommand): CreateReservationInfo {
-        waitingQueueService.validateTokenState(command.token, command.scheduleId)
-        val user: User = userService.getByUserId(command.userId)
-        val schedule: ConcertSchedule = concertService.getScheduleById(command.scheduleId)
-        return reservationService.createPendingReservation(user.id, schedule.id, command.seatId)
+        waitingQueueService.verifyMatchingScheduleId(command.token, command.scheduleId)
+        userService.checkUserExists(command.userId)
+        concertService.checkScheduleAvailability(command.scheduleId)
+        return reservationService.createPendingReservation(command.userId, command.scheduleId, command.seatId)
     }
 }

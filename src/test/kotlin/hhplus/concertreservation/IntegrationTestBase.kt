@@ -61,6 +61,6 @@ abstract class IntegrationTestBase {
     }
 
     protected fun resetAutoIncrement(tableName: String) {
-        jdbcTemplate.execute("ALTER TABLE $tableName ALTER COLUMN id RESTART WITH 1")
+        jdbcTemplate.execute("ALTER TABLE \"$tableName\" ALTER COLUMN \"id\" RESTART WITH 1")
     }
 }

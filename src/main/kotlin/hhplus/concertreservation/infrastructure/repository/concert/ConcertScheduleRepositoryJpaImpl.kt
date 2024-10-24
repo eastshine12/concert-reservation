@@ -13,11 +13,19 @@ class ConcertScheduleRepositoryJpaImpl(
         return concertScheduleJpaRepository.save(concertSchedule)
     }
 
+    override fun saveAll(schedules: MutableList<ConcertSchedule>): MutableList<ConcertSchedule> {
+        return concertScheduleJpaRepository.saveAll(schedules)
+    }
+
     override fun findByIdOrNull(id: Long): ConcertSchedule? {
         return concertScheduleJpaRepository.findByIdOrNull(id)
     }
 
     override fun findAllByConcertId(concertId: Long): List<ConcertSchedule> {
         return concertScheduleJpaRepository.findAllByConcertId(concertId)
+    }
+
+    override fun findAll(): List<ConcertSchedule> {
+        return concertScheduleJpaRepository.findAll()
     }
 }

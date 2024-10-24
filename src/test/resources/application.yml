@@ -5,7 +5,7 @@ spring:
     console:
       enabled: true
   datasource:
-    url: jdbc:h2:mem:concert
+    url: jdbc:h2:mem:concert-test
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -19,14 +19,6 @@ spring:
         use_sql_comments: true
         globally_quoted_identifiers: true
         globally_quoted_identifiers_skip_column_definitions: true
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: debug
-      hibernate.type:
-        descriptor.sql.BasicBinder: trace
 
 reservation:
   expireMinutes: 5 # 임시배정 유효 시간(분)

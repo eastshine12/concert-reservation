@@ -18,7 +18,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val balanceHistoryRepository: BalanceHistoryRepository,
 ) {
-    fun getByUserId(userId: Long): User {
+    fun checkUserExists(userId: Long): User {
         return userRepository.findByIdOrNull(userId)
             ?: throw CoreException(
                 errorType = ErrorType.USER_NOT_FOUND,
@@ -30,7 +30,7 @@ class UserService(
     }
 
     fun getUserBalance(userId: Long): BigDecimal {
-        return getByUserId(userId).balance
+        return checkUserExists(userId).balance
     }
 
     @Transactional
@@ -39,7 +39,7 @@ class UserService(
         amount: BigDecimal,
         type: PointTransactionType,
     ): UpdateBalanceInfo {
-        val user: User = getByUserId(userId)
+        val user: User = checkUserExists(userId)
         when (type) {
             PointTransactionType.CHARGE -> user.charge(amount)
             PointTransactionType.USE -> user.use(amount)

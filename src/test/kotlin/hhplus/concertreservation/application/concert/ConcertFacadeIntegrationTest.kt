@@ -230,7 +230,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                 concertFacade.getReservationAvailableDates(token, nonExistingConcertId)
             }
 
-        assertEquals("Concert not found for id: $nonExistingConcertId", exception.message)
+        assertEquals("No concert found for the given ID.", exception.message)
     }
 
     @Test
@@ -280,7 +280,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                 concertFacade.createReservation(command)
             }
 
-        assertEquals("No available seats left to reserve.", exception.message)
+        assertEquals("The concert schedule is sold out.", exception.message)
     }
 
     @Test
@@ -309,35 +309,5 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("The seat is not available for reservation.", exception.message)
-    }
-
-    @Test
-    fun `should throw exception when token is expired`() {
-        // given
-        val scheduleId = schedule1.id
-        val expiredQueue = waitingQueue3
-
-        // when & then
-        val exception =
-            assertThrows<CoreException> {
-                concertFacade.getSeatsInfo(expiredQueue.token, scheduleId)
-            }
-
-        assertEquals("The token has expired.", exception.message)
-    }
-
-    @Test
-    fun `should throw exception when token is invalid`() {
-        // given
-        val scheduleId = schedule1.id
-        val invalidToken = "invalid-token"
-
-        // when & then
-        val exception =
-            assertThrows<CoreException> {
-                concertFacade.getSeatsInfo(invalidToken, scheduleId)
-            }
-
-        assertEquals("Invalid or missing token.", exception.message)
     }
 }

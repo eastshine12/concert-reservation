@@ -1,5 +1,6 @@
 package hhplus.concertreservation.infrastructure.repository.concert
 
+import hhplus.concertreservation.domain.concert.dto.ScheduleSeatCount
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -23,5 +24,9 @@ class SeatRepositoryJpaImpl(
 
     override fun findAllByScheduleId(scheduleId: Long): List<Seat> {
         return seatJpaRepository.findAllByScheduleId(scheduleId)
+    }
+
+    override fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount> {
+        return seatJpaRepository.countAvailableSeatsGroupByScheduleId()
     }
 }

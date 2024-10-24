@@ -3,9 +3,9 @@ package hhplus.concertreservation.domain.waitingQueue
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
-import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
+import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,20 +16,20 @@ class WaitingQueueService(
 ) {
     fun issueToken(
         token: String?,
-        schedule: ConcertSchedule,
-    ): WaitingQueue {
+        scheduleId: Long,
+    ): TokenInfo {
         token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)
-                ?.takeIf { queue -> queue.scheduleId == schedule.id && queue.status != QueueStatus.EXPIRED }
+                ?.takeIf { queue -> queue.scheduleId == scheduleId && queue.status != QueueStatus.EXPIRED }
                 ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS) }
         }
 
         return queueManager.enqueue(
-            concertSchedule = schedule,
+            scheduleId = scheduleId,
             token = tokenManager.generateToken(),
-            position = queueManager.calculateQueuePosition(schedule.id),
-        )
+            position = queueManager.calculateQueuePosition(scheduleId),
+        ).toTokenInfo()
     }
 
     fun validateAndGetToken(token: String): WaitingQueue {
@@ -44,8 +44,18 @@ class WaitingQueueService(
             )
     }
 
-    fun validateTokenState(token: String): WaitingQueue {
-        return validateTokenState(token, null)
+    fun verifyMatchingScheduleId(token: String, scheduleId: Long) {
+        val queue = validateAndGetToken(token)
+        if (queue.scheduleId != scheduleId) {
+            throw CoreException(
+                errorType = ErrorType.INVALID_TOKEN,
+                message = "Token does not belong to the concert schedule.",
+                details =
+                mapOf(
+                    "scheduleId" to scheduleId,
+                ),
+            )
+        }
     }
 
     fun validateTokenState(
@@ -71,8 +81,15 @@ class WaitingQueueService(
         scheduleId: Long,
         myPosition: Int,
     ): Int {
-        val lastPosition = waitingQueueRepository.findMinQueuePositionByScheduleId(scheduleId)
-        return myPosition - lastPosition
+        val position: Int = waitingQueueRepository.findAllByScheduleId(scheduleId)
+            .filter { it.status == QueueStatus.PENDING }
+            .sortedBy { it.queuePosition }
+            .indexOfFirst { it.queuePosition == myPosition }
+            .takeIf { it != -1 }
+            ?.plus(1)
+            ?: 0
+
+        return position
     }
 
     fun expireToken(token: String) {

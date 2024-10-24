@@ -6,4 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class ReservationProperties(
     val expireMinutes: Long,
     val expireCheckRate: Int,
+    val syncAvailableSeatsRate: Int,
 )
