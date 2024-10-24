@@ -112,7 +112,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
 
         // Then
         assertNotNull(waitingQueueInfo)
-        assertEquals(2, waitingQueueInfo.remainingPosition)
+        assertEquals(3, waitingQueueInfo.remainingPosition)
         assertEquals(QueueStatus.PENDING, waitingQueueInfo.status)
     }
 

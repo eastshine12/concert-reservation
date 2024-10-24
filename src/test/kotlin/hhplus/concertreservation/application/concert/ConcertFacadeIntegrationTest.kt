@@ -255,7 +255,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                 concertFacade.createReservation(command)
             }
 
-        assertEquals("No concert schedule found for the given ID.", exception.message)
+        assertEquals("Token does not belong to the concert schedule.", exception.message)
     }
 
     @Test

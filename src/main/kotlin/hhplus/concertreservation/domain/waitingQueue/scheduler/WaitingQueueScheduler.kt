@@ -12,7 +12,7 @@ class WaitingQueueScheduler(
     private val waitingQueueRepository: WaitingQueueRepository,
     private val queueManager: QueueManager,
 ) {
-    @Scheduled(fixedRateString = "\${waiting-queue.activationRate}")
+    @Scheduled(fixedRateString = "\${waiting-queue.activateRate}")
     fun activateWaitingQueue() {
         val pendingQueues = waitingQueueRepository.findByStatus(QueueStatus.PENDING)
         val activeQueues = waitingQueueRepository.findByStatus(QueueStatus.ACTIVE)
@@ -20,7 +20,7 @@ class WaitingQueueScheduler(
         queueManager.activatePendingQueues(pendingQueues, activeCountMap)
     }
 
-    @Scheduled(fixedRateString = "\${waiting-queue.expirationRate}")
+    @Scheduled(fixedRateString = "\${waiting-queue.expireCheckRate}")
     fun expireWaitingQueues() {
         val expiredQueues =
             waitingQueueRepository.findByStatus(QueueStatus.ACTIVE)

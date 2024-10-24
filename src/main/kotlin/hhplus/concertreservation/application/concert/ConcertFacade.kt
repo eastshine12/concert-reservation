@@ -12,6 +12,7 @@ import hhplus.concertreservation.domain.concert.service.ReservationService
 import hhplus.concertreservation.domain.concert.toConcertInfo
 import hhplus.concertreservation.domain.concert.toSeatInfo
 import hhplus.concertreservation.domain.user.service.UserService
+import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
 import org.springframework.stereotype.Component
 
 @Component
@@ -19,6 +20,7 @@ class ConcertFacade(
     private val userService: UserService,
     private val concertService: ConcertService,
     private val reservationService: ReservationService,
+    private val waitingQueueService: WaitingQueueService,
 ) {
     fun getReservationAvailableDates(
         token: String,
@@ -39,6 +41,7 @@ class ConcertFacade(
     }
 
     fun createReservation(command: ReservationCommand): CreateReservationInfo {
+        waitingQueueService.verifyMatchingScheduleId(command.token, command.scheduleId)
         userService.checkUserExists(command.userId)
         concertService.checkScheduleAvailability(command.scheduleId)
         return reservationService.createPendingReservation(command.userId, command.scheduleId, command.seatId)

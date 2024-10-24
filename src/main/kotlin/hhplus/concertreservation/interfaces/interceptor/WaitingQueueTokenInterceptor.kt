@@ -1,6 +1,5 @@
 package hhplus.concertreservation.interfaces.interceptor
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
@@ -12,37 +11,32 @@ import org.springframework.web.servlet.HandlerInterceptor
 @Component
 class WaitingQueueTokenInterceptor(
     private val waitingQueueService: WaitingQueueService,
-    private val objectMapper: ObjectMapper,
 ) : HandlerInterceptor {
+
     override fun preHandle(
         request: HttpServletRequest,
         response: HttpServletResponse,
         handler: Any,
     ): Boolean {
-        val token =
-            request.getHeader("Queue-Token") ?: throw CoreException(
+        val token = request.getHeader("Queue-Token")
+            ?: throw CoreException(
                 errorType = ErrorType.INVALID_TOKEN,
                 message = "Token is missing from the request header.",
             )
-        val scheduleId: Long? = extractScheduleIdOrNullFromRequest(request)
+        val scheduleId: Long? = extractScheduleIdOrNullFromRequest(request.requestURI)
         waitingQueueService.validateTokenState(token, scheduleId)
 
         return true
     }
 
-    private fun extractScheduleIdOrNullFromRequest(request: HttpServletRequest): Long? {
+    private fun extractScheduleIdOrNullFromRequest(requestURI: String): Long? {
         val scheduleIdFromPath: Long? =
             Regex("/concerts/\\d+/schedules/(\\d+)")
-                .find(request.requestURI)
+                .find(requestURI)
                 ?.groups?.get(1)
                 ?.value
                 ?.toLongOrNull()
 
-        val scheduleIdFromBody: Long? =
-            request.inputStream.use { inputStream ->
-                objectMapper.readTree(inputStream).takeIf { it.has("scheduleId") }?.get("scheduleId")?.asLong()
-            }
-
-        return scheduleIdFromPath ?: scheduleIdFromBody
+        return scheduleIdFromPath
     }
 }

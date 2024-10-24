@@ -44,8 +44,18 @@ class WaitingQueueService(
             )
     }
 
-    fun validateTokenState(token: String): WaitingQueue {
-        return validateTokenState(token, null)
+    fun verifyMatchingScheduleId(token: String, scheduleId: Long) {
+        val queue = validateAndGetToken(token)
+        if (queue.scheduleId != scheduleId) {
+            throw CoreException(
+                errorType = ErrorType.INVALID_TOKEN,
+                message = "Token does not belong to the concert schedule.",
+                details =
+                mapOf(
+                    "scheduleId" to scheduleId,
+                ),
+            )
+        }
     }
 
     fun validateTokenState(
@@ -71,8 +81,15 @@ class WaitingQueueService(
         scheduleId: Long,
         myPosition: Int,
     ): Int {
-        val lastPosition = waitingQueueRepository.findMinQueuePositionByScheduleId(scheduleId)
-        return myPosition - lastPosition
+        val position: Int = waitingQueueRepository.findAllByScheduleId(scheduleId)
+            .filter { it.status == QueueStatus.PENDING }
+            .sortedBy { it.queuePosition }
+            .indexOfFirst { it.queuePosition == myPosition }
+            .takeIf { it != -1 }
+            ?.plus(1)
+            ?: 0
+
+        return position
     }
 
     fun expireToken(token: String) {

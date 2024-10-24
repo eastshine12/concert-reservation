@@ -17,9 +17,8 @@ import kotlin.test.Test
 @SpringBootTest
 class WaitingQueueTokenInterceptorTest {
     private val waitingQueueService = mockk<WaitingQueueService>()
-    private val objectMapper = ObjectMapper()
     private val waitingQueueTokenInterceptor =
-        WaitingQueueTokenInterceptor(waitingQueueService, objectMapper)
+        WaitingQueueTokenInterceptor(waitingQueueService)
 
     @Test
     fun `should validate token from request with scheduleId`() {
