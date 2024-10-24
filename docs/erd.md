@@ -77,7 +77,6 @@ erDiagram
         VARCHAR token "토큰"
         VARCHAR status "상태 (대기, 활성, 만료)"
         TIMESTAMP expires_at "토큰 만료 시간"
-        INT queue_position "대기열 순번"
         TIMESTAMP created_at "생성 시간"
         TIMESTAMP updated_at "수정 시간"
     }

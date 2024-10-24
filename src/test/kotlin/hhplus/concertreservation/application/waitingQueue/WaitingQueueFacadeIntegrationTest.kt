@@ -10,13 +10,15 @@ import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -55,7 +57,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174000",
                     status = QueueStatus.PENDING,
-                    queuePosition = 10,
                     expiresAt = null,
                 ),
             )
@@ -65,7 +66,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174001",
                     status = QueueStatus.PENDING,
-                    queuePosition = 11,
                     expiresAt = null,
                 ),
             )
@@ -75,7 +75,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174002",
                     status = QueueStatus.PENDING,
-                    queuePosition = 12,
                     expiresAt = null,
                 ),
             )
@@ -98,7 +97,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         // Then
         assertNotNull(tokenInfo)
         assertEquals(schedule.id, tokenInfo.scheduleId)
-        assertEquals(13, tokenInfo.queuePosition)
         assertNotNull(tokenInfo.token)
     }
 
@@ -182,7 +180,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174005",
                     status = QueueStatus.EXPIRED,
-                    queuePosition = 10,
                     expiresAt = LocalDateTime.now().minusMinutes(10L),
                 ),
             )
@@ -202,6 +199,34 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         assertNotNull(tokenInfo)
         assertEquals(schedule.id, tokenInfo.scheduleId)
         assertNotEquals(expiredToken, tokenInfo.token)
-        assertTrue(tokenInfo.queuePosition > waitingQueue2.queuePosition)
+    }
+
+    @Test
+    fun `should issue unique queue positions when multiple requests are made concurrently`() {
+        // Given
+        val scheduleId = 1L
+        val userIds = (1L..10L).toList()
+        val executor: ExecutorService = Executors.newFixedThreadPool(10)
+
+        // When
+        val tasks =
+            userIds.map { userId ->
+                Callable {
+                    waitingQueueFacade.issueWaitingQueueToken(
+                        TokenCommand(
+                            concertId = concert.id,
+                            concertScheduleId = scheduleId,
+                            token = null,
+                            userId = userId,
+                        ),
+                    )
+                }
+            }
+
+        val results = executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // Then
+        assertEquals(10, results.size)
     }
 }

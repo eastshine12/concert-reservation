@@ -36,11 +36,11 @@ class ConcertScheduler(
     fun syncAvailableSeats() {
         val allSchedules = concertScheduleRepository.findAll()
         val filterSchedules = allSchedules.filter { it.startTime.isAfter(LocalDateTime.now()) }
-        val seatCountList: List<ScheduleSeatCount> = seatJpaRepository.countAvailableSeatsGroupByScheduleId()
+        val unavailableSeatCountList: List<ScheduleSeatCount> = seatJpaRepository.countUnavailableSeatsGroupByScheduleId()
         val schedulesToUpdate = mutableListOf<ConcertSchedule>()
         filterSchedules.forEach { schedule ->
-            val seatCount = seatCountList.find { it.scheduleId == schedule.id }?.seatCount ?: 0L
-            schedule.updateAvailableSeats(seatCount.toInt())
+            val unavailableSeatCount = unavailableSeatCountList.find { it.scheduleId == schedule.id }?.seatCount ?: 0L
+            schedule.updateAvailableSeats(schedule.totalSeats - unavailableSeatCount.toInt())
             schedulesToUpdate.add(schedule)
         }
         concertScheduleRepository.saveAll(schedulesToUpdate)

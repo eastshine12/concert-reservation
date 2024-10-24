@@ -17,26 +17,21 @@ class QueueManager(
     fun enqueue(
         scheduleId: Long,
         token: String,
-        position: Int,
     ): WaitingQueue {
-        return waitingQueueRepository.save(
-            WaitingQueue(
-                scheduleId = scheduleId,
-                token = token,
-                status = QueueStatus.PENDING,
-                queuePosition = position,
-                expiresAt = null,
-            ),
-        )
+        val waitingQueue =
+            waitingQueueRepository.save(
+                WaitingQueue(
+                    scheduleId = scheduleId,
+                    token = token,
+                    status = QueueStatus.PENDING,
+                    expiresAt = null,
+                ),
+            )
+        return waitingQueue
     }
 
     fun findQueueByToken(token: String): WaitingQueue? {
         return waitingQueueRepository.findByToken(token)
-    }
-
-    fun calculateQueuePosition(scheduleId: Long): Int {
-        val lastPosition = waitingQueueRepository.findMaxQueuePositionByScheduleId(scheduleId)
-        return lastPosition + 1
     }
 
     fun validateTokenState(queue: WaitingQueue) {
@@ -73,7 +68,7 @@ class QueueManager(
             val activeCount = activeCountMap.getOrDefault(scheduleId, 0)
             if (activeCount < waitingQueueProperties.maxActiveUsers) {
                 val availableSlots = waitingQueueProperties.maxActiveUsers - activeCount
-                val queuesToActivate = pendingList.sortedBy { it.queuePosition }.take(availableSlots)
+                val queuesToActivate = pendingList.sortedBy { it.id }.take(availableSlots)
                 queuesToActivate.forEach { queue ->
                     queue.activate(waitingQueueProperties.expireMinutes)
                 }

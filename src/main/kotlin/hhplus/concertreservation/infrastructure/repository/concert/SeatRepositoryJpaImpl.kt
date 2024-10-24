@@ -26,7 +26,7 @@ class SeatRepositoryJpaImpl(
         return seatJpaRepository.findAllByScheduleId(scheduleId)
     }
 
-    override fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount> {
-        return seatJpaRepository.countAvailableSeatsGroupByScheduleId()
+    override fun countUnavailableSeatsGroupByScheduleId(): List<ScheduleSeatCount> {
+        return seatJpaRepository.countUnavailableSeatsGroupByScheduleId()
     }
 }

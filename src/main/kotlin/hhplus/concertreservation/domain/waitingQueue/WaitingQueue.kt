@@ -10,7 +10,6 @@ class WaitingQueue(
     val scheduleId: Long,
     val token: String,
     status: QueueStatus,
-    val queuePosition: Int,
     expiresAt: LocalDateTime?,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
