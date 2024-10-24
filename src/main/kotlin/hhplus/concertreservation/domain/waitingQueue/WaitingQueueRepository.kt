@@ -7,7 +7,7 @@ interface WaitingQueueRepository {
 
     fun findByToken(token: String): WaitingQueue?
 
-    fun findMinQueuePositionByScheduleId(scheduleId: Long): Int
+    fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue>
 
     fun findMaxQueuePositionByScheduleId(scheduleId: Long): Int
 

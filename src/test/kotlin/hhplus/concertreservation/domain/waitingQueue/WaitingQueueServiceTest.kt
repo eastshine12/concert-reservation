@@ -89,14 +89,19 @@ class WaitingQueueServiceTest {
     fun `should calculate remaining position`() {
         // given
         val scheduleId = 1L
-        val myPosition = 7
+        val myPosition = 3
+        val waitingQueues = listOf(
+            WaitingQueue(1L, "token1", QueueStatus.PENDING, 1, expiresAt = null),
+            WaitingQueue(2L, "token2", QueueStatus.PENDING, 2, expiresAt = null),
+            WaitingQueue(3L, "token3", QueueStatus.PENDING, 3, expiresAt = null)
+        )
 
-        every { waitingQueueRepository.findMinQueuePositionByScheduleId(scheduleId) } returns 3
+        every { waitingQueueRepository.findAllByScheduleId(scheduleId) } returns waitingQueues
 
         // when
         val result = waitingQueueService.calculateRemainingPosition(scheduleId, myPosition)
 
         // then
-        assertEquals(4, result)
+        assertEquals(3, result)
     }
 }

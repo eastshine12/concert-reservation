@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.Query
 interface WaitingQueueJpaRepository : JpaRepository<WaitingQueue, Long> {
     fun findByToken(token: String): WaitingQueue?
 
-    @Query("SELECT COALESCE(MIN(w.queuePosition), 0) FROM WaitingQueue w WHERE w.scheduleId = :scheduleId")
-    fun findMinQueuePositionByScheduleId(scheduleId: Long): Int
+    fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue>
 
     @Query("SELECT COALESCE(MAX(w.queuePosition), 0) FROM WaitingQueue w WHERE w.scheduleId = :scheduleId")
     fun findMaxQueuePositionByScheduleId(scheduleId: Long): Int
