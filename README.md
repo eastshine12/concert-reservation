@@ -10,6 +10,7 @@
 - [시퀀스 다이어그램](docs/sequence_diagram.md)
 - [ERD](docs/erd.md)
 - [API 명세서](docs/api_specification.md)
+- [Chapter 2 중간 회고록](https://eastshine12.tistory.com/67)
 
 <br/>
 
