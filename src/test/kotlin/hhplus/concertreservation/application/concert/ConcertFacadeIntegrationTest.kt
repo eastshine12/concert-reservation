@@ -171,51 +171,6 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `must create pending reservation for 5 users concurrently`() {
-        // given
-        val scheduleId = 1L
-        val token = "123e4567-e89b-12d3-a456-426614174000"
-        val userIdList = listOf(1L, 2L, 3L, 4L, 5L)
-        val successCount = AtomicInteger(0)
-        val commands =
-            userIdList.map { userId ->
-                ReservationCommand(
-                    userId = userId,
-                    scheduleId = scheduleId,
-                    seatId = userId,
-                    token = token,
-                )
-            }
-        val executor: ExecutorService = Executors.newFixedThreadPool(5)
-
-        // when
-        val tasks =
-            commands.map { command ->
-                Callable {
-                    try {
-                        concertFacade.createReservation(command)
-                        successCount.incrementAndGet()
-                    } catch (e: Exception) {
-                        println("Reservation failed for userId: ${command.userId}, reason: ${e.message}")
-                    }
-                }
-            }
-
-        executor.invokeAll(tasks)
-        executor.shutdown()
-
-        // then
-        assertEquals(5, successCount.get())
-        repeat(5) {
-            assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById((it + 1).toLong()).get().status)
-        }
-        repeat(5) {
-            assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById((it + 1).toLong()).get().status)
-        }
-//        assertEquals(0, concertScheduleJpaRepository.findById(1L).get().availableSeats)
-    }
-
-    @Test
     fun `should throw exception when retrieving available reservation dates for non-existing concert`() {
         // given
         val nonExistingConcertId = 999L // 존재하지 않는 콘서트 ID
@@ -306,5 +261,89 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("The seat is not available for reservation.", exception.message)
+    }
+
+    @Test
+    fun `must create pending reservation for 5 users concurrently`() {
+        // given
+        val scheduleId = 1L
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+        val userIdList = listOf(1L, 2L, 3L, 4L, 5L)
+        val successCount = AtomicInteger(0)
+        val commands =
+            userIdList.map { userId ->
+                ReservationCommand(
+                    userId = userId,
+                    scheduleId = scheduleId,
+                    seatId = userId,
+                    token = token,
+                )
+            }
+        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+
+        // when
+        val tasks =
+            commands.map { command ->
+                Callable {
+                    try {
+                        concertFacade.createReservation(command)
+                        successCount.incrementAndGet()
+                    } catch (e: Exception) {
+                        println("Reservation failed for userId: ${command.userId}, reason: ${e.message}")
+                    }
+                }
+            }
+
+        executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // then
+        assertEquals(5, successCount.get())
+        repeat(5) {
+            assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById((it + 1).toLong()).get().status)
+        }
+        repeat(5) {
+            assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById((it + 1).toLong()).get().status)
+        }
+//        assertEquals(0, concertScheduleJpaRepository.findById(1L).get().availableSeats)
+    }
+
+    @Test
+    fun `should reserve seat for only one user when multiple requests are made concurrently`() {
+        // Given
+        val seatId = 1L
+        val scheduleId = 1L
+        val userIds = (1L..5L).toList()
+        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+
+        val successCount = AtomicInteger(0)
+        val failureCount = AtomicInteger(0)
+
+        // When
+        val tasks =
+            userIds.map { userId ->
+                Callable {
+                    try {
+                        concertFacade.createReservation(
+                            ReservationCommand(
+                                userId = userId,
+                                scheduleId = scheduleId,
+                                seatId = seatId,
+                                token = "123e4567-e89b-12d3-a456-426614174000",
+                            ),
+                        )
+                        successCount.incrementAndGet()
+                    } catch (e: CoreException) {
+                        failureCount.incrementAndGet()
+                    }
+                }
+            }
+
+        executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // Then
+        assertEquals(1, successCount.get())
+        assertEquals(4, failureCount.get())
     }
 }

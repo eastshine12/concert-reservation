@@ -16,6 +16,9 @@ import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDateTime
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -196,5 +199,34 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         assertNotNull(tokenInfo)
         assertEquals(schedule.id, tokenInfo.scheduleId)
         assertNotEquals(expiredToken, tokenInfo.token)
+    }
+
+    @Test
+    fun `should issue unique queue positions when multiple requests are made concurrently`() {
+        // Given
+        val scheduleId = 1L
+        val userIds = (1L..10L).toList()
+        val executor: ExecutorService = Executors.newFixedThreadPool(10)
+
+        // When
+        val tasks =
+            userIds.map { userId ->
+                Callable {
+                    waitingQueueFacade.issueWaitingQueueToken(
+                        TokenCommand(
+                            concertId = concert.id,
+                            concertScheduleId = scheduleId,
+                            token = null,
+                            userId = userId,
+                        ),
+                    )
+                }
+            }
+
+        val results = executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // Then
+        assertEquals(10, results.size)
     }
 }
