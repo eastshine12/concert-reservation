@@ -2,15 +2,13 @@ import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.waitingQueue.WaitingQueueFacade
 import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.Concert
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
-import hhplus.concertreservation.domain.concert.exception.ConcertScheduleNotFoundException
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -132,7 +130,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
 
         // When & Then
         val exception =
-            assertThrows<ConcertScheduleNotFoundException> {
+            assertThrows<CoreException> {
                 waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
             }
 
@@ -154,11 +152,11 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
 
         // When & Then
         val exception =
-            assertThrows<TokenAlreadyExistsException> {
+            assertThrows<CoreException> {
                 waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
             }
 
-        assertEquals("Token already exists for this schedule.", exception.message)
+        assertEquals("A queue already exists for this token.", exception.message)
     }
 
     @Test
@@ -168,11 +166,11 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
 
         // When & Then
         val exception =
-            assertThrows<InvalidTokenException> {
+            assertThrows<CoreException> {
                 waitingQueueFacade.getWaitingQueueStatus(invalidToken)
             }
 
-        assertEquals("Token is invalid: $invalidToken", exception.message)
+        assertEquals("Invalid or missing token.", exception.message)
     }
 
     @Test

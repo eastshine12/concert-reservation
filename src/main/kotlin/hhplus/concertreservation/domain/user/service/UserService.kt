@@ -1,10 +1,11 @@
 package hhplus.concertreservation.domain.user.service
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.BalanceHistory
 import hhplus.concertreservation.domain.user.entity.User
-import hhplus.concertreservation.domain.user.exception.UserNotFoundException
 import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
 import hhplus.concertreservation.domain.user.toUpdateBalanceInfo
@@ -19,7 +20,13 @@ class UserService(
 ) {
     fun getByUserId(userId: Long): User {
         return userRepository.findByIdOrNull(userId)
-            ?: throw UserNotFoundException("User not found with id $userId")
+            ?: throw CoreException(
+                errorType = ErrorType.USER_NOT_FOUND,
+                details =
+                    mapOf(
+                        "userId" to userId,
+                    ),
+            )
     }
 
     fun getUserBalance(userId: Long): BigDecimal {

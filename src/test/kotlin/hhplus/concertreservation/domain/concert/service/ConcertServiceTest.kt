@@ -1,10 +1,8 @@
 package hhplus.concertreservation.domain.concert.service
 
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.component.ConcertManager
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
-import hhplus.concertreservation.domain.concert.exception.ConcertNotFoundException
-import hhplus.concertreservation.domain.concert.exception.ConcertScheduleNotFoundException
-import hhplus.concertreservation.domain.concert.exception.SeatsNotFoundException
 import hhplus.concertreservation.domain.concert.repository.ConcertRepository
 import hhplus.concertreservation.domain.concert.repository.ConcertScheduleRepository
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
@@ -27,7 +25,7 @@ class ConcertServiceTest {
         every { concertRepository.findByIdOrNull(concertId) } returns null
 
         // when, then
-        assertThrows<ConcertNotFoundException> {
+        assertThrows<CoreException> {
             concertService.getConcertById(concertId)
         }
     }
@@ -39,7 +37,7 @@ class ConcertServiceTest {
         every { concertScheduleRepository.findAllByConcertId(concertId) } returns emptyList()
 
         // when, then
-        assertThrows<ConcertScheduleNotFoundException> {
+        assertThrows<CoreException> {
             concertService.getSchedulesByConcertId(concertId)
         }
     }
@@ -65,7 +63,7 @@ class ConcertServiceTest {
         every { seatRepository.findByIdOrNull(seatId) } returns null
 
         // when, then
-        assertThrows<SeatsNotFoundException> {
+        assertThrows<CoreException> {
             concertService.verifyAndGetSeatInfo(seatId)
         }
     }
@@ -77,7 +75,7 @@ class ConcertServiceTest {
         every { seatRepository.findAllByScheduleId(scheduleId) } returns emptyList()
 
         // when, then
-        assertThrows<SeatsNotFoundException> {
+        assertThrows<CoreException> {
             concertService.getSeatsByScheduleId(scheduleId)
         }
     }

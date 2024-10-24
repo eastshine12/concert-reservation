@@ -1,13 +1,12 @@
 package hhplus.concertreservation.domain.concert.component
 
 import hhplus.concertreservation.domain.common.enums.SeatStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.Seat
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
-import hhplus.concertreservation.domain.concert.exception.SeatNotFoundException
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -24,12 +23,12 @@ class SeatFinderTest {
 
         // when & then
         val exception =
-            assertThrows<SeatNotFoundException> {
+            assertThrows<CoreException> {
                 seatFinder.getSeatWithLock(seatId)
             }
 
         // then
-        assertEquals("Seat not found with id $seatId", exception.message)
+        assertEquals("No seat found for the given ID.", exception.message)
     }
 
     @Test
@@ -48,12 +47,12 @@ class SeatFinderTest {
 
         // when & then
         val exception =
-            assertThrows<SeatNotFoundException> {
+            assertThrows<CoreException> {
                 seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
             }
 
         // then
-        assertEquals("Seat with id $seatId does not belong to schedule with id $scheduleId", exception.message)
+        assertEquals("Seat does not belong to concert schedule.", exception.message)
     }
 
     @Test
@@ -72,11 +71,11 @@ class SeatFinderTest {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
             }
 
         // then
-        assertEquals("Seat is not available for reservation with id $seatId", exception.message)
+        assertEquals("The seat is not available for reservation.", exception.message)
     }
 }

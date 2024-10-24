@@ -1,7 +1,8 @@
 package hhplus.concertreservation.domain.concert.entity
 
 import hhplus.concertreservation.domain.common.BaseEntity
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -28,14 +29,20 @@ class ConcertSchedule(
 
     fun occupySeat() {
         if (availableSeats <= 0) {
-            throw SeatAvailabilityException("No available seats left to reserve.")
+            throw CoreException(
+                errorType = ErrorType.SEAT_UNAVAILABLE,
+                message = "No available seats left to reserve.",
+            )
         }
         this.availableSeats -= 1
     }
 
     fun restoreSeat() {
         if (availableSeats >= totalSeats) {
-            throw SeatAvailabilityException("All seats are already available. Cannot increase available seats.")
+            throw CoreException(
+                errorType = ErrorType.SEAT_UNAVAILABLE,
+                message = "All seats are already available. Cannot increase available seats.",
+            )
         }
         this.availableSeats += 1
     }

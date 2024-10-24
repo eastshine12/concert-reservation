@@ -2,7 +2,8 @@ package hhplus.concertreservation.domain.concert.entity
 
 import hhplus.concertreservation.domain.common.BaseEntity
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
-import hhplus.concertreservation.domain.concert.exception.InvalidReservationStatusException
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -25,14 +26,20 @@ class Reservation(
 
     fun confirm() {
         if (status != ReservationStatus.PENDING) {
-            throw InvalidReservationStatusException("Reservation is not in pending state")
+            throw CoreException(
+                errorType = ErrorType.INVALID_RESERVATION_STATUS,
+                message = "Reservation is not in pending state",
+            )
         }
         status = ReservationStatus.CONFIRMED
     }
 
     fun cancel() {
         if (status == ReservationStatus.CONFIRMED) {
-            throw InvalidReservationStatusException("Confirmed reservations cannot be canceled.")
+            throw CoreException(
+                errorType = ErrorType.INVALID_RESERVATION_STATUS,
+                message = "Confirmed reservations cannot be canceled.",
+            )
         }
         this.status = ReservationStatus.CANCELED
     }

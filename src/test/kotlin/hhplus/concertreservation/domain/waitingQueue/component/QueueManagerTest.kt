@@ -2,11 +2,10 @@ package hhplus.concertreservation.domain.waitingQueue.component
 
 import hhplus.concertreservation.config.WaitingQueueProperties
 import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueRepository
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenExpiredException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -67,7 +66,7 @@ class QueueManagerTest {
             }
 
         // when, then
-        assertThrows<InvalidTokenException> {
+        assertThrows<CoreException> {
             queueManager.validateTokenState(waitingQueue)
         }
     }
@@ -83,7 +82,7 @@ class QueueManagerTest {
             }
 
         // when, then
-        assertThrows<TokenExpiredException> {
+        assertThrows<CoreException> {
             queueManager.validateTokenState(waitingQueue)
         }
     }

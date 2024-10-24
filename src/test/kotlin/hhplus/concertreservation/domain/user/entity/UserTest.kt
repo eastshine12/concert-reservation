@@ -1,7 +1,6 @@
 package hhplus.concertreservation.domain.user.entity
 
-import hhplus.concertreservation.domain.user.exception.InsufficientBalanceException
-import hhplus.concertreservation.domain.user.exception.InvalidBalanceAmountException
+import hhplus.concertreservation.domain.common.exception.CoreException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.math.BigDecimal
@@ -13,7 +12,7 @@ class UserTest {
         val user = User(name = "홍길동", email = "hong@example.com", balance = BigDecimal("100.00"))
 
         // when / then
-        assertThrows<InvalidBalanceAmountException> {
+        assertThrows<CoreException> {
             user.charge(BigDecimal("-10.00"))
         }
     }
@@ -24,7 +23,7 @@ class UserTest {
         val user = User(name = "홍길동", email = "hong@example.com", balance = BigDecimal("100.00"))
 
         // when / then
-        assertThrows<InvalidBalanceAmountException> {
+        assertThrows<CoreException> {
             user.use(BigDecimal("0.00"))
         }
     }
@@ -35,7 +34,7 @@ class UserTest {
         val user = User(name = "홍길동", email = "hong@example.com", balance = BigDecimal("50.00"))
 
         // when / then
-        assertThrows<InsufficientBalanceException> {
+        assertThrows<CoreException> {
             user.use(BigDecimal("60.00"))
         }
     }

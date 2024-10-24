@@ -1,6 +1,6 @@
 package hhplus.concertreservation.domain.concert.entity
 
-import hhplus.concertreservation.domain.concert.exception.SeatAvailabilityException
+import hhplus.concertreservation.domain.common.exception.CoreException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 import java.time.LocalDateTime
@@ -20,7 +20,7 @@ class ConcertScheduleTest {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 concertSchedule.occupySeat()
             }
 
@@ -41,7 +41,7 @@ class ConcertScheduleTest {
 
         // when & then
         val exception =
-            assertThrows<SeatAvailabilityException> {
+            assertThrows<CoreException> {
                 concertSchedule.restoreSeat()
             }
 

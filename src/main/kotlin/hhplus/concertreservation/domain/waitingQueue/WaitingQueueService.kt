@@ -1,12 +1,11 @@
 package hhplus.concertreservation.domain.waitingQueue
 
 import hhplus.concertreservation.domain.common.enums.QueueStatus
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
-import hhplus.concertreservation.domain.waitingQueue.exception.InvalidTokenException
-import hhplus.concertreservation.domain.waitingQueue.exception.QueueNotFoundException
-import hhplus.concertreservation.domain.waitingQueue.exception.TokenAlreadyExistsException
 import org.springframework.stereotype.Service
 
 @Service
@@ -23,7 +22,7 @@ class WaitingQueueService(
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)
                 ?.takeIf { queue -> queue.scheduleId == schedule.id && queue.status != QueueStatus.EXPIRED }
-                ?.run { throw TokenAlreadyExistsException("Token already exists for this schedule.") }
+                ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS) }
         }
 
         return queueManager.enqueue(
@@ -36,7 +35,13 @@ class WaitingQueueService(
     fun validateAndGetToken(token: String): WaitingQueue {
         val validToken = tokenManager.validateAndGetToken(token)
         return queueManager.findQueueByToken(validToken)
-            ?: throw QueueNotFoundException("No waiting-queue found for the token: $token")
+            ?: throw CoreException(
+                errorType = ErrorType.NO_QUEUE_FOUND,
+                details =
+                    mapOf(
+                        "token" to token,
+                    ),
+            )
     }
 
     fun validateTokenState(token: String): WaitingQueue {
@@ -50,7 +55,14 @@ class WaitingQueueService(
         val queue = validateAndGetToken(token)
         queueManager.validateTokenState(queue)
         if (scheduleId != null && queue.scheduleId != scheduleId) {
-            throw InvalidTokenException("Token does not belong to the concert schedule: $scheduleId")
+            throw CoreException(
+                errorType = ErrorType.INVALID_TOKEN,
+                message = "Token does not belong to the concert schedule.",
+                details =
+                    mapOf(
+                        "scheduleId" to scheduleId,
+                    ),
+            )
         }
         return queue
     }
