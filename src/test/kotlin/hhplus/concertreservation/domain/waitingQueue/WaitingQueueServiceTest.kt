@@ -25,9 +25,8 @@ class WaitingQueueServiceTest {
         val waitingQueue = mockk<WaitingQueue>(relaxed = true)
         val tokenInfo = waitingQueue.toTokenInfo()
 
-        every { queueManager.enqueue(any(), any(), any()) } returns waitingQueue
+        every { queueManager.enqueue(any(), any()) } returns waitingQueue
         every { tokenManager.generateToken() } returns "token"
-        every { queueManager.calculateQueuePosition(scheduleId = schedule.id) } returns 1
 
         // when
         val result = waitingQueueService.issueToken(token = null, scheduleId = schedule.id)
@@ -89,18 +88,18 @@ class WaitingQueueServiceTest {
     fun `should calculate remaining position`() {
         // given
         val scheduleId = 1L
-        val myPosition = 3
+        val token = "token3"
         val waitingQueues =
             listOf(
-                WaitingQueue(1L, "token1", QueueStatus.PENDING, 1, expiresAt = null),
-                WaitingQueue(2L, "token2", QueueStatus.PENDING, 2, expiresAt = null),
-                WaitingQueue(3L, "token3", QueueStatus.PENDING, 3, expiresAt = null),
+                WaitingQueue(1L, "token1", QueueStatus.PENDING, expiresAt = null),
+                WaitingQueue(2L, "token2", QueueStatus.PENDING, expiresAt = null),
+                WaitingQueue(3L, "token3", QueueStatus.PENDING, expiresAt = null),
             )
 
         every { waitingQueueRepository.findAllByScheduleId(scheduleId) } returns waitingQueues
 
         // when
-        val result = waitingQueueService.calculateRemainingPosition(scheduleId, myPosition)
+        val result = waitingQueueService.calculateRemainingPosition(scheduleId, token)
 
         // then
         assertEquals(3, result)

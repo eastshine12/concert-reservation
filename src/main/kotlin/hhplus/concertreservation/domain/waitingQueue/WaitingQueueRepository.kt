@@ -9,8 +9,6 @@ interface WaitingQueueRepository {
 
     fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue>
 
-    fun findMaxQueuePositionByScheduleId(scheduleId: Long): Int
-
     fun findByStatus(status: QueueStatus): List<WaitingQueue>
 
     fun saveAll(queues: List<WaitingQueue>): MutableList<WaitingQueue>

@@ -8,6 +8,5 @@ data class TokenInfo(
     val scheduleId: Long,
     val token: String,
     val status: QueueStatus,
-    val queuePosition: Int,
     val expiresAt: LocalDateTime?,
 )

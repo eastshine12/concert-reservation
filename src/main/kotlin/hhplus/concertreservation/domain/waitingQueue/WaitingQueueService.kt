@@ -28,7 +28,6 @@ class WaitingQueueService(
         return queueManager.enqueue(
             scheduleId = scheduleId,
             token = tokenManager.generateToken(),
-            position = queueManager.calculateQueuePosition(scheduleId),
         ).toTokenInfo()
     }
 
@@ -82,13 +81,13 @@ class WaitingQueueService(
 
     fun calculateRemainingPosition(
         scheduleId: Long,
-        myPosition: Int,
+        token: String,
     ): Int {
         val position: Int =
             waitingQueueRepository.findAllByScheduleId(scheduleId)
                 .filter { it.status == QueueStatus.PENDING }
-                .sortedBy { it.queuePosition }
-                .indexOfFirst { it.queuePosition == myPosition }
+                .sortedBy { it.id }
+                .indexOfFirst { it.token == token }
                 .takeIf { it != -1 }
                 ?.plus(1)
                 ?: 0

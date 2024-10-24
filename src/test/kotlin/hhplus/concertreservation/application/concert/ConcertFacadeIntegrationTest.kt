@@ -80,7 +80,6 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule1.id,
                     token = "123e4567-e89b-12d3-a456-426614174000",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = LocalDateTime.now().plusMinutes(10),
                 ),
             )
@@ -90,7 +89,6 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule2.id,
                     token = "123e4567-e89b-12d3-a456-426614174001",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = LocalDateTime.now().plusMinutes(10),
                 ),
             )
@@ -101,7 +99,6 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule1.id,
                     token = "123e4567-e89b-12d3-a456-426614174002",
                     status = QueueStatus.EXPIRED,
-                    queuePosition = 1,
                     expiresAt = LocalDateTime.now().minusMinutes(10),
                 ),
             )

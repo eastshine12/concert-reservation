@@ -24,7 +24,6 @@ class WaitingQueueSchedulerTest {
                     scheduleId = 1L,
                     token = "token1",
                     status = QueueStatus.PENDING,
-                    queuePosition = 2,
                     expiresAt = null,
                 ),
             )
@@ -34,7 +33,6 @@ class WaitingQueueSchedulerTest {
                     scheduleId = 1L,
                     token = "token2",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = null,
                 ),
             )
@@ -58,7 +56,6 @@ class WaitingQueueSchedulerTest {
                     scheduleId = 1L,
                     token = "token1",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = LocalDateTime.now().minusMinutes(1),
                 ),
             )

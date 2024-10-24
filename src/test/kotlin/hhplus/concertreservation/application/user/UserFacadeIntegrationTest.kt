@@ -44,7 +44,6 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
                 scheduleId = 1L,
                 token = "123e4567-e89b-12d3-a456-426614174000",
                 status = QueueStatus.ACTIVE,
-                queuePosition = 1,
                 expiresAt = LocalDateTime.now().plusMinutes(10),
             ),
         )

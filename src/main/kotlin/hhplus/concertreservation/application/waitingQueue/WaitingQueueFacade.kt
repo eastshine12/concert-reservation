@@ -21,7 +21,7 @@ class WaitingQueueFacade(
 
     fun getWaitingQueueStatus(token: String): WaitingQueueInfo {
         val waitingQueue: WaitingQueue = waitingQueueService.validateAndGetToken(token)
-        val remainingPosition: Int = waitingQueueService.calculateRemainingPosition(waitingQueue.scheduleId, waitingQueue.queuePosition)
+        val remainingPosition: Int = waitingQueueService.calculateRemainingPosition(waitingQueue.scheduleId, token)
         return waitingQueue.toWaitingQueueInfo(remainingPosition)
     }
 }

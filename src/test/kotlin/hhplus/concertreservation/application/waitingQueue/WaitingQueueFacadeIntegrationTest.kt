@@ -10,7 +10,6 @@ import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -55,7 +54,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174000",
                     status = QueueStatus.PENDING,
-                    queuePosition = 10,
                     expiresAt = null,
                 ),
             )
@@ -65,7 +63,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174001",
                     status = QueueStatus.PENDING,
-                    queuePosition = 11,
                     expiresAt = null,
                 ),
             )
@@ -75,7 +72,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174002",
                     status = QueueStatus.PENDING,
-                    queuePosition = 12,
                     expiresAt = null,
                 ),
             )
@@ -98,7 +94,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         // Then
         assertNotNull(tokenInfo)
         assertEquals(schedule.id, tokenInfo.scheduleId)
-        assertEquals(13, tokenInfo.queuePosition)
         assertNotNull(tokenInfo.token)
     }
 
@@ -182,7 +177,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174005",
                     status = QueueStatus.EXPIRED,
-                    queuePosition = 10,
                     expiresAt = LocalDateTime.now().minusMinutes(10L),
                 ),
             )
@@ -202,6 +196,5 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         assertNotNull(tokenInfo)
         assertEquals(schedule.id, tokenInfo.scheduleId)
         assertNotEquals(expiredToken, tokenInfo.token)
-        assertTrue(tokenInfo.queuePosition > waitingQueue2.queuePosition)
     }
 }
