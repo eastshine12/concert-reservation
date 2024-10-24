@@ -44,16 +44,19 @@ class WaitingQueueService(
             )
     }
 
-    fun verifyMatchingScheduleId(token: String, scheduleId: Long) {
+    fun verifyMatchingScheduleId(
+        token: String,
+        scheduleId: Long,
+    ) {
         val queue = validateAndGetToken(token)
         if (queue.scheduleId != scheduleId) {
             throw CoreException(
                 errorType = ErrorType.INVALID_TOKEN,
                 message = "Token does not belong to the concert schedule.",
                 details =
-                mapOf(
-                    "scheduleId" to scheduleId,
-                ),
+                    mapOf(
+                        "scheduleId" to scheduleId,
+                    ),
             )
         }
     }
@@ -81,13 +84,14 @@ class WaitingQueueService(
         scheduleId: Long,
         myPosition: Int,
     ): Int {
-        val position: Int = waitingQueueRepository.findAllByScheduleId(scheduleId)
-            .filter { it.status == QueueStatus.PENDING }
-            .sortedBy { it.queuePosition }
-            .indexOfFirst { it.queuePosition == myPosition }
-            .takeIf { it != -1 }
-            ?.plus(1)
-            ?: 0
+        val position: Int =
+            waitingQueueRepository.findAllByScheduleId(scheduleId)
+                .filter { it.status == QueueStatus.PENDING }
+                .sortedBy { it.queuePosition }
+                .indexOfFirst { it.queuePosition == myPosition }
+                .takeIf { it != -1 }
+                ?.plus(1)
+                ?: 0
 
         return position
     }

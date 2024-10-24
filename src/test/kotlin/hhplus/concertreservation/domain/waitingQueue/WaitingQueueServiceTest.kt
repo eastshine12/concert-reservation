@@ -90,11 +90,12 @@ class WaitingQueueServiceTest {
         // given
         val scheduleId = 1L
         val myPosition = 3
-        val waitingQueues = listOf(
-            WaitingQueue(1L, "token1", QueueStatus.PENDING, 1, expiresAt = null),
-            WaitingQueue(2L, "token2", QueueStatus.PENDING, 2, expiresAt = null),
-            WaitingQueue(3L, "token3", QueueStatus.PENDING, 3, expiresAt = null)
-        )
+        val waitingQueues =
+            listOf(
+                WaitingQueue(1L, "token1", QueueStatus.PENDING, 1, expiresAt = null),
+                WaitingQueue(2L, "token2", QueueStatus.PENDING, 2, expiresAt = null),
+                WaitingQueue(3L, "token3", QueueStatus.PENDING, 3, expiresAt = null),
+            )
 
         every { waitingQueueRepository.findAllByScheduleId(scheduleId) } returns waitingQueues
 
