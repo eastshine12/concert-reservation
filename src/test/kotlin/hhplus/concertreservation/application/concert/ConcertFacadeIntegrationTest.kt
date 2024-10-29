@@ -21,11 +21,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest(classes = [ConcertReservationApplication::class])
@@ -313,16 +312,32 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         // Given
         val seatId = 1L
         val scheduleId = 1L
-        val userIds = (1L..5L).toList()
-        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+        for (i in 6..5000) {
+            userJpaRepository.save(
+                User(
+                    name = "User$i",
+                    email = "user$i@test.com",
+                    balance = 100000.toBigDecimal(),
+                ),
+            )
+        }
+        val userIds = (1L..5000L).toList()
+        val executor: ExecutorService = Executors.newFixedThreadPool(100)
 
         val successCount = AtomicInteger(0)
         val failureCount = AtomicInteger(0)
+
+        val responseTimes = ConcurrentLinkedQueue<Long>()
+
+        val startLatch = CountDownLatch(1)
+        val endLatch = CountDownLatch(userIds.size)
 
         // When
         val tasks =
             userIds.map { userId ->
                 Callable {
+                    startLatch.await()
+                    val startTime = System.nanoTime()
                     try {
                         concertFacade.createReservation(
                             ReservationCommand(
@@ -334,16 +349,39 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                         )
                         successCount.incrementAndGet()
                     } catch (e: CoreException) {
+//                        println("CoreException: ${e.javaClass.simpleName} - ${e.message}")
                         failureCount.incrementAndGet()
+                    } catch (e: ObjectOptimisticLockingFailureException) {
+//                        println("OptimisticLockException: ${e.javaClass.simpleName} - ${e.message}")
+                        failureCount.incrementAndGet()
+                    } catch (e: Exception) {
+//                        println("Unexpected exception: ${e.javaClass.simpleName} - ${e.message}")
+                        failureCount.incrementAndGet()
+                    } finally {
+                        val endTime = System.nanoTime()
+                        responseTimes.add(endTime - startTime)
+                        endLatch.countDown()
                     }
                 }
             }
 
-        executor.invokeAll(tasks)
+        tasks.forEach { executor.submit(it) }
+        startLatch.countDown()
+        endLatch.await()
         executor.shutdown()
 
         // Then
         assertEquals(1, successCount.get())
-        assertEquals(4, failureCount.get())
+        assertEquals(userIds.size - 1, failureCount.get())
+
+        // 응답 시간 분석
+        val responseTimeList = responseTimes.toList()
+        val fastestResponse = responseTimeList.minOrNull()?.let { it / 1_000_000 } ?: 0
+        val slowestResponse = responseTimeList.maxOrNull()?.let { it / 1_000_000 } ?: 0
+        val averageResponse = if (responseTimeList.isNotEmpty()) responseTimeList.average() / 1_000_000 else 0.0
+
+        println("Fastest Response Time: ${fastestResponse}ms")
+        println("Slowest Response Time: ${slowestResponse}ms")
+        println("Average Response Time: ${averageResponse}ms")
     }
 }

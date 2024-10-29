@@ -24,7 +24,8 @@ class ReservationService(
         scheduleId: Long,
         seatId: Long,
     ): CreateReservationInfo {
-        seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
+//        seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
+        seatFinder.getAvailableSeat(scheduleId, seatId).reserve()
         occupySeatWithoutLock(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
         return reservation.toCreateReservationInfo(success = true)

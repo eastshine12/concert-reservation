@@ -52,4 +52,43 @@ class SeatFinder(
 
         return seat
     }
+
+    fun getAvailableSeat(
+        scheduleId: Long,
+        seatId: Long,
+    ): Seat {
+        val seat =
+            seatRepository.findByIdOrNull(seatId)
+                ?: throw CoreException(
+                    errorType = ErrorType.NO_SEAT_FOUND,
+                    details =
+                        mapOf(
+                            "seatId" to seatId,
+                        ),
+                )
+
+        if (seat.scheduleId != scheduleId) {
+            throw CoreException(
+                errorType = ErrorType.NO_SEAT_FOUND,
+                message = "Seat does not belong to concert schedule.",
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                        "scheduleId" to scheduleId,
+                    ),
+            )
+        }
+
+        if (seat.status != SeatStatus.AVAILABLE) {
+            throw CoreException(
+                errorType = ErrorType.SEAT_UNAVAILABLE,
+                details =
+                    mapOf(
+                        "seatId" to seatId,
+                    ),
+            )
+        }
+
+        return seat
+    }
 }
