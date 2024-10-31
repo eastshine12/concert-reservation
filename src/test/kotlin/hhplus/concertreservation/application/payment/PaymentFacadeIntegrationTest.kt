@@ -143,6 +143,8 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("Payment failed.", exception.message)
+        val rolledBackReservation = reservationJpaRepository.findById(reservationId).get()
+        assertEquals(ReservationStatus.PENDING, rolledBackReservation.status)
     }
 
     @Test
@@ -286,10 +288,10 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         val successCount = AtomicInteger(0)
         val failureCount = AtomicInteger(0)
-        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+        val executor: ExecutorService = Executors.newFixedThreadPool(10)
 
         val tasks =
-            (1..5).map {
+            (1..10).map {
                 Callable {
                     try {
                         paymentFacade.processPayment(paymentCommand)
@@ -306,7 +308,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         // Then
         assertEquals(1, successCount.get())
-        assertEquals(4, failureCount.get())
+        assertEquals(9, failureCount.get())
     }
 
     @Test
@@ -322,11 +324,11 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
         val paymentSuccessCount = AtomicInteger(0)
         val paymentFailureCount = AtomicInteger(0)
 
-        val executor: ExecutorService = Executors.newFixedThreadPool(2)
+        val executor: ExecutorService = Executors.newFixedThreadPool(10)
 
         // When
         val chargeTasks =
-            (1..2).map {
+            (1..10).map {
                 Callable {
                     try {
                         userFacade.chargeBalance(
@@ -344,7 +346,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         val paymentTasks =
-            (1..2).map {
+            (1..10).map {
                 Callable {
                     try {
                         paymentFacade.processPayment(
@@ -369,6 +371,9 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         val chargeTotal = amount.toInt() * chargeSuccessCount.get()
         val deduct = seat.price.toInt() * paymentSuccessCount.get()
-        assertEquals(user.balance.toInt() + chargeTotal - deduct, userJpaRepository.findById(userId).get().balance.toInt())
+        assertEquals(
+            user.balance.toInt() + chargeTotal - deduct,
+            userJpaRepository.findById(userId).get().balance.toInt(),
+        )
     }
 }

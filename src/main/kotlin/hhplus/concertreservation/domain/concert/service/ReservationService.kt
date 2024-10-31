@@ -24,15 +24,14 @@ class ReservationService(
         scheduleId: Long,
         seatId: Long,
     ): CreateReservationInfo {
-//        seatFinder.getAvailableSeatWithLock(scheduleId, seatId).reserve()
         seatFinder.getAvailableSeat(scheduleId, seatId).reserve()
-        occupySeatWithoutLock(scheduleId)
+        occupySeat(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
         return reservation.toCreateReservationInfo(success = true)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun occupySeatWithoutLock(scheduleId: Long) {
+    fun occupySeat(scheduleId: Long) {
         concertManager.getScheduleById(scheduleId).occupySeat()
     }
 

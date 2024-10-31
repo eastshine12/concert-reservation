@@ -28,7 +28,7 @@ class ReservationServiceTest {
         val reservation = mockk<Reservation>(relaxed = true)
         val createReservationInfo = reservation.toCreateReservationInfo(success = true)
 
-        every { seatFinder.getAvailableSeatWithLock(scheduleId, seatId) } returns seat
+        every { seatFinder.getAvailableSeat(scheduleId, seatId) } returns seat
         every { concertManager.getScheduleById(scheduleId) } returns mockk(relaxed = true)
         every { concertManager.createPendingReservation(userId, scheduleId, seatId) } returns reservation
 
