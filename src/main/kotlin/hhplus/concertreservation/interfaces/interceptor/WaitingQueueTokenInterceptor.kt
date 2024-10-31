@@ -12,17 +12,17 @@ import org.springframework.web.servlet.HandlerInterceptor
 class WaitingQueueTokenInterceptor(
     private val waitingQueueService: WaitingQueueService,
 ) : HandlerInterceptor {
-
     override fun preHandle(
         request: HttpServletRequest,
         response: HttpServletResponse,
         handler: Any,
     ): Boolean {
-        val token = request.getHeader("Queue-Token")
-            ?: throw CoreException(
-                errorType = ErrorType.INVALID_TOKEN,
-                message = "Token is missing from the request header.",
-            )
+        val token =
+            request.getHeader("Queue-Token")
+                ?: throw CoreException(
+                    errorType = ErrorType.INVALID_TOKEN,
+                    message = "Token is missing from the request header.",
+                )
         val scheduleId: Long? = extractScheduleIdOrNullFromRequest(request.requestURI)
         waitingQueueService.validateTokenState(token, scheduleId)
 

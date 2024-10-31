@@ -44,44 +44,9 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
                 scheduleId = 1L,
                 token = "123e4567-e89b-12d3-a456-426614174000",
                 status = QueueStatus.ACTIVE,
-                queuePosition = 1,
                 expiresAt = LocalDateTime.now().plusMinutes(10),
             ),
         )
-    }
-
-    @Test
-    fun `must handle concurrent balance charges with optimistic locking`() {
-        // Given
-        val userId = 1L
-        val token = "123e4567-e89b-12d3-a456-426614174000"
-        val command = ChargeBalanceCommand(token, userId, BigDecimal(500))
-        val successCount = AtomicInteger(0)
-
-        val executor: ExecutorService = Executors.newFixedThreadPool(5)
-
-        // When
-        val tasks =
-            List(5) {
-                Callable {
-                    try {
-                        userFacade.chargeBalance(command)
-                        successCount.incrementAndGet()
-                    } catch (e: Exception) {
-                    }
-                }
-            }
-
-        executor.invokeAll(tasks)
-        executor.shutdown()
-
-        // Then
-        val updatedUser = userJpaRepository.findById(userId).get()
-
-        val successfulCharges = successCount.get()
-        assertTrue(successfulCharges in 1..5)
-        val expectedBalance = BigDecimal("1000.00") + (BigDecimal("500.00") * BigDecimal(successfulCharges))
-        assertEquals(expectedBalance, updatedUser.balance)
     }
 
     @Test
@@ -157,5 +122,39 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("User not found.", exception.message)
+    }
+
+    @Test
+    fun `must handle concurrent balance charges with optimistic locking`() {
+        // Given
+        val userId = 1L
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+        val command = ChargeBalanceCommand(token, userId, BigDecimal(500))
+        val successCount = AtomicInteger(0)
+
+        val executor: ExecutorService = Executors.newFixedThreadPool(10)
+
+        // When
+        val tasks =
+            List(10) {
+                Callable {
+                    try {
+                        userFacade.chargeBalance(command)
+                        successCount.incrementAndGet()
+                    } catch (e: Exception) {
+                    }
+                }
+            }
+
+        executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // Then
+        val updatedUser = userJpaRepository.findById(userId).get()
+
+        val successfulCharges = successCount.get()
+        assertTrue(successfulCharges in 1..10)
+        val expectedBalance = BigDecimal("1000.00") + (BigDecimal("500.00") * BigDecimal(successfulCharges))
+        assertEquals(expectedBalance, updatedUser.balance)
     }
 }

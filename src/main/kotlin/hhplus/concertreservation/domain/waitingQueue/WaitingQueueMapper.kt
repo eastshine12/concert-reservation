@@ -9,7 +9,6 @@ fun WaitingQueue.toTokenInfo(): TokenInfo {
         scheduleId = this.scheduleId,
         token = this.token,
         status = this.status,
-        queuePosition = this.queuePosition,
         expiresAt = this.expiresAt,
     )
 }

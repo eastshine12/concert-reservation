@@ -18,9 +18,9 @@ interface SeatJpaRepository : JpaRepository<Seat, Long> {
         """
         select new hhplus.concertreservation.domain.concert.dto.ScheduleSeatCount(s.scheduleId, COUNT(s)) 
         from Seat s 
-        where s.status = 'AVAILABLE'
+        where s.status = 'UNAVAILABLE'
         group by s.scheduleId
     """,
     )
-    fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
+    fun countUnavailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
 }

@@ -24,36 +24,21 @@ class QueueManagerTest {
         // given
         val concertSchedule = mockk<ConcertSchedule>(relaxed = true)
         val token = "token123"
-        val position = 1
         val waitingQueue =
             WaitingQueue(
                 scheduleId = concertSchedule.id,
                 token = token,
                 status = QueueStatus.PENDING,
-                queuePosition = position,
                 expiresAt = null,
             )
 
         every { waitingQueueRepository.save(any()) } returns waitingQueue
 
         // when
-        val result = queueManager.enqueue(concertSchedule.id, token, position)
+        val result = queueManager.enqueue(concertSchedule.id, token)
 
         // then
         assertEquals(waitingQueue, result)
-    }
-
-    @Test
-    fun `should calculate queue position correctly`() {
-        // given
-        val scheduleId = 1L
-        every { waitingQueueRepository.findMaxQueuePositionByScheduleId(scheduleId) } returns 10
-
-        // when
-        val result = queueManager.calculateQueuePosition(scheduleId)
-
-        // then
-        assertEquals(11, result)
     }
 
     @Test
@@ -96,21 +81,18 @@ class QueueManagerTest {
                     scheduleId = 1L,
                     token = "token1",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = null,
                 ),
                 WaitingQueue(
                     scheduleId = 1L,
                     token = "token2",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 2,
                     expiresAt = null,
                 ),
                 WaitingQueue(
                     scheduleId = 2L,
                     token = "token3",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 3,
                     expiresAt = null,
                 ),
             )
@@ -132,14 +114,12 @@ class QueueManagerTest {
                     scheduleId = 1L,
                     token = "token1",
                     status = QueueStatus.PENDING,
-                    queuePosition = 1,
                     expiresAt = null,
                 ),
                 WaitingQueue(
                     scheduleId = 1L,
                     token = "token2",
                     status = QueueStatus.PENDING,
-                    queuePosition = 2,
                     expiresAt = null,
                 ),
             )
@@ -163,14 +143,12 @@ class QueueManagerTest {
                     scheduleId = 1L,
                     token = "token1",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = null,
                 ),
                 WaitingQueue(
                     scheduleId = 1L,
                     token = "token2",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 2,
                     expiresAt = null,
                 ),
             )

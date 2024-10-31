@@ -12,5 +12,5 @@ interface SeatRepository {
 
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
 
-    fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
+    fun countUnavailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
 }

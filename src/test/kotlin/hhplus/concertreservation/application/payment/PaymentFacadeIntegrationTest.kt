@@ -1,6 +1,7 @@
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.payment.PaymentFacade
+import hhplus.concertreservation.application.user.UserFacade
 import hhplus.concertreservation.domain.common.enums.PaymentStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
@@ -11,6 +12,7 @@ import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
 import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -22,11 +24,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicInteger
 
 @SpringBootTest(classes = [ConcertReservationApplication::class])
 class PaymentFacadeIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var paymentFacade: PaymentFacade
+
+    @Autowired
+    private lateinit var userFacade: UserFacade
     private lateinit var user: User
     private lateinit var schedule: ConcertSchedule
     private lateinit var reservation: Reservation
@@ -70,7 +79,6 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                     scheduleId = schedule.id,
                     token = "123e4567-e89b-12d3-a456-426614174000",
                     status = QueueStatus.ACTIVE,
-                    queuePosition = 1,
                     expiresAt = LocalDateTime.now().plusMinutes(10),
                 ),
             )
@@ -261,5 +269,106 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("Payment failed.", exception.message)
+    }
+
+    @Test
+    fun `should process only one successful payment when multiple requests are made concurrently`() {
+        // Given
+        val userId = user.id
+        val reservationId = reservation.id
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+        val paymentCommand =
+            PaymentCommand(
+                userId = userId,
+                reservationId = reservationId,
+                token = token,
+            )
+
+        val successCount = AtomicInteger(0)
+        val failureCount = AtomicInteger(0)
+        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+
+        val tasks =
+            (1..5).map {
+                Callable {
+                    try {
+                        paymentFacade.processPayment(paymentCommand)
+                        successCount.incrementAndGet()
+                    } catch (e: CoreException) {
+                        failureCount.incrementAndGet()
+                    }
+                }
+            }
+
+        // When
+        executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // Then
+        assertEquals(1, successCount.get())
+        assertEquals(4, failureCount.get())
+    }
+
+    @Test
+    fun `should maintain correct balance when charge and payment are made concurrently`() {
+        // Given
+        val userId = user.id
+        val reservationId = reservation.id
+        val amount = BigDecimal("1000.00")
+        val token = "123e4567-e89b-12d3-a456-426614174000"
+
+        val chargeSuccessCount = AtomicInteger(0)
+        val chargeFailureCount = AtomicInteger(0)
+        val paymentSuccessCount = AtomicInteger(0)
+        val paymentFailureCount = AtomicInteger(0)
+
+        val executor: ExecutorService = Executors.newFixedThreadPool(2)
+
+        // When
+        val chargeTasks =
+            (1..2).map {
+                Callable {
+                    try {
+                        userFacade.chargeBalance(
+                            ChargeBalanceCommand(
+                                userId = userId,
+                                token = token,
+                                amount = amount,
+                            ),
+                        )
+                        chargeSuccessCount.incrementAndGet()
+                    } catch (e: CoreException) {
+                        chargeFailureCount.incrementAndGet()
+                    }
+                }
+            }
+
+        val paymentTasks =
+            (1..2).map {
+                Callable {
+                    try {
+                        paymentFacade.processPayment(
+                            PaymentCommand(
+                                userId = userId,
+                                reservationId = reservationId,
+                                token = token,
+                            ),
+                        )
+                        paymentSuccessCount.incrementAndGet()
+                    } catch (e: CoreException) {
+                        paymentFailureCount.incrementAndGet()
+                    }
+                }
+            }
+
+        executor.invokeAll(chargeTasks + paymentTasks)
+        executor.shutdown()
+
+        // Then
+        assertEquals(1, paymentSuccessCount.get())
+
+        val chargeTotal = amount.toInt() * chargeSuccessCount.get()
+        val deduct = seat.price.toInt() * paymentSuccessCount.get()
+        assertEquals(user.balance.toInt() + chargeTotal - deduct, userJpaRepository.findById(userId).get().balance.toInt())
     }
 }
