@@ -39,10 +39,8 @@ class LoggingFilter : OncePerRequestFilter() {
                 "empty"
             }
 
-        log.info("Request URL: ${request.requestURI}")
-        log.info("Request Method: ${request.method}")
-        log.info("Request Headers: ${request.headerNames.toList().joinToString { "$it: ${request.getHeader(it)}" }}")
-        log.info("Request Body: $body")
+        log.info("Request - URL: ${request.requestURI}, Method: ${request.method}, Request Headers: ${request.headerNames.toList().joinToString { "$it: ${request.getHeader(it)}" }}, " +
+                "\nRequest Body:$body")
     }
 
     private fun logResponse(response: ContentCachingResponseWrapper) {
@@ -54,8 +52,7 @@ class LoggingFilter : OncePerRequestFilter() {
                 "empty"
             }
 
-        log.info("Response Status: ${response.status}")
-        log.info("Response Headers: ${response.headerNames.joinToString { "$it: ${response.getHeader(it)}" }}")
-        log.info("Response Body: $body")
+        log.info("Response - Status: ${response.status}, Response Headers: ${response.headerNames.joinToString { "$it: ${response.getHeader(it)}" }}, " +
+                "\nResponse Body:$body")
     }
 }
