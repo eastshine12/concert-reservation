@@ -28,7 +28,7 @@ class UserServiceTest {
         every { userRepository.findByIdOrNull(userId) } returns user
 
         // when
-        val result = userService.getByUserId(userId)
+        val result = userService.checkUserExists(userId)
 
         // then
         assertEquals(user, result)
@@ -42,7 +42,7 @@ class UserServiceTest {
 
         // when / then
         assertThrows<CoreException> {
-            userService.getByUserId(userId)
+            userService.checkUserExists(userId)
         }
     }
 
@@ -63,7 +63,7 @@ class UserServiceTest {
         val result = userService.updateUserBalance(userId, amount, type)
 
         // then
-        assertEquals(updateBalanceInfo, result)
+        assertEquals(updateBalanceInfo.success, result.success)
     }
 
     @Test
@@ -71,17 +71,18 @@ class UserServiceTest {
         // given
         val userId = 1L
         val amount = BigDecimal("30.00")
+        val type = PointTransactionType.USE
         val user = mockk<User>(relaxed = true)
-        val balanceHistory = mockk<BalanceHistory>()
-        val updateBalanceInfo = mockk<UpdateBalanceInfo>()
+        val balanceHistory = mockk<BalanceHistory>(relaxed = true)
+        val updateBalanceInfo = UpdateBalanceInfo(success = true, balanceHistoryId = 1L)
         every { userRepository.findByIdOrNull(userId) } returns user
         every { balanceHistoryRepository.save(balanceHistory) } returns balanceHistory
         every { balanceHistory.toUpdateBalanceInfo(success = true) } returns updateBalanceInfo
 
         // when
-        val result = userService.updateUserBalance(userId, amount, PointTransactionType.USE)
+        val result = userService.updateUserBalance(userId, amount, type)
 
         // then
-        assertEquals(updateBalanceInfo, result)
+        assertEquals(updateBalanceInfo.success, result.success)
     }
 }

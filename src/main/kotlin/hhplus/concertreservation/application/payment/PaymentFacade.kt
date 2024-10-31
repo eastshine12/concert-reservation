@@ -1,6 +1,8 @@
 package hhplus.concertreservation.application.payment
 
 import hhplus.concertreservation.domain.common.enums.PointTransactionType
+import hhplus.concertreservation.domain.common.error.ErrorType
+import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.SeatInfo
 import hhplus.concertreservation.domain.concert.service.ConcertService
@@ -25,12 +27,20 @@ class PaymentFacade(
 ) {
     @Transactional
     fun processPayment(command: PaymentCommand): PaymentInfo {
-        waitingQueueService.validateTokenState(command.token)
-        val reservationInfo: ReservationInfo = reservationService.confirmReservation(command.reservationId)
-        val seatInfo: SeatInfo = concertService.verifyAndGetSeatInfo(reservationInfo.seatId)
-        userService.updateUserBalance(command.userId, seatInfo.price, PointTransactionType.USE)
-        waitingQueueService.expireToken(command.token)
-        return paymentService.savePayment(command.userId, command.reservationId, seatInfo.price)
+        return runCatching {
+            val reservationInfo: ReservationInfo = reservationService.confirmReservation(command.reservationId)
+            val seatInfo: SeatInfo = concertService.verifyAndGetSeatInfo(reservationInfo.seatId)
+            userService.updateUserBalance(command.userId, seatInfo.price, PointTransactionType.USE)
+            waitingQueueService.expireToken(command.token)
+            paymentService.savePayment(command.userId, command.reservationId, seatInfo.price)
+        }.getOrElse { ex ->
+            throw CoreException(
+                errorType = ErrorType.PAYMENT_FAILED,
+                details = {
+                    "cause" to ex.message
+                },
+            )
+        }
     }
 
     fun getPaymentsByUserId(userId: Long): List<PaymentInfo> {

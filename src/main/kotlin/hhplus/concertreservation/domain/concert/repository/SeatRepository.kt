@@ -1,5 +1,6 @@
 package hhplus.concertreservation.domain.concert.repository
 
+import hhplus.concertreservation.domain.concert.dto.ScheduleSeatCount
 import hhplus.concertreservation.domain.concert.entity.Seat
 
 interface SeatRepository {
@@ -10,4 +11,6 @@ interface SeatRepository {
     fun findByIdOrNullWithLock(id: Long): Seat?
 
     fun findAllByScheduleId(scheduleId: Long): List<Seat>
+
+    fun countAvailableSeatsGroupByScheduleId(): List<ScheduleSeatCount>
 }

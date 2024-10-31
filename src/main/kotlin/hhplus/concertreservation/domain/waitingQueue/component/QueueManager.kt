@@ -4,7 +4,6 @@ import hhplus.concertreservation.config.WaitingQueueProperties
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
-import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueRepository
 import org.springframework.stereotype.Component
@@ -16,13 +15,13 @@ class QueueManager(
     private val waitingQueueProperties: WaitingQueueProperties,
 ) {
     fun enqueue(
-        concertSchedule: ConcertSchedule,
+        scheduleId: Long,
         token: String,
         position: Int,
     ): WaitingQueue {
         return waitingQueueRepository.save(
             WaitingQueue(
-                scheduleId = concertSchedule.id,
+                scheduleId = scheduleId,
                 token = token,
                 status = QueueStatus.PENDING,
                 queuePosition = position,
@@ -41,7 +40,7 @@ class QueueManager(
     }
 
     fun validateTokenState(queue: WaitingQueue) {
-        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt!!.isBefore(LocalDateTime.now())) {
+        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt?.isBefore(LocalDateTime.now()) == true) {
             throw CoreException(
                 errorType = ErrorType.TOKEN_EXPIRED,
                 details =

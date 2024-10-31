@@ -17,8 +17,8 @@ class WaitingQueueRepositoryJpaImpl(
         return waitingQueueJpaRepository.findByToken(token)
     }
 
-    override fun findMinQueuePositionByScheduleId(scheduleId: Long): Int {
-        return waitingQueueJpaRepository.findMinQueuePositionByScheduleId(scheduleId)
+    override fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue> {
+        return waitingQueueJpaRepository.findAllByScheduleId(scheduleId)
     }
 
     override fun findMaxQueuePositionByScheduleId(scheduleId: Long): Int {
