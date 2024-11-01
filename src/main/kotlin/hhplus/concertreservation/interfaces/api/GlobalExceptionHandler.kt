@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.time.LocalDateTime
@@ -56,6 +57,7 @@ class GlobalExceptionHandler {
                 is NoSuchElementException -> HttpStatus.NOT_FOUND
                 is UnsupportedOperationException -> HttpStatus.NOT_IMPLEMENTED
                 is NullPointerException -> HttpStatus.INTERNAL_SERVER_ERROR
+                is ObjectOptimisticLockingFailureException -> HttpStatus.CONFLICT
                 else -> HttpStatus.INTERNAL_SERVER_ERROR
             }
 
@@ -67,6 +69,7 @@ class GlobalExceptionHandler {
                 is NoSuchElementException -> "Requested element not found."
                 is UnsupportedOperationException -> "Operation not supported."
                 is NullPointerException -> "A null pointer exception occurred."
+                is ObjectOptimisticLockingFailureException -> "Resource has been modified by another user. Please try again."
                 else -> "An unexpected error occurred."
             }
 
