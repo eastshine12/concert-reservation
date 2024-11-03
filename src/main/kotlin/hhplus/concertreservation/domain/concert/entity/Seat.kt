@@ -13,6 +13,8 @@ class Seat(
     seatNumber: Int,
     price: BigDecimal,
     status: SeatStatus,
+    @Version
+    val version: Long = 0L,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 ) : BaseEntity() {

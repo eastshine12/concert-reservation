@@ -43,12 +43,12 @@ class SeatFinderTest {
                 price = BigDecimal.valueOf(100.0),
                 status = SeatStatus.AVAILABLE,
             )
-        every { seatRepository.findByIdOrNullWithLock(seatId) } returns seat
+        every { seatRepository.findByIdOrNull(seatId) } returns seat
 
         // when & then
         val exception =
             assertThrows<CoreException> {
-                seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
+                seatFinder.getAvailableSeat(scheduleId, seatId)
             }
 
         // then
@@ -67,12 +67,12 @@ class SeatFinderTest {
                 price = BigDecimal.valueOf(100.0),
                 status = SeatStatus.UNAVAILABLE,
             )
-        every { seatRepository.findByIdOrNullWithLock(seatId) } returns seat
+        every { seatRepository.findByIdOrNull(seatId) } returns seat
 
         // when & then
         val exception =
             assertThrows<CoreException> {
-                seatFinder.getAvailableSeatWithLock(scheduleId, seatId)
+                seatFinder.getAvailableSeat(scheduleId, seatId)
             }
 
         // then

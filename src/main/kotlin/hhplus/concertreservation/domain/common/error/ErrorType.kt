@@ -7,7 +7,6 @@ enum class ErrorType(val code: ErrorCode, val message: String, val logLevel: Log
     // common
     SYSTEM_FAILURE(SYSTEM_ERROR, "System encountered an unexpected error.", ERROR),
     TOKEN_EXPIRED(AUTHORIZATION_ERROR, "The token has expired.", WARN),
-    LOCK_ACQUISITION_FAILED(BUSINESS_ERROR, "Lock acquisition failed.", WARN),
 
     // WaitingQueue
     INVALID_TOKEN(VALIDATION_ERROR, "Invalid or missing token.", WARN),
