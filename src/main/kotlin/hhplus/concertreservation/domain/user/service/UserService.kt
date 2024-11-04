@@ -9,9 +9,6 @@ import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.user.repository.BalanceHistoryRepository
 import hhplus.concertreservation.domain.user.repository.UserRepository
 import hhplus.concertreservation.domain.user.toUpdateBalanceInfo
-import org.springframework.orm.ObjectOptimisticLockingFailureException
-import org.springframework.retry.annotation.Backoff
-import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -37,11 +34,6 @@ class UserService(
     }
 
     @Transactional
-    @Retryable(
-        value = [ObjectOptimisticLockingFailureException::class],
-        maxAttempts = 3,
-        backoff = Backoff(delay = 100),
-    )
     fun updateUserBalance(
         userId: Long,
         amount: BigDecimal,
