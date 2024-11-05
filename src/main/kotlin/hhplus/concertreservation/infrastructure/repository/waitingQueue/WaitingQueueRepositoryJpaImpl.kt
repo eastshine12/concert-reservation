@@ -13,8 +13,15 @@ class WaitingQueueRepositoryJpaImpl(
         return waitingQueueJpaRepository.save(waitingQueue)
     }
 
-    override fun findByToken(token: String): WaitingQueue? {
+    override fun findWaitingQueue(
+        token: String,
+        scheduleId: Long,
+    ): WaitingQueue? {
         return waitingQueueJpaRepository.findByToken(token)
+    }
+
+    override fun findScheduleIdByToken(token: String): Long? {
+        TODO("Not yet implemented")
     }
 
     override fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue> {
@@ -27,5 +34,43 @@ class WaitingQueueRepositoryJpaImpl(
 
     override fun saveAll(queues: List<WaitingQueue>): MutableList<WaitingQueue> {
         return waitingQueueJpaRepository.saveAll(queues)
+    }
+
+    override fun delete(waitingQueue: WaitingQueue) {
+        waitingQueueJpaRepository.save(waitingQueue)
+    }
+
+    override fun getAllWaitingTokenKeys(): MutableSet<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAllActiveTokenKeys(): MutableSet<String> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getTopWaitingTokens(
+        scheduleId: Long,
+        maxTokens: Int,
+    ): Set<Any> {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeWaitingTokens(
+        scheduleId: Long,
+        tokens: Set<Any>,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeExpiredTokens(scheduleId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override fun addActiveTokens(
+        scheduleId: Long,
+        tokens: Set<Any>,
+        expiresInMinutes: Long,
+    ) {
+        TODO("Not yet implemented")
     }
 }
