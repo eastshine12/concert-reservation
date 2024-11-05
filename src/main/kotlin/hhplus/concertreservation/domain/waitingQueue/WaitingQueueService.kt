@@ -32,7 +32,7 @@ class WaitingQueueService(
     }
 
     fun validateAndGetToken(token: String): WaitingQueue {
-        val validToken = tokenManager.validateAndGetToken(token)
+        val validToken: String = tokenManager.validateAndGetToken(token)
         return queueManager.findQueueByToken(validToken)
             ?: throw CoreException(
                 errorType = ErrorType.NO_QUEUE_FOUND,
@@ -98,6 +98,6 @@ class WaitingQueueService(
     fun expireToken(token: String) {
         val waitingQueue: WaitingQueue = validateAndGetToken(token)
         waitingQueue.expire()
-        waitingQueueRepository.save(waitingQueue)
+        waitingQueueRepository.delete(waitingQueue)
     }
 }

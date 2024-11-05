@@ -31,7 +31,10 @@ class QueueManager(
     }
 
     fun findQueueByToken(token: String): WaitingQueue? {
-        return waitingQueueRepository.findByToken(token)
+        val scheduleId: Long =
+            waitingQueueRepository.findScheduleIdByToken(token)
+                ?: throw CoreException(ErrorType.NO_QUEUE_FOUND)
+        return waitingQueueRepository.findWaitingQueue(token, scheduleId)
     }
 
     fun validateTokenState(queue: WaitingQueue) {
@@ -60,25 +63,24 @@ class QueueManager(
         return activeCountMap
     }
 
-    fun activatePendingQueues(
-        pendingQueues: List<WaitingQueue>,
-        activeCountMap: MutableMap<Long, Int>,
-    ) {
-        pendingQueues.groupBy { it.scheduleId }.forEach { (scheduleId, pendingList) ->
-            val activeCount = activeCountMap.getOrDefault(scheduleId, 0)
-            if (activeCount < waitingQueueProperties.maxActiveUsers) {
-                val availableSlots = waitingQueueProperties.maxActiveUsers - activeCount
-                val queuesToActivate = pendingList.sortedBy { it.id }.take(availableSlots)
-                queuesToActivate.forEach { queue ->
-                    queue.activate(waitingQueueProperties.expireMinutes)
-                }
-                waitingQueueRepository.saveAll(queuesToActivate)
+    fun activatePendingQueues() {
+        val allWaitingKeys = waitingQueueRepository.getAllWaitingTokenKeys()
+
+        allWaitingKeys.forEach { waitingKey ->
+            val scheduleId = waitingKey.split(":")[1].toLong()
+            val tokensToActivate = waitingQueueRepository.getTopWaitingTokens(scheduleId, waitingQueueProperties.activeUsers)
+            if (tokensToActivate.isNotEmpty()) {
+                waitingQueueRepository.addActiveTokens(scheduleId, tokensToActivate, waitingQueueProperties.expireMinutes)
+                waitingQueueRepository.removeWaitingTokens(scheduleId, tokensToActivate)
             }
         }
     }
 
-    fun expireActiveQueues(expiredQueues: List<WaitingQueue>) {
-        expiredQueues.forEach { it.expire() }
-        waitingQueueRepository.saveAll(expiredQueues)
+    fun expireActiveQueues() {
+        val allActiveKeys = waitingQueueRepository.getAllActiveTokenKeys()
+        allActiveKeys.forEach { activeKey ->
+            val scheduleId = activeKey.split(":")[1].toLong()
+            waitingQueueRepository.removeExpiredTokens(scheduleId)
+        }
     }
 }
