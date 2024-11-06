@@ -7,14 +7,14 @@ import hhplus.concertreservation.infrastructure.repository.concert.SeatJpaReposi
 import hhplus.concertreservation.infrastructure.repository.payment.PaymentJpaRepository
 import hhplus.concertreservation.infrastructure.repository.user.BalanceHistoryJpaRepository
 import hhplus.concertreservation.infrastructure.repository.user.UserJpaRepository
-import hhplus.concertreservation.infrastructure.repository.waitingQueue.WaitingQueueJpaRepository
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.jdbc.core.JdbcTemplate
 
 abstract class IntegrationTestBase {
     @Autowired
-    protected lateinit var waitingQueueJpaRepository: WaitingQueueJpaRepository
+    protected lateinit var redisTemplate: RedisTemplate<String, Any>
 
     @Autowired
     protected lateinit var concertJpaRepository: ConcertJpaRepository
@@ -42,7 +42,6 @@ abstract class IntegrationTestBase {
 
     @AfterEach
     fun tearDown() {
-        waitingQueueJpaRepository.deleteAll()
         concertJpaRepository.deleteAll()
         concertScheduleJpaRepository.deleteAll()
         seatJpaRepository.deleteAll()
@@ -50,7 +49,6 @@ abstract class IntegrationTestBase {
         reservationJpaRepository.deleteAll()
         paymentJpaRepository.deleteAll()
         balanceHistoryJpaRepository.deleteAll()
-        resetAutoIncrement("waiting_queue")
         resetAutoIncrement("concert_schedule")
         resetAutoIncrement("concert")
         resetAutoIncrement("users")

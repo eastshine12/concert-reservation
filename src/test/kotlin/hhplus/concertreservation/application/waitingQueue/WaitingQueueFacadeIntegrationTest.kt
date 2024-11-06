@@ -9,6 +9,7 @@ import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
+import hhplus.concertreservation.util.RedisTestHelper
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,6 +27,7 @@ import kotlin.test.assertNotNull
 class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var waitingQueueFacade: WaitingQueueFacade
+    private lateinit var redisTestHelper: RedisTestHelper
     private lateinit var concert: Concert
     private lateinit var schedule: ConcertSchedule
     private lateinit var waitingQueue: WaitingQueue
@@ -34,6 +36,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setUp() {
+        redisTestHelper = RedisTestHelper(redisTemplate)
         concert =
             concertJpaRepository.save(
                 Concert(
@@ -52,32 +55,30 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
             )
 
         waitingQueue =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174000",
-                    status = QueueStatus.PENDING,
-                    expiresAt = null,
-                ),
+            WaitingQueue(
+                scheduleId = schedule.id,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+                status = QueueStatus.WAITING,
+                expiresAt = null,
             )
         waitingQueue2 =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174001",
-                    status = QueueStatus.PENDING,
-                    expiresAt = null,
-                ),
+            WaitingQueue(
+                scheduleId = schedule.id,
+                token = "123e4567-e89b-12d3-a456-426614174001",
+                status = QueueStatus.WAITING,
+                expiresAt = null,
             )
         waitingQueue3 =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174002",
-                    status = QueueStatus.PENDING,
-                    expiresAt = null,
-                ),
+            WaitingQueue(
+                scheduleId = schedule.id,
+                token = "123e4567-e89b-12d3-a456-426614174002",
+                status = QueueStatus.WAITING,
+                expiresAt = null,
             )
+
+        redisTestHelper.saveTokenAndInfo(waitingQueue)
+        redisTestHelper.saveTokenAndInfo(waitingQueue2)
+        redisTestHelper.saveTokenAndInfo(waitingQueue3)
     }
 
     @Test
@@ -111,7 +112,7 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
         // Then
         assertNotNull(waitingQueueInfo)
         assertEquals(3, waitingQueueInfo.remainingPosition)
-        assertEquals(QueueStatus.PENDING, waitingQueueInfo.status)
+        assertEquals(QueueStatus.WAITING, waitingQueueInfo.status)
     }
 
     @Test
@@ -169,36 +170,6 @@ class WaitingQueueFacadeIntegrationTest : IntegrationTestBase() {
             }
 
         assertEquals("Invalid or missing token.", exception.message)
-    }
-
-    @Test
-    fun `should issue new token when existing token is expired`() {
-        // Given
-        val expiredToken =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174005",
-                    status = QueueStatus.EXPIRED,
-                    expiresAt = LocalDateTime.now().minusMinutes(10L),
-                ),
-            )
-
-        val tokenCommand =
-            TokenCommand(
-                concertId = concert.id,
-                concertScheduleId = schedule.id,
-                token = expiredToken.token,
-                userId = 1L,
-            )
-
-        // When
-        val tokenInfo: TokenInfo = waitingQueueFacade.issueWaitingQueueToken(tokenCommand)
-
-        // Then
-        assertNotNull(tokenInfo)
-        assertEquals(schedule.id, tokenInfo.scheduleId)
-        assertNotEquals(expiredToken, tokenInfo.token)
     }
 
     @Test

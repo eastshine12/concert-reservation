@@ -28,11 +28,11 @@ class QueueManagerTest {
             WaitingQueue(
                 scheduleId = concertSchedule.id,
                 token = token,
-                status = QueueStatus.PENDING,
+                status = QueueStatus.WAITING,
                 expiresAt = null,
             )
 
-        every { waitingQueueRepository.save(any()) } returns waitingQueue
+        every { waitingQueueRepository.addWaitingQueue(any()) } returns waitingQueue
 
         // when
         val result = queueManager.enqueue(concertSchedule.id, token)
@@ -46,8 +46,9 @@ class QueueManagerTest {
         // given
         val waitingQueue =
             mockk<WaitingQueue> {
-                every { status } returns QueueStatus.EXPIRED
+                every { status } returns QueueStatus.ACTIVE
                 every { token } returns "token123"
+                every { expiresAt } returns LocalDateTime.now().minusMinutes(10)
             }
 
         // when, then
@@ -73,90 +74,38 @@ class QueueManagerTest {
     }
 
     @Test
-    fun `should count active queues by schedule id`() {
-        // given
-        val activeQueues =
-            listOf(
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token1",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = null,
-                ),
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token2",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = null,
-                ),
-                WaitingQueue(
-                    scheduleId = 2L,
-                    token = "token3",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = null,
-                ),
-            )
-
-        // when
-        val result = queueManager.countActiveQueuesByScheduleId(activeQueues)
-
-        // then
-        assertEquals(2, result[1L])
-        assertEquals(1, result[2L])
-    }
-
-    @Test
     fun `should activate pending queues`() {
         // given
-        val pendingQueues =
-            listOf(
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token1",
-                    status = QueueStatus.PENDING,
-                    expiresAt = null,
-                ),
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token2",
-                    status = QueueStatus.PENDING,
-                    expiresAt = null,
-                ),
-            )
-        val activeCountMap = mutableMapOf(1L to 0)
-        every { waitingQueueProperties.maxActiveUsers } returns 2
+        val allWaitingKeys = mutableSetOf("WaitingToken:1", "WaitingToken:2")
+        val tokensToActivate = setOf("token1", "token2")
+
+        every { waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.WAITING) } returns allWaitingKeys
+        every { waitingQueueRepository.getTokensFromTopToRange(1L, any()) } returns tokensToActivate
+        every { waitingQueueProperties.activeUsers } returns 2
         every { waitingQueueProperties.expireMinutes } returns 30
 
         // when
-        queueManager.activatePendingQueues(pendingQueues, activeCountMap)
+        queueManager.activatePendingQueues()
 
         // then
-        verify { waitingQueueRepository.saveAll(any()) }
+        verify { waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.WAITING) }
+        verify { waitingQueueRepository.getTokensFromTopToRange(1L, 2) }
+        verify { waitingQueueRepository.moveToActiveQueue(1L, tokensToActivate, 30) }
     }
 
     @Test
     fun `should expire active queues`() {
         // given
-        val expiredQueues =
-            listOf(
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token1",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = null,
-                ),
-                WaitingQueue(
-                    scheduleId = 1L,
-                    token = "token2",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = null,
-                ),
-            )
+        val allActiveKeys = mutableSetOf("ActiveToken:1", "ActiveToken:2")
+
+        every { waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.ACTIVE) } returns allActiveKeys
 
         // when
-        queueManager.expireActiveQueues(expiredQueues)
+        queueManager.expireActiveQueues()
 
         // then
-        verify { waitingQueueRepository.saveAll(expiredQueues) }
+        verify { waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.ACTIVE) }
+        verify { waitingQueueRepository.removeExpiredTokens(1L) }
+        verify { waitingQueueRepository.removeExpiredTokens(2L) }
     }
 }

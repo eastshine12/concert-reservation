@@ -15,6 +15,7 @@ import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
+import hhplus.concertreservation.util.RedisTestHelper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
@@ -28,6 +29,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.assertNull
 
 @SpringBootTest(classes = [ConcertReservationApplication::class])
 class PaymentFacadeIntegrationTest : IntegrationTestBase() {
@@ -36,6 +38,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var userFacade: UserFacade
+    private lateinit var redisTestHelper: RedisTestHelper
     private lateinit var user: User
     private lateinit var schedule: ConcertSchedule
     private lateinit var reservation: Reservation
@@ -44,6 +47,7 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setUp() {
+        redisTestHelper = RedisTestHelper(redisTemplate)
         user = userJpaRepository.save(User(name = "User1", email = "user1@test.com", balance = BigDecimal(100_000)))
         schedule =
             concertScheduleJpaRepository.save(
@@ -74,14 +78,13 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
                 ),
             )
         waitingQueue =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule.id,
-                    token = "123e4567-e89b-12d3-a456-426614174000",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = LocalDateTime.now().plusMinutes(10),
-                ),
+            WaitingQueue(
+                scheduleId = schedule.id,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+                status = QueueStatus.ACTIVE,
+                expiresAt = LocalDateTime.now().plusMinutes(10),
             )
+        redisTestHelper.saveTokenAndInfo(waitingQueue)
     }
 
     @Test
@@ -111,8 +114,8 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
         assertEquals(BigDecimal("70000.00"), payments[0].amount)
         assertEquals(PaymentStatus.SUCCESS, payments[0].status)
 
-        val expiredQueue = waitingQueueJpaRepository.findById(waitingQueue.id).get()
-        assertEquals(QueueStatus.EXPIRED, expiredQueue.status)
+        val expiredQueue = redisTemplate.opsForZSet().score("ActiveToken:${schedule.id}", waitingQueue.token)
+        assertNull(expiredQueue)
     }
 
     @Test
