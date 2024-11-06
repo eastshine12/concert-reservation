@@ -3,12 +3,11 @@ package hhplus.concertreservation.infrastructure.repository.waitingQueue
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueueRepository
-import org.springframework.context.annotation.Primary
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ScanOptions
 import org.springframework.stereotype.Repository
 import java.time.*
 
-@Primary
 @Repository
 class WaitingQueueRedisRepository(
     private val redisTemplate: RedisTemplate<String, Any>,
@@ -19,7 +18,6 @@ class WaitingQueueRedisRepository(
         const val TOKEN_INFO_PREFIX = "TokenInfo"
     }
 
-    // lua
     override fun addWaitingQueue(waitingQueue: WaitingQueue): WaitingQueue {
         // 1. WaitingToken 저장
         redisTemplate.opsForZSet().add(
@@ -41,7 +39,6 @@ class WaitingQueueRedisRepository(
         return waitingQueue
     }
 
-    // lua
     override fun moveToActiveQueue(
         scheduleId: Long,
         tokens: Set<Any>,
@@ -92,7 +89,17 @@ class WaitingQueueRedisRepository(
                 QueueStatus.WAITING -> "$WAITING_TOKEN_PREFIX*"
                 QueueStatus.ACTIVE -> "$ACTIVE_TOKEN_PREFIX*"
             }
-        return redisTemplate.keys(pattern)
+        val keys = mutableSetOf<String>()
+        val scanOptions: ScanOptions = ScanOptions.scanOptions().match(pattern).count(100).build()
+
+        redisTemplate.execute { connection ->
+            val cursor = connection.keyCommands().scan(scanOptions)
+            cursor.forEachRemaining { key ->
+                keys.add(String(key))
+            }
+        }
+
+        return keys
     }
 
     override fun getTokensFromTopToRange(
