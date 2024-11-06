@@ -13,122 +13,127 @@ import java.time.*
 class WaitingQueueRedisRepository(
     private val redisTemplate: RedisTemplate<String, Any>,
 ) : WaitingQueueRepository {
-    override fun save(waitingQueue: WaitingQueue): WaitingQueue {
+    companion object {
+        const val WAITING_TOKEN_PREFIX = "WaitingToken"
+        const val ACTIVE_TOKEN_PREFIX = "ActiveToken"
+        const val TOKEN_INFO_PREFIX = "TokenInfo"
+    }
+
+    // lua
+    override fun addWaitingQueue(waitingQueue: WaitingQueue): WaitingQueue {
+        // 1. WaitingToken 저장
         redisTemplate.opsForZSet().add(
-            "WaitingToken:${waitingQueue.scheduleId}",
+            "$WAITING_TOKEN_PREFIX:${waitingQueue.scheduleId}",
             waitingQueue.token,
             System.currentTimeMillis().toDouble(),
         )
-        redisTemplate.expire("WaitingToken:${waitingQueue.scheduleId}", Duration.ofHours(1))
-        redisTemplate.opsForHash<String, String>().put(
-            "TokenScheduleMap",
-            waitingQueue.token,
-            waitingQueue.scheduleId.toString(),
-        )
-        redisTemplate.expire("TokenScheduleMap", Duration.ofHours(1))
+        redisTemplate.expire("$WAITING_TOKEN_PREFIX:${waitingQueue.scheduleId}", Duration.ofHours(1))
+
+        // 2. TokenInfo 저장
+        val key = "$TOKEN_INFO_PREFIX:${waitingQueue.token}"
+        val fields =
+            mapOf(
+                "scheduleId" to waitingQueue.scheduleId.toString(),
+                "status" to waitingQueue.status.name,
+            )
+        redisTemplate.opsForHash<String, String>().putAll(key, fields)
+        redisTemplate.expire(key, Duration.ofHours(1))
         return waitingQueue
     }
 
-    override fun findWaitingQueue(
-        token: String,
-        scheduleId: Long,
-    ): WaitingQueue? {
-        return findInWaitingToken(token, scheduleId) ?: findInActiveToken(token, scheduleId)
-    }
-
-    override fun findScheduleIdByToken(token: String): Long? {
-        val scheduleId = redisTemplate.opsForHash<String, String>().get("TokenScheduleMap", token)
-        return scheduleId?.toLong()
-    }
-
-    override fun findAllByScheduleId(scheduleId: Long): List<WaitingQueue> {
-        TODO("Not yet implemented")
-    }
-
-    override fun findByStatus(status: QueueStatus): List<WaitingQueue> {
-        TODO("Not yet implemented")
-    }
-
-    override fun saveAll(queues: List<WaitingQueue>): MutableList<WaitingQueue> {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(waitingQueue: WaitingQueue) {
-        val activeKey = "ActiveToken:${waitingQueue.scheduleId}"
-        redisTemplate.opsForZSet().remove(activeKey, waitingQueue.token)
-    }
-
-    override fun getAllWaitingTokenKeys(): MutableSet<String> {
-        return redisTemplate.keys("WaitingToken:*")
-    }
-
-    override fun getAllActiveTokenKeys(): MutableSet<String> {
-        return redisTemplate.keys("ActiveToken:*")
-    }
-
-    override fun getTopWaitingTokens(
-        scheduleId: Long,
-        maxTokens: Int,
-    ): Set<Any> {
-        val key = "WaitingToken:$scheduleId"
-        return redisTemplate.opsForZSet().range(key, 0, (maxTokens - 1).toLong()) ?: emptySet()
-    }
-
-    override fun removeWaitingTokens(
-        scheduleId: Long,
-        tokens: Set<Any>,
-    ) {
-        val key = "WaitingToken:$scheduleId"
-        redisTemplate.opsForZSet().remove(key, *tokens.toTypedArray())
-    }
-
-    override fun removeExpiredTokens(scheduleId: Long) {
-        val activeKey = "ActiveToken:$scheduleId"
-        val currentTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC).toDouble()
-        redisTemplate.opsForZSet().removeRangeByScore(activeKey, 0.0, currentTime)
-    }
-
-    override fun addActiveTokens(
+    // lua
+    override fun moveToActiveQueue(
         scheduleId: Long,
         tokens: Set<Any>,
         expiresInMinutes: Long,
     ) {
-        val key = "ActiveToken:$scheduleId"
+        val waitingKey = "$WAITING_TOKEN_PREFIX:$scheduleId"
+        val activeKey = "$ACTIVE_TOKEN_PREFIX:$scheduleId"
         val expiresAt = LocalDateTime.now().plusMinutes(expiresInMinutes).toEpochSecond(ZoneOffset.UTC).toDouble()
+
         tokens.forEach { token ->
-            redisTemplate.opsForZSet().add(key, token, expiresAt)
+            // 1. WaitingToken 삭제
+            redisTemplate.opsForZSet().remove(waitingKey, token)
+
+            // 2. ActiveToken 저장
+            redisTemplate.opsForZSet().add(activeKey, token, expiresAt)
+            redisTemplate.expire(activeKey, Duration.ofHours(1))
+
+            // 3. TokenInfo 변경
+            val tokenInfoKey = "$TOKEN_INFO_PREFIX:$token"
+            val fields =
+                mapOf(
+                    "status" to QueueStatus.ACTIVE.name,
+                    "expiresAt" to LocalDateTime.ofEpochSecond(expiresAt.toLong(), 0, ZoneOffset.UTC).toString(),
+                )
+            redisTemplate.opsForHash<String, String>().putAll(tokenInfoKey, fields)
         }
     }
 
-    private fun findInWaitingToken(
-        token: String,
-        scheduleId: Long,
-    ): WaitingQueue? {
-        val waitingKey = "WaitingToken:$scheduleId"
-        val rank = redisTemplate.opsForZSet().rank(waitingKey, token)?.plus(1) ?: return null
+    override fun findByToken(token: String): WaitingQueue? {
+        val key = "$TOKEN_INFO_PREFIX:$token"
+        val values = redisTemplate.opsForHash<String, String>().entries(key)
+
+        val scheduleId = values["scheduleId"]?.toLong() ?: return null
+        val status = values["status"]?.let { QueueStatus.valueOf(it) } ?: return null
+        val expiresAt = values["expiresAt"]?.let { LocalDateTime.parse(it) }
+
         return WaitingQueue(
             token = token,
             scheduleId = scheduleId,
-            status = QueueStatus.PENDING,
-            position = rank.toInt(),
+            status = status,
+            expiresAt = expiresAt,
         )
     }
 
-    private fun findInActiveToken(
-        token: String,
+    override fun getAllTokenKeysByStatus(status: QueueStatus): MutableSet<String> {
+        val pattern =
+            when (status) {
+                QueueStatus.WAITING -> "$WAITING_TOKEN_PREFIX*"
+                QueueStatus.ACTIVE -> "$ACTIVE_TOKEN_PREFIX*"
+            }
+        return redisTemplate.keys(pattern)
+    }
+
+    override fun getTokensFromTopToRange(
         scheduleId: Long,
-    ): WaitingQueue? {
-        val activeKey = "ActiveToken:$scheduleId"
-        val score = redisTemplate.opsForZSet().score(activeKey, token) ?: return null
-        return WaitingQueue(
-            token = token,
-            scheduleId = scheduleId,
-            status = QueueStatus.ACTIVE,
-            expiresAt = toLocalDateTime(score),
-        )
+        maxTokens: Int,
+    ): Set<Any> {
+        val key = "$WAITING_TOKEN_PREFIX:$scheduleId"
+        return redisTemplate.opsForZSet().range(key, 0, (maxTokens - 1).toLong()) ?: emptySet()
     }
 
-    private fun toLocalDateTime(score: Double): LocalDateTime {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(score.toLong()), ZoneOffset.UTC)
+    override fun getTokenRank(waitingQueue: WaitingQueue): Long? {
+        val prefix =
+            when (waitingQueue.status) {
+                QueueStatus.WAITING -> WAITING_TOKEN_PREFIX
+                QueueStatus.ACTIVE -> ACTIVE_TOKEN_PREFIX
+            }
+        return redisTemplate.opsForZSet().rank("$prefix:${waitingQueue.scheduleId}", waitingQueue.token)?.plus(1)
+    }
+
+    override fun getTokenScore(waitingQueue: WaitingQueue): Double? {
+        val prefix =
+            when (waitingQueue.status) {
+                QueueStatus.WAITING -> WAITING_TOKEN_PREFIX
+                QueueStatus.ACTIVE -> ACTIVE_TOKEN_PREFIX
+            }
+        return redisTemplate.opsForZSet().score("$prefix:${waitingQueue.scheduleId}", waitingQueue.token)
+    }
+
+    override fun remove(waitingQueue: WaitingQueue) {
+        val prefix =
+            when (waitingQueue.status) {
+                QueueStatus.WAITING -> WAITING_TOKEN_PREFIX
+                QueueStatus.ACTIVE -> ACTIVE_TOKEN_PREFIX
+            }
+        val key = "$prefix:${waitingQueue.scheduleId}"
+        redisTemplate.opsForZSet().remove(key, waitingQueue.token)
+    }
+
+    override fun removeExpiredTokens(scheduleId: Long) {
+        val activeKey = "$ACTIVE_TOKEN_PREFIX:$scheduleId"
+        val currentTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC).toDouble()
+        redisTemplate.opsForZSet().removeRangeByScore(activeKey, 0.0, currentTime)
     }
 }

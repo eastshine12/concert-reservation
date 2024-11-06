@@ -1,6 +1,5 @@
 package hhplus.concertreservation.domain.waitingQueue
 
-import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
@@ -21,7 +20,7 @@ class WaitingQueueService(
         token?.let {
             val validToken = tokenManager.validateAndGetToken(it)
             queueManager.findQueueByToken(validToken)
-                ?.takeIf { queue -> queue.scheduleId == scheduleId && queue.status != QueueStatus.EXPIRED }
+                ?.takeIf { queue -> queue.scheduleId == scheduleId }
                 ?.run { throw CoreException(errorType = ErrorType.QUEUE_ALREADY_EXISTS) }
         }
 
@@ -79,25 +78,8 @@ class WaitingQueueService(
         return queue
     }
 
-    fun calculateRemainingPosition(
-        scheduleId: Long,
-        token: String,
-    ): Int {
-        val position: Int =
-            waitingQueueRepository.findAllByScheduleId(scheduleId)
-                .filter { it.status == QueueStatus.PENDING }
-                .sortedBy { it.id }
-                .indexOfFirst { it.token == token }
-                .takeIf { it != -1 }
-                ?.plus(1)
-                ?: 0
-
-        return position
-    }
-
     fun expireToken(token: String) {
         val waitingQueue: WaitingQueue = validateAndGetToken(token)
-        waitingQueue.expire()
-        waitingQueueRepository.delete(waitingQueue)
+        waitingQueueRepository.remove(waitingQueue)
     }
 }

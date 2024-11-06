@@ -19,11 +19,11 @@ class QueueManager(
         token: String,
     ): WaitingQueue {
         val waitingQueue =
-            waitingQueueRepository.save(
+            waitingQueueRepository.addWaitingQueue(
                 WaitingQueue(
                     scheduleId = scheduleId,
                     token = token,
-                    status = QueueStatus.PENDING,
+                    status = QueueStatus.WAITING,
                     expiresAt = null,
                 ),
             )
@@ -31,14 +31,17 @@ class QueueManager(
     }
 
     fun findQueueByToken(token: String): WaitingQueue? {
-        val scheduleId: Long =
-            waitingQueueRepository.findScheduleIdByToken(token)
+        val waitingQueue: WaitingQueue =
+            waitingQueueRepository.findByToken(token)
                 ?: throw CoreException(ErrorType.NO_QUEUE_FOUND)
-        return waitingQueueRepository.findWaitingQueue(token, scheduleId)
+        if (waitingQueue.status == QueueStatus.WAITING) {
+            waitingQueue.position = waitingQueueRepository.getTokenRank(waitingQueue)?.toInt() ?: 0
+        }
+        return waitingQueue
     }
 
     fun validateTokenState(queue: WaitingQueue) {
-        if (queue.status == QueueStatus.EXPIRED || queue.expiresAt?.isBefore(LocalDateTime.now()) == true) {
+        if (queue.expiresAt?.isBefore(LocalDateTime.now()) == true) {
             throw CoreException(
                 errorType = ErrorType.TOKEN_EXPIRED,
                 details =
@@ -55,29 +58,20 @@ class QueueManager(
         }
     }
 
-    fun countActiveQueuesByScheduleId(activeQueues: List<WaitingQueue>): MutableMap<Long, Int> {
-        val activeCountMap = mutableMapOf<Long, Int>()
-        activeQueues.forEach { queue ->
-            activeCountMap[queue.scheduleId] = activeCountMap.getOrDefault(queue.scheduleId, 0) + 1
-        }
-        return activeCountMap
-    }
-
     fun activatePendingQueues() {
-        val allWaitingKeys = waitingQueueRepository.getAllWaitingTokenKeys()
+        val allWaitingKeys = waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.WAITING)
 
         allWaitingKeys.forEach { waitingKey ->
             val scheduleId = waitingKey.split(":")[1].toLong()
-            val tokensToActivate = waitingQueueRepository.getTopWaitingTokens(scheduleId, waitingQueueProperties.activeUsers)
+            val tokensToActivate = waitingQueueRepository.getTokensFromTopToRange(scheduleId, waitingQueueProperties.activeUsers)
             if (tokensToActivate.isNotEmpty()) {
-                waitingQueueRepository.addActiveTokens(scheduleId, tokensToActivate, waitingQueueProperties.expireMinutes)
-                waitingQueueRepository.removeWaitingTokens(scheduleId, tokensToActivate)
+                waitingQueueRepository.moveToActiveQueue(scheduleId, tokensToActivate, waitingQueueProperties.expireMinutes)
             }
         }
     }
 
     fun expireActiveQueues() {
-        val allActiveKeys = waitingQueueRepository.getAllActiveTokenKeys()
+        val allActiveKeys = waitingQueueRepository.getAllTokenKeysByStatus(QueueStatus.ACTIVE)
         allActiveKeys.forEach { activeKey ->
             val scheduleId = activeKey.split(":")[1].toLong()
             waitingQueueRepository.removeExpiredTokens(scheduleId)

@@ -5,7 +5,6 @@ import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 
 fun WaitingQueue.toTokenInfo(): TokenInfo {
     return TokenInfo(
-        queueId = this.id,
         scheduleId = this.scheduleId,
         token = this.token,
         status = this.status,
