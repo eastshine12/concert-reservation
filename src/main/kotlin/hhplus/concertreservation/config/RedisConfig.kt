@@ -42,7 +42,10 @@ class RedisConfig(
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
         val objectMapper = ObjectMapper().apply {
             registerModule(JavaTimeModule())
-            findAndRegisterModules()
+            activateDefaultTyping(
+                polymorphicTypeValidator,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+            )
         }
         val jsonSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
         val config =
