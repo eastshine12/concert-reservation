@@ -12,6 +12,7 @@
 - [API 명세서](docs/api_specification.md)
 - [Chapter 2 중간 회고록](https://eastshine12.tistory.com/67)
 - [동시성 제어 방식 비교 및 성능 테스트](https://eastshine12.tistory.com/68)
+- [Redis 기반의 캐싱 및 대기열 관리를 통한 콘서트 예약 서비스 성능 개선](https://eastshine12.tistory.com/69)
 
 <br/>
 
