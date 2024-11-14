@@ -8,6 +8,7 @@ import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.repository.ConcertScheduleRepository
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -33,6 +34,7 @@ class ConcertScheduler(
     }
 
     @Scheduled(fixedRateString = "\${reservation.syncAvailableSeatsRate}")
+    @CacheEvict(value = ["concertSchedules"], allEntries = true)
     fun syncAvailableSeats() {
         val allSchedules = concertScheduleRepository.findAll()
         val filterSchedules = allSchedules.filter { it.startTime.isAfter(LocalDateTime.now()) }

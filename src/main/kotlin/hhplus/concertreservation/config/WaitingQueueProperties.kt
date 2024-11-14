@@ -6,6 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class WaitingQueueProperties(
     val activateRate: String,
     val expireCheckRate: String,
-    val maxActiveUsers: Int,
+    val activeUsers: Int,
     val expireMinutes: Long,
 )

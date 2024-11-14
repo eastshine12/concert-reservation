@@ -15,6 +15,7 @@ import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
+import hhplus.concertreservation.util.RedisTestHelper
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var concertFacade: ConcertFacade
+    private lateinit var redisTestHelper: RedisTestHelper
     private lateinit var user1: User
     private lateinit var user2: User
     private lateinit var waitingQueue1: WaitingQueue
@@ -42,6 +44,8 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
 
     @BeforeEach
     fun setUp() {
+        redisTestHelper = RedisTestHelper(redisTemplate)
+
         user1 = userJpaRepository.save(User(name = "User1", email = "user1@test.com", balance = 100000.toBigDecimal()))
         user2 = userJpaRepository.save(User(name = "User2", email = "user2@test.com", balance = 100000.toBigDecimal()))
         userJpaRepository.save(User(name = "User3", email = "user3@test.com", balance = 100000.toBigDecimal()))
@@ -74,33 +78,30 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         createSeatsForSchedule(schedule2)
 
         waitingQueue1 =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule1.id,
-                    token = "123e4567-e89b-12d3-a456-426614174000",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = LocalDateTime.now().plusMinutes(10),
-                ),
+            WaitingQueue(
+                scheduleId = schedule1.id,
+                token = "123e4567-e89b-12d3-a456-426614174000",
+                status = QueueStatus.ACTIVE,
+                expiresAt = LocalDateTime.now().plusMinutes(10),
             )
+
         waitingQueue2 =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule2.id,
-                    token = "123e4567-e89b-12d3-a456-426614174001",
-                    status = QueueStatus.ACTIVE,
-                    expiresAt = LocalDateTime.now().plusMinutes(10),
-                ),
+            WaitingQueue(
+                scheduleId = schedule2.id,
+                token = "123e4567-e89b-12d3-a456-426614174001",
+                status = QueueStatus.ACTIVE,
+                expiresAt = LocalDateTime.now().plusMinutes(10),
             )
-        // expired token
         waitingQueue3 =
-            waitingQueueJpaRepository.save(
-                WaitingQueue(
-                    scheduleId = schedule1.id,
-                    token = "123e4567-e89b-12d3-a456-426614174002",
-                    status = QueueStatus.EXPIRED,
-                    expiresAt = LocalDateTime.now().minusMinutes(10),
-                ),
+            WaitingQueue(
+                scheduleId = schedule1.id,
+                token = "123e4567-e89b-12d3-a456-426614174002",
+                status = QueueStatus.ACTIVE,
+                expiresAt = LocalDateTime.now().minusMinutes(10),
             )
+        redisTestHelper.saveTokenAndInfo(waitingQueue1)
+        redisTestHelper.saveTokenAndInfo(waitingQueue2)
+        redisTestHelper.saveTokenAndInfo(waitingQueue3)
     }
 
     private fun createSeatsForSchedule(schedule: ConcertSchedule) {

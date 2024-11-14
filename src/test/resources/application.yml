@@ -30,7 +30,7 @@ reservation:
   syncAvailableSeatsRate: 60000 # 예약 가능 좌석 수 동기화 주기(ms)
 
 waiting-queue:
-  activateRate: 60000 # 대기열 활성화 체크 주기(ms)
-  expireCheckRate: 60000 # 만료 체크 주기(ms)
-  maxActiveUsers: 10 # 활성화할 최대 유저 수
-  expireMinutes: 10 # 대기열 유효 시간(분)
+  activateRate: 6000 # 대기열 활성화 체크 주기(ms)
+  expireCheckRate: 6000 # 만료 체크 주기(ms)
+  activeUsers: 2 # 활성화할 최대 유저 수
+  expireMinutes: 5 # 대기열 유효 시간(분)

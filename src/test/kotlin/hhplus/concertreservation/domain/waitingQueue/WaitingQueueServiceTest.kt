@@ -83,25 +83,4 @@ class WaitingQueueServiceTest {
             waitingQueueService.validateAndGetToken(token)
         }
     }
-
-    @Test
-    fun `should calculate remaining position`() {
-        // given
-        val scheduleId = 1L
-        val token = "token3"
-        val waitingQueues =
-            listOf(
-                WaitingQueue(1L, "token1", QueueStatus.PENDING, expiresAt = null),
-                WaitingQueue(2L, "token2", QueueStatus.PENDING, expiresAt = null),
-                WaitingQueue(3L, "token3", QueueStatus.PENDING, expiresAt = null),
-            )
-
-        every { waitingQueueRepository.findAllByScheduleId(scheduleId) } returns waitingQueues
-
-        // when
-        val result = waitingQueueService.calculateRemainingPosition(scheduleId, token)
-
-        // then
-        assertEquals(3, result)
-    }
 }

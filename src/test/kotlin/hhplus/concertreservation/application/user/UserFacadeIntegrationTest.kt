@@ -7,6 +7,7 @@ import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.dto.info.UpdateBalanceInfo
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
+import hhplus.concertreservation.util.RedisTestHelper
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -27,9 +28,11 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var userFacade: UserFacade
     private lateinit var user: User
+    private lateinit var redisTestHelper: RedisTestHelper
 
     @BeforeEach
     fun setUp() {
+        redisTestHelper = RedisTestHelper(redisTemplate)
         user =
             userJpaRepository.save(
                 User(
@@ -39,14 +42,14 @@ class UserFacadeIntegrationTest : IntegrationTestBase() {
                 ),
             )
 
-        waitingQueueJpaRepository.save(
+        val waitingQueue =
             WaitingQueue(
                 scheduleId = 1L,
                 token = "123e4567-e89b-12d3-a456-426614174000",
                 status = QueueStatus.ACTIVE,
                 expiresAt = LocalDateTime.now().plusMinutes(10),
-            ),
-        )
+            )
+        redisTestHelper.saveTokenAndInfo(waitingQueue)
     }
 
     @Test

@@ -12,6 +12,7 @@ import hhplus.concertreservation.domain.concert.repository.ConcertRepository
 import hhplus.concertreservation.domain.concert.repository.ConcertScheduleRepository
 import hhplus.concertreservation.domain.concert.repository.SeatRepository
 import hhplus.concertreservation.domain.concert.toSeatInfo
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,6 +22,7 @@ class ConcertService(
     private val concertScheduleRepository: ConcertScheduleRepository,
     private val seatRepository: SeatRepository,
 ) {
+    @Cacheable(value = ["concerts"], key = "#concertId")
     fun getConcertById(concertId: Long): Concert {
         return concertRepository.findByIdOrNull(concertId)
             ?: throw CoreException(
@@ -42,6 +44,7 @@ class ConcertService(
         }
     }
 
+    @Cacheable(value = ["concertSchedules"], key = "#concertId")
     fun getSchedulesByConcertId(concertId: Long): List<ConcertSchedule> {
         return concertScheduleRepository.findAllByConcertId(concertId).takeIf { it.isNotEmpty() }
             ?: throw CoreException(
