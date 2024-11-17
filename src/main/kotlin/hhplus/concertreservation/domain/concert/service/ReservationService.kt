@@ -5,9 +5,11 @@ import hhplus.concertreservation.domain.concert.component.SeatFinder
 import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
+import hhplus.concertreservation.domain.concert.event.ReservationCreatedEvent
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
+import hhplus.concertreservation.infrastructure.event.EventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +19,7 @@ class ReservationService(
     private val seatFinder: SeatFinder,
     private val concertManager: ConcertManager,
     private val reservationRepository: ReservationRepository,
+    private val eventPublisher: EventPublisher<ReservationCreatedEvent>,
 ) {
     @Transactional
     fun createPendingReservation(
@@ -27,6 +30,7 @@ class ReservationService(
         seatFinder.getAvailableSeat(scheduleId, seatId).reserve()
         occupySeat(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
+        eventPublisher.publish(ReservationCreatedEvent.from(reservation))
         return reservation.toCreateReservationInfo(success = true)
     }
 
