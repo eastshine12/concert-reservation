@@ -1,4 +1,4 @@
-# 콘서트 예매 서비스
+# 콘서트 예약 서비스
 
 ## Milestone
 ![hhplus-gantt.drawio.png](src/main/resources/images/hhplus-gantt.drawio.png)
@@ -14,6 +14,7 @@
 - [동시성 제어 방식 비교 및 성능 테스트](https://eastshine12.tistory.com/68)
 - [Redis 기반의 캐싱 및 대기열 관리를 통한 콘서트 예약 서비스 성능 개선](https://eastshine12.tistory.com/69)
 - [서비스 확장을 위한 트랜잭션 분리와 이벤트 기반 설계](https://eastshine12.tistory.com/71)
+- [콘서트 예약 서비스의 인덱스 설계와 성능 비교](https://eastshine12.tistory.com/70)
 
 <br/>
 
