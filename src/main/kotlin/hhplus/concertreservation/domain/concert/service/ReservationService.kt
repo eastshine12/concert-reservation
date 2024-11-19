@@ -5,7 +5,7 @@ import hhplus.concertreservation.domain.concert.component.SeatFinder
 import hhplus.concertreservation.domain.concert.dto.info.CreateReservationInfo
 import hhplus.concertreservation.domain.concert.dto.info.ReservationInfo
 import hhplus.concertreservation.domain.concert.entity.Reservation
-import hhplus.concertreservation.domain.concert.event.ReservationCreatedEvent
+import hhplus.concertreservation.domain.concert.event.ReservationEvent
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
@@ -30,7 +30,7 @@ class ReservationService(
         seatFinder.getAvailableSeat(scheduleId, seatId).reserve()
         occupySeat(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
-        applicationEventPublisher.publishEvent(ReservationCreatedEvent.from(reservation))
+        applicationEventPublisher.publishEvent(ReservationEvent.Created.from(reservation))
         return reservation.toCreateReservationInfo(success = true)
     }
 
