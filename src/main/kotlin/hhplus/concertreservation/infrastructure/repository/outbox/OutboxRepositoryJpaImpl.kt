@@ -12,10 +12,10 @@ class OutboxRepositoryJpaImpl(
         return outboxJpaRepository.save(outbox)
     }
 
-    override fun findByTopicAndKey(
-        topic: String,
+    override fun findByEventTypeAndKey(
+        eventType: String,
         key: String,
     ): Outbox? {
-        return outboxJpaRepository.findByTopicAndKey(topic, key)
+        return outboxJpaRepository.findByEventTypeAndKey(eventType, key)
     }
 }
