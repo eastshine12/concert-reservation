@@ -1,4 +1,4 @@
-package hhplus.concertreservation.infrastructure.event
+package hhplus.concertreservation.domain.common.event
 
 interface EventPublisher<T> {
     fun publish(event: T)

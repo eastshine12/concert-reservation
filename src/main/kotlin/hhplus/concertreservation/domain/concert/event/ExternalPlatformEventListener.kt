@@ -1,8 +1,7 @@
-package hhplus.concertreservation.infrastructure.event.listener
+package hhplus.concertreservation.domain.concert.event
 
-import hhplus.concertreservation.domain.concert.event.ReservationCreatedEvent
 import hhplus.concertreservation.infrastructure.api.DataPlatformApiClient
-import hhplus.concertreservation.infrastructure.event.EventListener
+import hhplus.concertreservation.domain.common.event.EventListener
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation

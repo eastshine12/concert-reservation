@@ -1,7 +1,6 @@
-package hhplus.concertreservation.infrastructure.event.reservation
+package hhplus.concertreservation.domain.concert.event
 
-import hhplus.concertreservation.domain.concert.event.ReservationCreatedEvent
-import hhplus.concertreservation.infrastructure.event.EventPublisher
+import hhplus.concertreservation.domain.common.event.EventPublisher
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 

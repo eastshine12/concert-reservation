@@ -9,7 +9,7 @@ import hhplus.concertreservation.domain.concert.event.ReservationCreatedEvent
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
-import hhplus.concertreservation.infrastructure.event.EventPublisher
+import hhplus.concertreservation.domain.common.event.EventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

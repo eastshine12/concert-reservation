@@ -1,4 +1,4 @@
-package hhplus.concertreservation.infrastructure.event
+package hhplus.concertreservation.domain.common.event
 
 interface EventListener<T> {
     fun handle(event: T)
