@@ -1,15 +1,15 @@
-package hhplus.concertreservation.infrastructure.kafka
+package hhplus.concertreservation.infrastructure.event.concert
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import hhplus.concertreservation.domain.common.event.EventPublisher
+import hhplus.concertreservation.domain.concert.event.ReservationExternalEventPublisher
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
 
 @Component
-class KafkaMessagePublisher(
+class KafkaReservationEventPublisher(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val objectMapper: ObjectMapper,
-) : EventPublisher {
+) : ReservationExternalEventPublisher {
     override fun publish(
         topic: String,
         key: String,
