@@ -1,8 +1,10 @@
 package hhplus.concertreservation.infrastructure.repository.outbox
 
+import hhplus.concertreservation.domain.common.enums.OutboxStatus
 import hhplus.concertreservation.domain.outbox.Outbox
 import hhplus.concertreservation.domain.outbox.OutboxRepository
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 class OutboxRepositoryJpaImpl(
@@ -17,5 +19,12 @@ class OutboxRepositoryJpaImpl(
         key: String,
     ): Outbox? {
         return outboxJpaRepository.findByEventTypeAndKey(eventType, key)
+    }
+
+    override fun findByStatusAndCreatedAtAfter(
+        status: OutboxStatus,
+        createdAt: LocalDateTime,
+    ): List<Outbox> {
+        return outboxJpaRepository.findByStatusAndCreatedAtAfter(status, createdAt)
     }
 }
