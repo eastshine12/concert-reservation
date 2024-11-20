@@ -7,8 +7,9 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "outbox")
 class Outbox(
-    val eventType: String,
+    val topic: String,
     val key: String,
+    val eventType: String,
     val payload: String,
     status: OutboxStatus = OutboxStatus.FAILED,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

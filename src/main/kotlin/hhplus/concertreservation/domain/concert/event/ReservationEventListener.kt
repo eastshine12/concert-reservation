@@ -18,8 +18,9 @@ class ReservationEventListener(
     fun saveOutbox(event: ReservationEvent.Created) {
         outboxRepository.save(
             Outbox(
-                eventType = "RESERVATION_CREATED",
+                topic = "concert.reservation.created",
                 key = event.reservationId.toString(),
+                eventType = "RESERVATION_CREATED",
                 payload = objectMapper.writeValueAsString(event),
             ),
         )
