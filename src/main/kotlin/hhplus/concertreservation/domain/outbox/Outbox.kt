@@ -15,6 +15,7 @@ class Outbox(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 ) : BaseEntity() {
+    @Enumerated(EnumType.STRING)
     var status: OutboxStatus = status
         protected set
 
