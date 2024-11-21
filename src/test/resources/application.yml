@@ -23,6 +23,16 @@ spring:
     redis:
       host: localhost
       port: 6379
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: test-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 reservation:
   expireMinutes: 5 # 임시배정 유효 시간(분)
@@ -34,3 +44,8 @@ waiting-queue:
   expireCheckRate: 6000 # 만료 체크 주기(ms)
   activeUsers: 2 # 활성화할 최대 유저 수
   expireMinutes: 5 # 대기열 유효 시간(분)
+
+outbox:
+  scheduler:
+    fixedRate: 60000 # 체크 주기(ms)
+    timeLimitMinutes: 10 # 체크 시간 범위(분)

@@ -2,6 +2,7 @@ package hhplus.concertreservation.application.concert
 
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
+import hhplus.concertreservation.domain.common.enums.OutboxStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus
@@ -16,6 +17,7 @@ import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.util.RedisTestHelper
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import java.math.BigDecimal
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -160,6 +163,20 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         // when
         val createReservationInfo: CreateReservationInfo = concertFacade.createReservation(command)
 
+        // consume 대기
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until {
+                val schedule = concertScheduleJpaRepository.findById(1L).get()
+                val outbox =
+                    outboxJpaRepository.findByEventTypeAndKey(
+                        eventType = "RESERVATION_CREATED",
+                        key = createReservationInfo.reservationId.toString(),
+                    )
+                schedule.availableSeats == 4 &&
+                    outbox.status == OutboxStatus.PUBLISHED
+            }
+
         // then
         assertNotNull(createReservationInfo)
         assertEquals(true, createReservationInfo.success)
@@ -168,6 +185,20 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(1L).get().status)
         assertEquals(4, concertScheduleJpaRepository.findById(1L).get().availableSeats)
         assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById(1L).get().status)
+
+        val outbox =
+            outboxJpaRepository.findByEventTypeAndKey(
+                eventType = "RESERVATION_CREATED",
+                key = createReservationInfo.reservationId.toString(),
+            )
+        assertEquals("PUBLISHED", outbox.status.name)
+
+        val consumer = kafkaListenerContainerFactory.consumerFactory.createConsumer()
+        consumer.subscribe(listOf("concert.reservation.created"))
+        val records = consumer.poll(Duration.ofSeconds(5))
+        assertTrue(records.count() > 0)
+        assertEquals("1", records.first().key())
+        consumer.close()
     }
 
     @Test

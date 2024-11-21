@@ -4,17 +4,28 @@ import hhplus.concertreservation.infrastructure.repository.concert.ConcertJpaRep
 import hhplus.concertreservation.infrastructure.repository.concert.ConcertScheduleJpaRepository
 import hhplus.concertreservation.infrastructure.repository.concert.ReservationJpaRepository
 import hhplus.concertreservation.infrastructure.repository.concert.SeatJpaRepository
+import hhplus.concertreservation.infrastructure.repository.outbox.OutboxJpaRepository
 import hhplus.concertreservation.infrastructure.repository.payment.PaymentJpaRepository
 import hhplus.concertreservation.infrastructure.repository.user.BalanceHistoryJpaRepository
 import hhplus.concertreservation.infrastructure.repository.user.UserJpaRepository
 import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Import
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
+import org.springframework.kafka.core.KafkaTemplate
 
+@Import(hhplus.concertreservation.config.TestContainerConfig::class)
 abstract class IntegrationTestBase {
     @Autowired
     protected lateinit var redisTemplate: RedisTemplate<String, Any>
+
+    @Autowired
+    protected lateinit var kafkaTemplate: KafkaTemplate<String, String>
+
+    @Autowired
+    lateinit var kafkaListenerContainerFactory: ConcurrentKafkaListenerContainerFactory<String, String>
 
     @Autowired
     protected lateinit var concertJpaRepository: ConcertJpaRepository
@@ -36,6 +47,9 @@ abstract class IntegrationTestBase {
 
     @Autowired
     protected lateinit var balanceHistoryJpaRepository: BalanceHistoryJpaRepository
+
+    @Autowired
+    protected lateinit var outboxJpaRepository: OutboxJpaRepository
 
     @Autowired
     protected lateinit var jdbcTemplate: JdbcTemplate
