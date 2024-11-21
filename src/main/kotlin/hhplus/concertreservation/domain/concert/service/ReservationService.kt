@@ -11,7 +11,6 @@ import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -28,13 +27,12 @@ class ReservationService(
         seatId: Long,
     ): CreateReservationInfo {
         seatFinder.getAvailableSeat(scheduleId, seatId).reserve()
-        occupySeat(scheduleId)
         val reservation = concertManager.createPendingReservation(userId, scheduleId, seatId)
         applicationEventPublisher.publishEvent(ReservationEvent.Created.from(reservation))
         return reservation.toCreateReservationInfo(success = true)
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     fun occupySeat(scheduleId: Long) {
         concertManager.getScheduleById(scheduleId).occupySeat()
     }
