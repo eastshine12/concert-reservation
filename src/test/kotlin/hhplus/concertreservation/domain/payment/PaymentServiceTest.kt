@@ -27,7 +27,7 @@ class PaymentServiceTest {
         every { paymentRepository.save(any()) } returns payment
 
         // when
-        val result = paymentService.savePayment(userId, reservationId, amount)
+        val result = paymentService.savePaymentHistory(userId, reservationId, amount)
 
         // then
         assertEquals(paymentInfo, result)
@@ -47,7 +47,7 @@ class PaymentServiceTest {
         // when & then
         val exception =
             assertThrows<CoreException> {
-                paymentService.savePayment(userId, reservationId, amount)
+                paymentService.savePaymentHistory(userId, reservationId, amount)
             }
 
         assertEquals(ErrorType.PAYMENT_ALREADY_PROCESSED, exception.errorType)

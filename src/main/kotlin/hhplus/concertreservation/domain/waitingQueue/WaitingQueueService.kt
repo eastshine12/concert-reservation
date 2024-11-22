@@ -6,6 +6,7 @@ import hhplus.concertreservation.domain.waitingQueue.component.QueueManager
 import hhplus.concertreservation.domain.waitingQueue.component.TokenManager
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class WaitingQueueService(
@@ -78,6 +79,7 @@ class WaitingQueueService(
         return queue
     }
 
+    @Transactional
     fun expireToken(token: String) {
         val waitingQueue: WaitingQueue = validateAndGetToken(token)
         waitingQueueRepository.remove(waitingQueue)

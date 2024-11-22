@@ -10,7 +10,6 @@ import hhplus.concertreservation.domain.waitingQueue.dto.command.TokenCommand
 import hhplus.concertreservation.domain.waitingQueue.dto.info.TokenInfo
 import hhplus.concertreservation.domain.waitingQueue.dto.info.WaitingQueueInfo
 import hhplus.concertreservation.util.RedisTestHelper
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

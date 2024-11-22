@@ -20,10 +20,11 @@ class OutboxScheduler(
     fun reprocessFailedEvents() {
         val timeLimit = LocalDateTime.now().minusMinutes(timeLimitMinutes)
 
-        val failedEvents: List<Outbox> = outboxRepository.findByStatusAndCreatedAtAfter(
-            status = OutboxStatus.FAILED,
-            createdAt = timeLimit,
-        )
+        val failedEvents: List<Outbox> =
+            outboxRepository.findByStatusAndCreatedAtAfter(
+                status = OutboxStatus.FAILED,
+                createdAt = timeLimit,
+            )
 
         for (event in failedEvents) {
             try {

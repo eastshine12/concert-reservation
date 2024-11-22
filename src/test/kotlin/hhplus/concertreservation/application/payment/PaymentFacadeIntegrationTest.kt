@@ -2,10 +2,7 @@ import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
 import hhplus.concertreservation.application.payment.PaymentFacade
 import hhplus.concertreservation.application.user.UserFacade
-import hhplus.concertreservation.domain.common.enums.PaymentStatus
-import hhplus.concertreservation.domain.common.enums.QueueStatus
-import hhplus.concertreservation.domain.common.enums.ReservationStatus
-import hhplus.concertreservation.domain.common.enums.SeatStatus
+import hhplus.concertreservation.domain.common.enums.*
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.concert.entity.ConcertSchedule
 import hhplus.concertreservation.domain.concert.entity.Reservation
@@ -16,18 +13,20 @@ import hhplus.concertreservation.domain.user.dto.command.ChargeBalanceCommand
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.util.RedisTestHelper
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.awaitility.Awaitility.await
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertNull
 
@@ -100,6 +99,20 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
         // when
         val paymentInfo: PaymentInfo = paymentFacade.processPayment(command)
 
+        // consume 대기
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until {
+                val payments = paymentJpaRepository.findAllByUserId(user.id)
+                val outbox =
+                    outboxJpaRepository.findByEventTypeAndKey(
+                        eventType = "PAYMENT_INITIATED",
+                        key = reservation.id.toString(),
+                    )
+                payments.isNotEmpty() &&
+                    outbox.status == OutboxStatus.PUBLISHED
+            }
+
         // then
         assertNotNull(paymentInfo)
         assertEquals(BigDecimal("70000.00"), paymentInfo.amount)
@@ -116,6 +129,20 @@ class PaymentFacadeIntegrationTest : IntegrationTestBase() {
 
         val expiredQueue = redisTemplate.opsForZSet().score("ActiveToken:${schedule.id}", waitingQueue.token)
         assertNull(expiredQueue)
+
+        val outbox =
+            outboxJpaRepository.findByEventTypeAndKey(
+                eventType = "PAYMENT_INITIATED",
+                key = reservation.id.toString(),
+            )
+        assertEquals("PUBLISHED", outbox.status.name)
+
+        val consumer = kafkaListenerContainerFactory.consumerFactory.createConsumer()
+        consumer.subscribe(listOf("payment.initiated"))
+        val records = consumer.poll(Duration.ofSeconds(5))
+        assertTrue(records.count() > 0)
+        assertEquals("1", records.first().key())
+        consumer.close()
     }
 
     @Test

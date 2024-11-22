@@ -11,19 +11,20 @@ import hhplus.concertreservation.domain.payment.Payment
 import hhplus.concertreservation.domain.payment.PaymentService
 import hhplus.concertreservation.domain.payment.dto.command.PaymentCommand
 import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
+import hhplus.concertreservation.domain.payment.event.PaymentEvent
 import hhplus.concertreservation.domain.payment.toPaymentInfo
 import hhplus.concertreservation.domain.user.service.UserService
-import hhplus.concertreservation.domain.waitingQueue.WaitingQueueService
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
 class PaymentFacade(
-    private val waitingQueueService: WaitingQueueService,
     private val userService: UserService,
     private val reservationService: ReservationService,
     private val paymentService: PaymentService,
     private val concertService: ConcertService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     @Transactional
     fun processPayment(command: PaymentCommand): PaymentInfo {
@@ -31,8 +32,18 @@ class PaymentFacade(
             val reservationInfo: ReservationInfo = reservationService.confirmReservation(command.reservationId)
             val seatInfo: SeatInfo = concertService.verifyAndGetSeatInfo(reservationInfo.seatId)
             userService.updateUserBalance(command.userId, seatInfo.price, PointTransactionType.USE)
-            waitingQueueService.expireToken(command.token)
-            paymentService.savePayment(command.userId, command.reservationId, seatInfo.price)
+
+            applicationEventPublisher.publishEvent(
+                PaymentEvent.Initiated.from(
+                    command = command,
+                    price = seatInfo.price,
+                ),
+            )
+
+            PaymentInfo(
+                amount = seatInfo.price,
+                status = "SUCCESS",
+            )
         }.getOrElse { ex ->
             throw CoreException(
                 errorType = ErrorType.PAYMENT_FAILED,

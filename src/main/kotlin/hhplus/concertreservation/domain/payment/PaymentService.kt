@@ -5,13 +5,15 @@ import hhplus.concertreservation.domain.common.error.ErrorType
 import hhplus.concertreservation.domain.common.exception.CoreException
 import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
 @Service
 class PaymentService(
     private val paymentRepository: PaymentRepository,
 ) {
-    fun savePayment(
+    @Transactional
+    fun savePaymentHistory(
         userId: Long,
         reservationId: Long,
         amount: BigDecimal,

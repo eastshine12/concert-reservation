@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 class OutboxEventConsumer(
     private val outboxRepository: OutboxRepository,
 ) {
-    @KafkaListener(topics = ["concert.reservation.created"], groupId = "outbox-consumer-group")
+    @KafkaListener(topics = ["concert.reservation.created", "payment.initiated"], groupId = "outbox-consumer-group")
     fun consumeMessage(
         @Header(KafkaHeaders.RECEIVED_KEY) key: String,
         @Header(KafkaHeaders.RECEIVED_TOPIC) topic: String,
@@ -19,6 +19,7 @@ class OutboxEventConsumer(
         val eventType =
             when (topic) {
                 "concert.reservation.created" -> "RESERVATION_CREATED"
+                "payment.initiated" -> "PAYMENT_INITIATED"
                 else -> return
             }
         val outboxEvent = outboxRepository.findByEventTypeAndKey(eventType, key)
