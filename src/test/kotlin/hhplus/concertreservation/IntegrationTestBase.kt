@@ -63,6 +63,7 @@ abstract class IntegrationTestBase {
         reservationJpaRepository.deleteAll()
         paymentJpaRepository.deleteAll()
         balanceHistoryJpaRepository.deleteAll()
+        outboxJpaRepository.deleteAll()
         resetAutoIncrement("concert_schedule")
         resetAutoIncrement("concert")
         resetAutoIncrement("users")
@@ -70,6 +71,7 @@ abstract class IntegrationTestBase {
         resetAutoIncrement("reservation")
         resetAutoIncrement("payment")
         resetAutoIncrement("balance_history")
+        resetAutoIncrement("outbox")
     }
 
     protected fun resetAutoIncrement(tableName: String) {

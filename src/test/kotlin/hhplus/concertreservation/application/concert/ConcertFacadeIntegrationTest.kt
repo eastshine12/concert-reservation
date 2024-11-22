@@ -44,6 +44,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     private lateinit var concert1: Concert
     private lateinit var schedule1: ConcertSchedule
     private lateinit var schedule2: ConcertSchedule
+    private lateinit var schedule3: ConcertSchedule
 
     @BeforeEach
     fun setUp() {
@@ -75,10 +76,20 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     availableSeats = 0,
                 ),
             )
+        schedule3 =
+            concertScheduleJpaRepository.save(
+                ConcertSchedule(
+                    concertId = concert1.id,
+                    startTime = LocalDateTime.now().plusDays(1),
+                    totalSeats = 5,
+                    availableSeats = 5,
+                ),
+            )
 
         // create seats
         createSeatsForSchedule(schedule1)
         createSeatsForSchedule(schedule2)
+        createSeatsForSchedule(schedule3)
 
         waitingQueue1 =
             WaitingQueue(
@@ -97,7 +108,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             )
         waitingQueue3 =
             WaitingQueue(
-                scheduleId = schedule1.id,
+                scheduleId = schedule3.id,
                 token = "123e4567-e89b-12d3-a456-426614174002",
                 status = QueueStatus.ACTIVE,
                 expiresAt = LocalDateTime.now().minusMinutes(10),
@@ -155,9 +166,9 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         val command =
             ReservationCommand(
                 userId = 1L,
-                scheduleId = 1L,
-                seatId = 1L,
-                token = "123e4567-e89b-12d3-a456-426614174000",
+                scheduleId = 3L,
+                seatId = 11L,
+                token = "123e4567-e89b-12d3-a456-426614174002",
             )
 
         // when
@@ -182,8 +193,8 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         assertEquals(true, createReservationInfo.success)
         assertEquals(1L, createReservationInfo.reservationId)
 
-        assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(1L).get().status)
-        assertEquals(4, concertScheduleJpaRepository.findById(1L).get().availableSeats)
+        assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(command.seatId).get().status)
+        assertEquals(4, concertScheduleJpaRepository.findById(command.scheduleId).get().availableSeats)
         assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById(1L).get().status)
 
         val outbox =
