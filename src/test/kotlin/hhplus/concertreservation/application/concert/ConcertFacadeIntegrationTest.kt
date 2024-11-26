@@ -2,6 +2,7 @@ package hhplus.concertreservation.application.concert
 
 import hhplus.concertreservation.ConcertReservationApplication
 import hhplus.concertreservation.IntegrationTestBase
+import hhplus.concertreservation.domain.common.enums.OutboxStatus
 import hhplus.concertreservation.domain.common.enums.QueueStatus
 import hhplus.concertreservation.domain.common.enums.ReservationStatus
 import hhplus.concertreservation.domain.common.enums.SeatStatus
@@ -16,6 +17,7 @@ import hhplus.concertreservation.domain.concert.entity.Seat
 import hhplus.concertreservation.domain.user.entity.User
 import hhplus.concertreservation.domain.waitingQueue.WaitingQueue
 import hhplus.concertreservation.util.RedisTestHelper
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import java.math.BigDecimal
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,6 +44,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
     private lateinit var concert1: Concert
     private lateinit var schedule1: ConcertSchedule
     private lateinit var schedule2: ConcertSchedule
+    private lateinit var schedule3: ConcertSchedule
 
     @BeforeEach
     fun setUp() {
@@ -72,10 +76,20 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
                     availableSeats = 0,
                 ),
             )
+        schedule3 =
+            concertScheduleJpaRepository.save(
+                ConcertSchedule(
+                    concertId = concert1.id,
+                    startTime = LocalDateTime.now().plusDays(1),
+                    totalSeats = 5,
+                    availableSeats = 5,
+                ),
+            )
 
         // create seats
         createSeatsForSchedule(schedule1)
         createSeatsForSchedule(schedule2)
+        createSeatsForSchedule(schedule3)
 
         waitingQueue1 =
             WaitingQueue(
@@ -94,7 +108,7 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
             )
         waitingQueue3 =
             WaitingQueue(
-                scheduleId = schedule1.id,
+                scheduleId = schedule3.id,
                 token = "123e4567-e89b-12d3-a456-426614174002",
                 status = QueueStatus.ACTIVE,
                 expiresAt = LocalDateTime.now().minusMinutes(10),
@@ -152,22 +166,50 @@ class ConcertFacadeIntegrationTest : IntegrationTestBase() {
         val command =
             ReservationCommand(
                 userId = 1L,
-                scheduleId = 1L,
-                seatId = 1L,
-                token = "123e4567-e89b-12d3-a456-426614174000",
+                scheduleId = 3L,
+                seatId = 11L,
+                token = "123e4567-e89b-12d3-a456-426614174002",
             )
 
         // when
         val createReservationInfo: CreateReservationInfo = concertFacade.createReservation(command)
+
+        // consume 대기
+        await()
+            .atMost(5, TimeUnit.SECONDS)
+            .until {
+                val schedule = concertScheduleJpaRepository.findById(1L).get()
+                val outbox =
+                    outboxJpaRepository.findByEventTypeAndKey(
+                        eventType = "RESERVATION_CREATED",
+                        key = createReservationInfo.reservationId.toString(),
+                    )
+                schedule.availableSeats == 4 &&
+                    outbox.status == OutboxStatus.PUBLISHED
+            }
 
         // then
         assertNotNull(createReservationInfo)
         assertEquals(true, createReservationInfo.success)
         assertEquals(1L, createReservationInfo.reservationId)
 
-        assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(1L).get().status)
-        assertEquals(4, concertScheduleJpaRepository.findById(1L).get().availableSeats)
+        assertEquals(SeatStatus.UNAVAILABLE, seatJpaRepository.findById(command.seatId).get().status)
+        assertEquals(4, concertScheduleJpaRepository.findById(command.scheduleId).get().availableSeats)
         assertEquals(ReservationStatus.PENDING, reservationJpaRepository.findById(1L).get().status)
+
+        val outbox =
+            outboxJpaRepository.findByEventTypeAndKey(
+                eventType = "RESERVATION_CREATED",
+                key = createReservationInfo.reservationId.toString(),
+            )
+        assertEquals("PUBLISHED", outbox.status.name)
+
+        val consumer = kafkaListenerContainerFactory.consumerFactory.createConsumer()
+        consumer.subscribe(listOf("concert.reservation.created"))
+        val records = consumer.poll(Duration.ofSeconds(5))
+        assertTrue(records.count() > 0)
+        assertEquals("1", records.first().key())
+        consumer.close()
     }
 
     @Test

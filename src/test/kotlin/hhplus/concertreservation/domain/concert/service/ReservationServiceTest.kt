@@ -4,19 +4,22 @@ import hhplus.concertreservation.domain.concert.component.ConcertManager
 import hhplus.concertreservation.domain.concert.component.SeatFinder
 import hhplus.concertreservation.domain.concert.entity.Reservation
 import hhplus.concertreservation.domain.concert.entity.Seat
+import hhplus.concertreservation.domain.concert.event.ReservationEvent
 import hhplus.concertreservation.domain.concert.repository.ReservationRepository
 import hhplus.concertreservation.domain.concert.toCreateReservationInfo
 import hhplus.concertreservation.domain.concert.toReservationInfo
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.springframework.context.ApplicationEventPublisher
 import kotlin.test.assertEquals
 
 class ReservationServiceTest {
     private val seatFinder = mockk<SeatFinder>()
     private val concertManager = mockk<ConcertManager>()
     private val reservationRepository = mockk<ReservationRepository>()
-    private val reservationService = ReservationService(seatFinder, concertManager, reservationRepository)
+    private val eventPublisher = mockk<ApplicationEventPublisher>()
+    private val reservationService = ReservationService(seatFinder, concertManager, reservationRepository, eventPublisher)
 
     @Test
     fun `should create pending reservation successfully`() {
@@ -29,8 +32,8 @@ class ReservationServiceTest {
         val createReservationInfo = reservation.toCreateReservationInfo(success = true)
 
         every { seatFinder.getAvailableSeat(scheduleId, seatId) } returns seat
-        every { concertManager.getScheduleById(scheduleId) } returns mockk(relaxed = true)
         every { concertManager.createPendingReservation(userId, scheduleId, seatId) } returns reservation
+        every { eventPublisher.publishEvent(mockk<ReservationEvent.Created>(relaxed = true)) } returns mockk(relaxed = true)
 
         // when
         val result = reservationService.createPendingReservation(userId, scheduleId, seatId)
