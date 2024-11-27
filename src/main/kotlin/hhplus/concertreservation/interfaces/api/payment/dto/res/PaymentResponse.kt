@@ -4,7 +4,7 @@ import hhplus.concertreservation.domain.payment.dto.info.PaymentInfo
 import java.math.BigDecimal
 
 data class PaymentResponse(
-    val paymentId: Long,
+    val paymentId: Long?,
     val amount: BigDecimal,
     val status: String,
 ) {

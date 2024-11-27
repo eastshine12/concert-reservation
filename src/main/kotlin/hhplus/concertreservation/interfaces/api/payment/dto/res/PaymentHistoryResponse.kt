@@ -23,7 +23,7 @@ data class PaymentHistoryResponse(
 }
 
 data class PaymentDetail(
-    val id: Long,
+    val id: Long?,
     val price: BigDecimal,
     val status: String,
 )
