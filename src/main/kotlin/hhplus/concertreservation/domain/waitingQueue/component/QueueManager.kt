@@ -27,6 +27,12 @@ class QueueManager(
                     expiresAt = null,
                 ),
             )
+        // 부하 테스트를 위한 임시 코드 (토큰 활성화)
+        waitingQueueRepository.moveToActiveQueue(
+            scheduleId = scheduleId,
+            tokens = setOf(token),
+            expiresInMinutes = 10L,
+        )
         return waitingQueue
     }
 
