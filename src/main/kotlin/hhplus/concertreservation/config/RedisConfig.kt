@@ -40,13 +40,14 @@ class RedisConfig(
 
     @Bean
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
-        val objectMapper = ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            activateDefaultTyping(
-                polymorphicTypeValidator,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-            )
-        }
+        val objectMapper =
+            ObjectMapper().apply {
+                registerModule(JavaTimeModule())
+                activateDefaultTyping(
+                    polymorphicTypeValidator,
+                    ObjectMapper.DefaultTyping.NON_FINAL,
+                )
+            }
         val jsonSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
         val config =
             RedisCacheConfiguration.defaultCacheConfig()

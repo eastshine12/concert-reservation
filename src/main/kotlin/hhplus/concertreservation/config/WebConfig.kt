@@ -12,6 +12,6 @@ class WebConfig(
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(waitingQueueTokenInterceptor)
             .addPathPatterns("/**")
-            .excludePathPatterns("/api/waiting-queues")
+            .excludePathPatterns("/api/waiting-queues", "/actuator", "/actuator/**", "/metrics")
     }
 }
