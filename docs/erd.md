@@ -5,12 +5,12 @@
 ```mermaid
 erDiagram
     USER {
-    INT id PK "유저 ID"
-    VARCHAR name "이름"
-    VARCHAR email "이메일"
-    DECIMAL balance "잔액"
-    TIMESTAMP created_at "생성일시"
-    TIMESTAMP updated_at "수정일시"
+        INT id PK "유저 ID"
+        VARCHAR name "이름"
+        VARCHAR email "이메일"
+        DECIMAL balance "잔액"
+        TIMESTAMP created_at "생성일시"
+        TIMESTAMP updated_at "수정일시"
     }
 
     POINT_HISTORY {
@@ -55,8 +55,8 @@ erDiagram
         INT user_id FK "유저 ID"
         INT schedule_id FK "일정 ID"
         INT seat_id FK "좌석 ID"
-        VARCHAR status "상태(임시, 확정, 취소)" 
-		TIMESTAMP expires_at "임시 예약 만료 시간"
+        VARCHAR status "상태(임시, 확정, 취소)"
+        TIMESTAMP expires_at "임시 예약 만료 시간"
         TIMESTAMP created_at "생성일시"
         TIMESTAMP updated_at "수정일시"
     }
@@ -65,20 +65,10 @@ erDiagram
         INT id PK "결제 ID"
         INT user_id FK "유저 ID"
         DECIMAL amount "결제 금액"
-        VARCHAR status "상태 (성공, 실패, 취소)" 
+        VARCHAR status "상태 (성공, 실패, 취소)"
         INT reservation_id FK "예약 ID"
         TIMESTAMP created_at "생성일시"
         TIMESTAMP updated_at "수정일시"
-    }
-
-    TOKEN_QUEUE {
-        INT id PK "ID"
-        INT schedule_id FK "일정 ID"
-        VARCHAR token "토큰"
-        VARCHAR status "상태 (대기, 활성, 만료)"
-        TIMESTAMP expires_at "토큰 만료 시간"
-        TIMESTAMP created_at "생성 시간"
-        TIMESTAMP updated_at "수정 시간"
     }
 
     USER ||--o{ POINT_HISTORY : ""
@@ -112,15 +102,11 @@ erDiagram
 
 - 좌석 수를 실시간으로 `seat` 테이블에서 `COUNT(*)`를 통해 계산하지 않고, 예약 가능 좌석 수를 바로 조회할 수 있도록 `concert_schedule` 테이블에 `available_seats` 필드를 추가하였습니다. 이 부분도 좌석 수 조회 시 성능을 개선하기 위해 작성했습니다.
 
-#### 5. `token_queue` 테이블로 콘서트 일정 별 대기열 구현
-
-- 대기열을 구현하기 위해 `token_queue` 테이블을 작성하였습니다. 각 콘서트 일정마다 대기열 상태를 관리하며, `token` 필드에 인덱스를 적용하여 토큰을 가지고 대기열 상태 및 만료 시간을 조회하는 성능을 높여서 유저가 자신의 대기 상태를 빠르게 확인할 수 있도록 하였습니다.
-
-#### 6. `seat` 테이블과 `reservation` 테이블을 분리하여 관리
+#### 5. `seat` 테이블과 `reservation` 테이블을 분리하여 관리
 
 - 좌석과 예약 정보를 구분하기 위해 `seat` 테이블과 `reservation` 테이블을 나누었습니다. 이를 통해 좌석에 대한 `임시 예약`, `확정 예약`, `취소` 상태를 명확하게 관리할 수 있도록 하였습니다. 좌석 상태를 독립적으로 관리하여 예약의 상태 변화에 따른 영향을 최소화 했습니다.
 
-#### 7. 임시 배정 해제를 위한 `expires_at` 필드 추가
+#### 6. 임시 배정 해제를 위한 `expires_at` 필드 추가
 
 - 좌석의 임시 배정에 대한 자동 해제 기능을 구현하기 위해 `reservation` 테이블에 `expires_at` 필드를 추가하였습니다. 이를 통해 해당 시간이 지나면 임시 배정이 자동으로 만료되도록 하는 요구사항을 반영하도록 작성했습니다.
 

@@ -16,6 +16,7 @@
 - [서비스 확장을 위한 트랜잭션 분리와 이벤트 기반 설계](https://eastshine12.tistory.com/71)
 - [콘서트 예약 서비스의 인덱스 설계와 성능 비교](https://eastshine12.tistory.com/70)
 - [부하 테스트: 유저 행동 기반 시나리오로 시스템 한계 측정과 SLA, SLO 검증](https://eastshine12.tistory.com/72)
+- [프로젝트 최종 회고](https://eastshine12.tistory.com/73)
 
 <br/>
 
@@ -23,36 +24,48 @@
 
 ```
 hhplus
-    └── concertreservation
-        ├── interfaces       # 외부 인터페이스 (Controller, API 등)
-        │   └── api          # 도메인별 API
-        │       ├── concert  # 콘서트 관련 API 및 사용자 요청 처리 (Controller)
-        │       ├── payment  # 결제 관련 API (Controller)
-        │       ├── queue    # 유저 대기열 관련 API (Controller)
-        │       ├── token    # 토큰 관련 API (Controller)
-        │       └── user     # 사용자 관련 API 및 인증, 등록 처리 (Controller)
-        │   
-        ├── application      # 비즈니스 로직을 처리하는 유스케이스(Use Case) 계층
-        │   ├── concert      # 콘서트 비즈니스 로직 처리 (Facade)
-        │   ├── payment      # 결제 로직 처리 (Facade)               
-        │   ├── tokenQueue   # 토큰 대기열 관련 로직 처리 (Facade)
-        │   └── user         # 사용자 관련 비즈니스 로직 처리 (Facade)
-        │   
-        ├── domain           # 핵심 비즈니스 로직
-        │   ├── concert      # 콘서트 관련 도메인 객체 및 비즈니스 규칙 정의 (Service, Entity, Repository)
-        │   ├── payment      # 결제 관련 도메인 객체 및 트랜잭션 관리 규칙 정의 (Service, Entity, Repository)
-        │   ├── reservation  # 예약 관련 도메인 객체 및 비즈니스 규칙 정의 (Service, Entity, Repository)
-        │   ├── tokenQueue   # 토큰 대기열 관련 도메인 객체 및 비즈니스 규칙 정의 (Service, Entity, Repository)
-        │   └── user         # 사용자 관련 도메인 객체 및 비즈니스 규칙 정의 (Service, Entity, Repository)
-        │   
-        └── infrastructure   # 외부 시스템과의 통신 (DB, MQ 등)
-            ├── concert      # 콘서트 정보 저장 및 조회 시스템 연동
-            ├── payment      # 결제 시스템 연동
-            ├── queue        # 대기열 관리를 위한 인프라 연동
-            ├── reservation  # 예약 정보 저장 및 처리 관련 인프라 연동
-            └── user         # 사용자 정보 저장 및 조회 시스템 연동
-
+└── concertreservation
+    ├── application      # 비즈니스 유스케이스 처리 (Facade 계층)
+    │   ├── concert
+    │   ├── payment
+    │   ├── user
+    │   └── waitingQueue
+    │
+    ├── config           # 전역 설정 및 Bean 정의
+    │
+    ├── domain           # 핵심 도메인 로직
+    │   ├── common       # 공통 규칙, 에러, 이벤트 처리
+    │   ├── concert      # 콘서트 도메인 (Entity, Service, Repository 등)
+    │   ├── outbox       # Outbox 패턴 구현 (Entity, Repository, Service 등)
+    │   ├── payment      # 결제 도메인
+    │   ├── user         # 사용자 도메인
+    │   └── waitingQueue # 대기열 도메인
+    │
+    ├── infrastructure   # 외부 시스템 연동 (DB, MQ, API 등)
+    │   ├── api          # 외부 API 연동
+    │   ├── event        # 이벤트 처리 (Kafka 등)
+    │   └── repository   # 데이터베이스 연동
+    │       ├── concert
+    │       ├── outbox
+    │       ├── payment
+    │       ├── user
+    │       └── waitingQueue
+    │
+    ├── interfaces       # 외부 인터페이스 (Controller, Filter, Interceptor)
+    │   ├── api          # REST API
+    │   │   ├── concert
+    │   │   ├── payment
+    │   │   ├── user
+    │   │   └── waitingQueue
+    │   ├── consumer     # Kafka Consumer
+    │   │   ├── concert
+    │   │   ├── outbox
+    │   │   ├── payment
+    │   │   └── waitingQueue
+    │   ├── filter       # HTTP 요청 필터
+    │   └── interceptor  # HTTP 요청 인터셉터
 ```
+
 
 <br/>
 
@@ -60,9 +73,15 @@ hhplus
 
 - **Language**: Kotlin
 - **Framework**: Spring Boot
-- **Database**: H2
+- **Database**: H2, MySQL
+- **Messaging**: Kafka
+- **Caching**: Redis
+- **Monitoring**: Prometheus, Grafana
 - **Build Tool**: Gradle
-- **Test Framework**: JUnit 5
+- **Containerization**: Docker, Docker Compose
+- **Test Framework**: JUnit 5, Mockk
+- **Load Testing**: K6
+- **Version Control**: Git
 
 <br/>
 
